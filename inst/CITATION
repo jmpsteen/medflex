@@ -1,0 +1,78 @@
+citHeader("Please cite the medflex package by the following reference:")
+
+year <- sub("-.*", "", meta$Date)
+note <- sprintf("R package version %s", meta$Version)
+
+citEntry(entry = "manual",
+    title = "{medflex}: Flexible mediation analysis using natural effect models",
+    author = personList(as.person("Johan Steen"),
+                        as.person("Tom Loeys"),
+  		                  as.person("Beatrijs Moerkerke"),
+                        as.person("Stijn Vansteelandt")),
+    year = year,
+    note = note,
+
+  textVersion  =
+  paste("Johan Steen, Tom Loeys, Beatrijs Moerkerke and Stijn Vansteelandt (2014).",
+        "medflex: Flexible mediation analysis using natural effect models.",
+        "R package version 0.1.")
+)
+
+citEntry(entry = "Article",
+  title        = "A Simple Unified Approach for Estimating Natural Direct and Indirect Effects",
+  author       = personList(as.person("Theis Lange"),
+                            as.person("Stijn Vansteelandt"),
+                            as.person("Maarten Bekaert")),
+  journal      = "American Journal of Epidemiology",
+  year         = "2012",
+  volume       = "176",
+  number       = "3",
+  pages        = "190--195",
+  url          = "http://aje.oxfordjournals.org/content/176/3/190.long",
+
+  textVersion  =
+  paste("Lange, T., Vansteelandt, S., & Bekaert, M. (2012).",
+        "A Simple Unified Approach for Estimating Natural Direct and Indirect Effects.",
+        "American Journal of Epidemiology, 176(3), 190-195."),
+  
+  header       = "For the underlying methods please cite the following papers:"
+)
+
+citEntry(entry = "Article",
+  title        = "Imputation Strategies for the Estimation of Natural Direct and Indirect Effects",
+  author       = personList(as.person("Stijn Vansteelandt"),
+                            as.person("Maarten Bekaert"),
+                            as.person("Theis Lange")),                          
+  journal      = "Epidemiologic Methods",
+  year         = "2012",
+  volume       = "1",
+  number       = "1",
+  pages        = "Article 7",
+  url          = "http://www.degruyter.com/view/j/em.2012.1.issue-1/2161-962X.1014/2161-962X.1014.xml",
+
+  textVersion  =
+  paste("Vansteelandt, S., Bekaert, M., & Lange, T. (2012).",
+        "Imputation Strategies for the Estimation of Natural Direct and Indirect Effects.",
+        "Epidemiologic Methods, 1(1), Article 7.")
+)
+
+citEntry(entry = "Article",
+  title        = "Flexible Mediation Analysis in the Presence of Nonlinear Relations: Beyond the Mediation Formula",
+  author       = personList(as.person("Tom Loeys"),
+                            as.person("Beatrijs Moerkerke"),
+                            as.person("Olivia {De Smet}"), 
+                            as.person("Ann Buysse"),
+                            as.person("Johan Steen"),
+                            as.person("Stijn Vansteelandt")),
+  journal      = "Multivariate Behavioral Research",
+  year         = "2013",
+  volume       = "48",
+  number       = "6",
+  pages        = "871--894",
+  url          = "http://www.tandfonline.com/doi/abs/10.1080/00273171.2013.832132",
+
+  textVersion  =
+  paste("Loeys, T., Moerkerke, B., De Smet, O., Buysse, A., Steen, J., & Vansteelandt, S. (2013).",
+        "Flexible Mediation Analysis in the Presence of Nonlinear Relations: Beyond the Mediation Formula.",
+        "Multivariate Behavioral Research, 48(6), 871-894.")
+)
