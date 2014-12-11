@@ -9,10 +9,12 @@ citEntry(entry = "manual",
                         as.person("Tom Loeys"),
   		                  as.person("Beatrijs Moerkerke"),
                         as.person("Stijn Vansteelandt")),
+    year = year,
+    note = note,
 
   textVersion  =
-  paste("Johan Steen, Tom Loeys, Beatrijs Moerkerke and Stijn Vansteelandt (", year,
-        "). medflex: Flexible mediation analysis using natural effect models.", note)
+  paste0("Johan Steen, Tom Loeys, Beatrijs Moerkerke and Stijn Vansteelandt (", year,
+        "). medflex: Flexible mediation analysis using natural effect models. ", note, ".")
 )
 
 citEntry(entry = "Article",
