@@ -123,6 +123,8 @@ model.matrix.neModel <- function (object, ...)
 #' @seealso \code{\link{neModel-methods}}, \code{\link{plot.neModel}}, \code{\link{neImpute}}, \code{\link{neWeight}}, \code{\link{neLht}}, \code{\link{neEffdecomp}}
 #'
 #' @examples
+#' data(UPBdata)
+#' 
 #' ## weighting-based approach
 #' weightData <- neWeight(negaffect ~ att + gender + educ + age, 
 #'                        data = UPBdata)
@@ -144,8 +146,8 @@ model.matrix.neModel <- function (object, ...)
 #' 
 #' # stratum-specific natural effects
 #' \donttest{impFit1 <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
-#'                    family = binomial, expData = impData)}\dontshow{impFit1 <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
-#' summary(impFit1)
+#'                    family = binomial, expData = impData)
+#' summary(impFit1)}
 #' 
 #' # population-average natural effects
 #' \donttest{impFit2 <- neModel(UPB ~ att0 * att1, family = binomial, 
@@ -157,7 +159,7 @@ model.matrix.neModel <- function (object, ...)
 #' weightData <- neWeight(negaffect ~ att + gender + educ + age, family = "gaussianff", data = UPBdata, FUN = vgam)
 #' impData <- neImpute(UPB ~ att + negaffect + gender + educ + age, family = "binomialff", data = UPBdata, FUN = vgam)
 #' # debug(neModel)
-#' weightFit <- neModel(UPB ~ att0 + att1 + gender + educ + age, family = binomial, expData = weightData, nBoot = 100)
+#' weightFit <- neModel(UPB ~ att0 + att1 + gender + educ + age, family = binomial, expData = weightData, nBoot = 2)
 #' impFit <- neModel(UPB ~ att0 + att1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)
 #' summary(weightFit)
 #' summary(impFit)

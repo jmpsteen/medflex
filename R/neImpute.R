@@ -92,7 +92,7 @@ neImpute <- function (object, ...)
 #' impData2 <- neImpute(fit.vglm, nRep = 2)
 #' head(impData2)
 #' 
-#' ## example using SuperLearner
+#' \donttest{## example using SuperLearner
 #' library(Matrix)
 #' library(SuperLearner)
 #' SL.library <- c("SL.glm", "SL.glm.interaction", "SL.rpart",
@@ -104,7 +104,7 @@ neImpute <- function (object, ...)
 #' impSL <- neImpute(fit.SL, 
 #'                   formula = UPB ~ att + negaffect + gender + educ + age, 
 #'                   data = UPBdata)
-#' head(impSL)
+#' head(impSL)}
 #' \dontshow{
 #' UPBdata$att2 <- ifelse(UPBdata$attbin == "H", 1, 0)
 #' impData <- neImpute(UPB ~ factor(att2) * negaffect + gender + educ + age, family = binomial, data = UPBdata)

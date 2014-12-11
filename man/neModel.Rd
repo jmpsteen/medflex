@@ -71,6 +71,8 @@ It is important to note that the original mediator(s) should not be specified in
 should by captured solely by parameter(s) corresponding to the auxiliary hypothetical variable \emph{x*} in the expanded dataset (see \code{\link{expData}}).
 }
 \examples{
+data(UPBdata)
+
 ## weighting-based approach
 weightData <- neWeight(negaffect ~ att + gender + educ + age,
                        data = UPBdata)
@@ -92,8 +94,8 @@ impData <- neImpute(UPB ~ att * negaffect + gender + educ + age,
 
 # stratum-specific natural effects
 \donttest{impFit1 <- neModel(UPB ~ att0 * att1 + gender + educ + age,
-                   family = binomial, expData = impData)}\dontshow{impFit1 <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
-summary(impFit1)
+                   family = binomial, expData = impData)
+summary(impFit1)}
 
 # population-average natural effects
 \donttest{impFit2 <- neModel(UPB ~ att0 * att1, family = binomial,
@@ -105,7 +107,7 @@ library(VGAM)
 weightData <- neWeight(negaffect ~ att + gender + educ + age, family = "gaussianff", data = UPBdata, FUN = vgam)
 impData <- neImpute(UPB ~ att + negaffect + gender + educ + age, family = "binomialff", data = UPBdata, FUN = vgam)
 # debug(neModel)
-weightFit <- neModel(UPB ~ att0 + att1 + gender + educ + age, family = binomial, expData = weightData, nBoot = 100)
+weightFit <- neModel(UPB ~ att0 + att1 + gender + educ + age, family = binomial, expData = weightData, nBoot = 2)
 impFit <- neModel(UPB ~ att0 + att1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)
 summary(weightFit)
 summary(impFit)
