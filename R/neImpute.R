@@ -74,20 +74,20 @@ neImpute <- function (object, ...)
 #' data(UPBdata)
 #' 
 #' ## example using glm imputation model with binary exposure
-#' fit.glm <- glm(UPB ~ attbin + negaffect + gender + educ + age, 
+#' fit.glm <- glm(UPB ~ attbin + negaff + gender + educ + age, 
 #'                family = binomial, data = UPBdata)
 #' impData <- neImpute(fit.glm)
 #' head(impData)
 #' 
 #' ## example using glm imputation model with continuous exposure
-#' fit.glm <- glm(UPB ~ att + negaffect + gender + educ + age, 
+#' fit.glm <- glm(UPB ~ att + negaff + gender + educ + age, 
 #'                family = binomial, data = UPBdata)
 #' impData <- neImpute(fit.glm, nRep = 2)
 #' head(impData)
 #' 
 #' ## example using vglm (yielding identical results as with glm)
 #' library(VGAM)
-#' fit.vglm <- vglm(UPB ~ att + negaffect + gender + educ + age, 
+#' fit.vglm <- vglm(UPB ~ att + negaff + gender + educ + age, 
 #'                  family = binomialff, data = UPBdata)
 #' impData2 <- neImpute(fit.vglm, nRep = 2)
 #' head(impData2)
@@ -98,48 +98,49 @@ neImpute <- function (object, ...)
 #' SL.library <- c("SL.glm", "SL.glm.interaction", "SL.rpart",
 #'                 "SL.step", "SL.stepAIC", "SL.step.interaction",
 #'                 "SL.bayesglm", "SL.glmnet")
-#' pred <- c("att", "negaffect", "gender", "educ", "age")
+#' pred <- c("att", "negaff", "gender", "educ", "age")
 #' fit.SL <- SuperLearner(Y = UPBdata$UPB, X = subset(UPBdata, select = pred),
 #'                        SL.library = SL.library, family = binomial())
 #' impSL <- neImpute(fit.SL, 
-#'                   formula = UPB ~ att + negaffect + gender + educ + age, 
+#'                   formula = UPB ~ att + negaff + gender + educ + age, 
 #'                   data = UPBdata)
 #' head(impSL)}
 #' \dontshow{
-#' UPBdata$att2 <- ifelse(UPBdata$attbin == "H", 1, 0)
-#' impData <- neImpute(UPB ~ factor(att2) * negaffect + gender + educ + age, family = binomial, data = UPBdata)
+# UPBdata$att2 <- ifelse(UPBdata$attbin == "H", 1, 0)
+#' UPBdata$att2 <- UPBdata$attbin
+#' impData <- neImpute(UPB ~ factor(att2) * negaff + gender + educ + age, family = binomial, data = UPBdata)
 #' impFit1 <- neModel(UPB ~ att20 * att21 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)
 #' impFit2 <- neModel(UPB ~ factor(att20) * factor(att21) + gender + educ + age, family = binomial, expData = impData, nBoot = 2)
 #' summary(impFit1)
 #' summary(impFit2)
 #' 
-#' head(neImpute(UPB ~ att + negaffect + gender + educ + age, data = UPBdata, weights = rep(1, nrow(UPBdata))))
+#' head(neImpute(UPB ~ att + negaff + gender + educ + age, data = UPBdata, weights = rep(1, nrow(UPBdata))))
 #' library(VGAM)
-#' fit1 <- vglm(UPB ~ att + negaffect + gender + educ + age, family = binomialff, data = UPBdata)
+#' fit1 <- vglm(UPB ~ att + negaff + gender + educ + age, family = binomialff, data = UPBdata)
 #' head(neImpute(fit1))
-#' head(neImpute(UPB ~ att + negaffect + gender + educ + age, family = binomialff, data = UPBdata, FUN = vglm, weights = rep(1, nrow(UPBdata))))
-#' head(neImpute(UPB ~ att + negaffect + gender + educ + age, family = binomial, data = UPBdata, weights = rep(1, nrow(UPBdata))))
+#' head(neImpute(UPB ~ att + negaff + gender + educ + age, family = binomialff, data = UPBdata, FUN = vglm, weights = rep(1, nrow(UPBdata))))
+#' head(neImpute(UPB ~ att + negaff + gender + educ + age, family = binomial, data = UPBdata, weights = rep(1, nrow(UPBdata))))
 #' UPBdata$att <- factor(cut(UPBdata$att, 2), labels = c("low", "high"))
-#' fit2 <- glm(UPB ~ att * negaffect * gender * educ * age, family = binomial, data = UPBdata)
+#' fit2 <- glm(UPB ~ att * negaff * gender * educ * age, family = binomial, data = UPBdata)
 #' # head(neImpute(fit2, nMed = 3, joint = FALSE))
-#' # head(neImpute(UPB ~ att * negaffect * gender * educ * age, data = UPBdata, family = binomial, nMed = 3, joint = FALSE))
-#' head(neImpute(UPB ~ att + negaffect + gender + educ + age, data = UPBdata, family = binomial))
-#' head(neImpute(UPB ~ att + negaffect + gender + educ + age, data = UPBdata))
+#' # head(neImpute(UPB ~ att * negaff * gender * educ * age, data = UPBdata, family = binomial, nMed = 3, joint = FALSE))
+#' head(neImpute(UPB ~ att + negaff + gender + educ + age, data = UPBdata, family = binomial))
+#' head(neImpute(UPB ~ att + negaff + gender + educ + age, data = UPBdata))
 #'
 #' # # test with vglm!
 #' library(VGAM)
-#' impFit <- vglm(UPB ~ att + negaffect + gender + educ + age, family = binomialff, data = UPBdata)
+#' impFit <- vglm(UPB ~ att + negaff + gender + educ + age, family = binomialff, data = UPBdata)
 #' terms(impFit)
 #' # debug(neImpute)
 #' impData <- neImpute(impFit)
-#' impFit2 <- glm(UPB ~ att + negaffect + gender + educ + age, family = binomial, data = UPBdata)
+#' impFit2 <- glm(UPB ~ att + negaff + gender + educ + age, family = binomial, data = UPBdata)
 #' impData2 <- neImpute(impFit2)
 #' head(impData); head(impData2)
 #' # check!!
 #'
 #' # test with gam?
 #' library(gam)
-#' impFit4 <- gam(UPB ~ att + negaffect + gender + educ + age, family = binomial, data = UPBdata)
+#' impFit4 <- gam(UPB ~ att + negaff + gender + educ + age, family = binomial, data = UPBdata)
 #' impData4 <- neImpute(impFit4)
 #' head(impData2); head(impData4)
 #' # check!}
@@ -274,18 +275,18 @@ neImpute.default <- function (object, formula, data, nMed = 1, nRep = 5, xSampli
 #' data(UPBdata)
 #' 
 #' ## example using glm imputation model with binary exposure
-#' impData <- neImpute(UPB ~ attbin + negaffect + gender + educ + age, 
+#' impData <- neImpute(UPB ~ attbin + negaff + gender + educ + age, 
 #'                     family = binomial, data = UPBdata)
 #' head(impData)
 #' 
 #' ## example using glm imputation model with continuous exposure
-#' impData <- neImpute(UPB ~ att + negaffect + gender + educ + age, 
+#' impData <- neImpute(UPB ~ att + negaff + gender + educ + age, 
 #'                     family = binomial, data = UPBdata, nRep = 2)
 #' head(impData)
 #' 
 #' ## example using vglm (yielding identical results as with glm)
 #' library(VGAM)
-#' impData2 <- neImpute(UPB ~ att + negaffect + gender + educ + age, 
+#' impData2 <- neImpute(UPB ~ att + negaff + gender + educ + age, 
 #'                      family = binomialff, data = UPBdata, 
 #'                      nRep = 2, FUN = vglm)
 #' head(impData2)

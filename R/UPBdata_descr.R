@@ -2,16 +2,19 @@
 #'
 #' Data from a survey study that was part of the Interdisciplinary Project for the Optimization of Separation trajectories (IPOS). This large-scale project involved the recruitment of individuals who divorced between March 2008 and March 2009 in four major courts in Flanders. It aimed to improve the quality of life in families during and after the divorce by translating research findings into practical guidelines for separation specialists and by promoting evidence-based policy.
 #' This dataset involves a subsample of 385 individuals, namely those who responded to a battery of questionnaires related to romantic relationship and breakup characteristics (De Smet, 2012).
-#' @format A data frame with 385 rows and 6 variables:
+#' @format A data frame with 385 rows and 11 variables:
 #' \describe{
-#'   \item{att}{self-reported anxious attachment level (standardized).}
-#'   \item{attbin}{binary version of self-reported anxious attachment level: \code{H} = higher than sample mean, \code{L} = lower than sample mean}
-#'   \item{negaffect}{level of self-reported experienced negative affectivity (standardized).}
-#'   \item{negaffectcat}{multicategorical version of level of self-reported experienced negative affectivity: either \code{H} = high, \code{M} = around the sample mean, or \code{L} = low.}
-#'   \item{gender}{gender: \code{F} = female, \code{M} = male.}
-#'   \item{educ}{education: either \code{H} = high (at least a bachelor's degree), \code{M} = medium (having finished secondary school) or \code{L} = low (otherwise).}
-#'   \item{age}{age (in years).}
-#'   \item{UPB}{binary variable indicating whether the individual reported having displayed unwanted pursuit behavior(s) towards the ex-partner.}
+#'   \item{att}{self-reported anxious attachment level (standardized)}
+#'   \item{attbin}{binary version of self-reported anxious attachment level: 1 = higher than sample mean, 0 = lower than sample mean}
+#'   \item{attcat}{multicategorical version of self-reported anxious attachment level: \code{L} = low, \code{M} = intermediate, \code{H} = high}
+#'   \item{negaff}{level of self-reported experienced negative affectivity (standardized)}
+#'   \item{negaffbin}{binary version of self-reported experienced negative affectivity: 1 = higher than sample mean, 0 = lower than sample mean}
+#'   \item{negaffcat}{multicategorical version of level of self-reported experienced negative affectivity: \code{L} = low, \code{M} = intermediate, \code{H} = high}
+#'   \item{initiator}{initiator of the divorce}
+#'   \item{gender}{gender: \code{F} = female, \code{M} = male}
+#'   \item{educ}{education level: either \code{H} = high (at least a bachelor's degree), \code{M} = intermediate (having finished secondary school) or \code{L} = low (otherwise)}
+#'   \item{age}{age (in years)}
+#'   \item{UPB}{binary variable indicating whether the individual reported having displayed unwanted pursuit behavior(s) towards the ex-partner}
 #' }
 #' @source
 #' Ghent University and Catholic University of Louvain (2010). \emph{Interdisciplinary Project for the Optimisation of Separation trajectories - divorce and separation in Flanders}. 

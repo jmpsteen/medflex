@@ -31,7 +31,7 @@ These causal parameter estimates are first internally extracted from the \code{n
 \examples{
 data(UPBdata)
 
-impData <- neImpute(UPB ~ att * negaffect + educ + gender + age,
+impData <- neImpute(UPB ~ att * negaff + educ + gender + age,
                     family = binomial, data = UPBdata)
 \donttest{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age,
                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, family = binomial, expData = impData, nBoot = 2)}

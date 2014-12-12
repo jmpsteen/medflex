@@ -74,7 +74,7 @@ should by captured solely by parameter(s) corresponding to the auxiliary hypothe
 data(UPBdata)
 
 ## weighting-based approach
-weightData <- neWeight(negaffect ~ att + gender + educ + age,
+weightData <- neWeight(negaff ~ att + gender + educ + age,
                        data = UPBdata)
 
 # stratum-specific natural effects
@@ -89,7 +89,7 @@ expFit <- glm(att ~ gender + educ + age, data = UPBdata)
 summary(weightFit2)
 
 ## imputation-based approach
-impData <- neImpute(UPB ~ att * negaffect + gender + educ + age,
+impData <- neImpute(UPB ~ att * negaff + gender + educ + age,
                     family = binomial, data = UPBdata)
 
 # stratum-specific natural effects
@@ -104,8 +104,8 @@ summary(impFit2)
 
 \dontshow{# check with vgam (VGAM package)
 library(VGAM)
-weightData <- neWeight(negaffect ~ att + gender + educ + age, family = "gaussianff", data = UPBdata, FUN = vgam)
-impData <- neImpute(UPB ~ att + negaffect + gender + educ + age, family = "binomialff", data = UPBdata, FUN = vgam)
+weightData <- neWeight(negaff ~ att + gender + educ + age, family = "gaussianff", data = UPBdata, FUN = vgam)
+impData <- neImpute(UPB ~ att + negaff + gender + educ + age, family = "binomialff", data = UPBdata, FUN = vgam)
 # debug(neModel)
 weightFit <- neModel(UPB ~ att0 + att1 + gender + educ + age, family = binomial, expData = weightData, nBoot = 2)
 impFit <- neModel(UPB ~ att0 + att1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)

@@ -22,7 +22,7 @@
 #' @examples
 #' data(UPBdata)
 #' 
-#' impData <- neImpute(UPB ~ att * negaffect + gender + educ + age, 
+#' impData <- neImpute(UPB ~ att * negaff + gender + educ + age, 
 #'                     family = binomial, data = UPBdata)
 #' \donttest{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
 #'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
@@ -71,7 +71,7 @@ NULL
 #' @examples
 #' data(UPBdata)
 #' 
-#' impData <- neImpute(UPB ~ att * negaffect + gender + educ + age, 
+#' impData <- neImpute(UPB ~ att * negaff + gender + educ + age, 
 #'                     family = binomial, data = UPBdata)
 #' \donttest{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
 #'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
@@ -219,7 +219,7 @@ plot.neEffdecomp <- function (x, level = 0.95, ci.type = "norm", transf = identi
 #' @examples
 #' data(UPBdata)
 #' 
-#' impData <- neImpute(UPB ~ att * negaffect + gender + educ + age, 
+#' impData <- neImpute(UPB ~ att * negaff + gender + educ + age, 
 #'                     family = binomial, data = UPBdata)
 #' \donttest{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
 #'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}

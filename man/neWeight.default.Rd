@@ -64,77 +64,77 @@ These default 'outer' quantiles can be changed by specifying the \code{percLim} 
 data(UPBdata)
 
 ## example using glm
-fit.glm <- glm(negaffect ~ att + gender + educ + age, data = UPBdata)
+fit.glm <- glm(negaff ~ att + gender + educ + age, data = UPBdata)
 weightData <- neWeight(fit.glm, nRep = 2)
 weights <- attr(weightData, "weights")
 head(cbind(weightData, weights))
 
 ## example using vglm (yielding identical results as with glm)
 library(VGAM)
-fit.vglm <- vglm(negaffect ~ att + gender + educ + age,
+fit.vglm <- vglm(negaff ~ att + gender + educ + age,
                  family = gaussianff, data = UPBdata)
 weightData2 <- neWeight(fit.vglm, nRep = 2)
 weights2 <- attr(weightData2, "weights")
 head(cbind(weightData2, weights2))
 
-\dontshow{fit1 <- glm(negaffect ~ att + gender + educ + age, data = UPBdata)
+\dontshow{fit1 <- glm(negaff ~ att + gender + educ + age, data = UPBdata)
 expData1 <- neWeight(fit1)
 w1 <- attr(expData1, "weights")
-expData1f <- neWeight(negaffect ~ att + gender + educ + age, data = UPBdata)
+expData1f <- neWeight(negaff ~ att + gender + educ + age, data = UPBdata)
 w1f <- attr(expData1f, "weights")
 head(expData1); head(expData1f)
 head(w1); head(w1f)
 
 # test vglm (vglm is also vgam class, but not other way around!)
 library(VGAM)
-fit1b <- vgam(negaffect ~ att + gender + educ + age, family = gaussianff, data = UPBdata)
+fit1b <- vgam(negaff ~ att + gender + educ + age, family = gaussianff, data = UPBdata)
 expData1b <- neWeight(fit1b)
 head(attr(expData1, "weights")); head(attr(expData1b, "weights"))
-fit1b <- vgam(negaffect ~ s(att) + gender + educ + age, family = gaussianff, data = UPBdata)
+fit1b <- vgam(negaff ~ s(att) + gender + educ + age, family = gaussianff, data = UPBdata)
 expData1b <- neWeight(fit1b)
 head(attr(expData1, "weights")); head(attr(expData1b, "weights"))
-expData1bf <- neWeight(negaffect ~ s(att) + gender + educ + age, FUN = vgam, family = gaussianff, data = UPBdata)
+expData1bf <- neWeight(negaff ~ s(att) + gender + educ + age, FUN = vgam, family = gaussianff, data = UPBdata)
 head(attr(expData1b, "weights")); head(attr(expData1bf, "weights"))
 ##
 
-UPBdata$negaffect2 <- cut(UPBdata$negaffect, breaks = 2, labels = c("low", "high"))
-fit2 <- glm(negaffect2 ~ att + gender + educ + age, family = binomial, data = UPBdata)
+UPBdata$negaff2 <- cut(UPBdata$negaff, breaks = 2, labels = c("low", "high"))
+fit2 <- glm(negaff2 ~ att + gender + educ + age, family = binomial, data = UPBdata)
 expData2 <- neWeight(fit2)
 w2 <- attr(expData2, "weights")
-expData2f <- neWeight(negaffect2 ~ att + gender + educ + age, family = binomial, data = UPBdata)
+expData2f <- neWeight(negaff2 ~ att + gender + educ + age, family = binomial, data = UPBdata)
 w2f <- attr(expData2f, "weights")
 head(expData2); head(expData2f)
 head(w2); head(w2f)
 
 # test vglm
-fit2b <- vgam(negaffect2 ~ att + gender + educ + age, family = binomialff, data = UPBdata)
+fit2b <- vgam(negaff2 ~ att + gender + educ + age, family = binomialff, data = UPBdata)
 expData2b <- neWeight(fit2b)
 head(attr(expData2, "weights")); head(attr(expData2b, "weights"))
-fit2b <- vgam(negaffect2 ~ s(att) + gender + educ + age, family = binomialff, data = UPBdata)
+fit2b <- vgam(negaff2 ~ s(att) + gender + educ + age, family = binomialff, data = UPBdata)
 expData2b <- neWeight(fit2b)
 head(attr(expData2, "weights")); head(attr(expData2b, "weights"))
-expData2bf <- neWeight(negaffect2 ~ s(att) + gender + educ + age, FUN = vgam, family = binomialff, data = UPBdata)
+expData2bf <- neWeight(negaff2 ~ s(att) + gender + educ + age, FUN = vgam, family = binomialff, data = UPBdata)
 head(attr(expData2b, "weights")); head(attr(expData2bf, "weights"))
 ##
 
-UPBdata$negaffect3 <- cut(UPBdata$negaffect, breaks = 3, labels = c("low", "moderate", "high"))
-UPBdata$negaffect3 <- as.numeric(UPBdata$negaffect3)
-fit3 <- glm(negaffect3 ~ att + gender + educ + age, family = "poisson", data = UPBdata)
+UPBdata$negaff3 <- cut(UPBdata$negaff, breaks = 3, labels = c("low", "moderate", "high"))
+UPBdata$negaff3 <- as.numeric(UPBdata$negaff3)
+fit3 <- glm(negaff3 ~ att + gender + educ + age, family = "poisson", data = UPBdata)
 expData3 <- neWeight(fit3)
 w3 <- attr(expData3, "weights")
-expData3f <- neWeight(negaffect3 ~ att + gender + educ + age, family = poisson, data = UPBdata)
+expData3f <- neWeight(negaff3 ~ att + gender + educ + age, family = poisson, data = UPBdata)
 w3f <- attr(expData3f, "weights")
 head(expData3); head(expData3f)
 head(w3); head(w3f)
 
 # test vglm
-fit3b <- vgam(negaffect3 ~ att + gender + educ + age, family = poissonff, data = UPBdata)
+fit3b <- vgam(negaff3 ~ att + gender + educ + age, family = poissonff, data = UPBdata)
 expData3b <- neWeight(fit3b)
 head(attr(expData3, "weights")); head(attr(expData3b, "weights"))
-fit3b <- vgam(negaffect3 ~ s(att) + gender + educ + age, family = poissonff, data = UPBdata)
+fit3b <- vgam(negaff3 ~ s(att) + gender + educ + age, family = poissonff, data = UPBdata)
 expData3b <- neWeight(fit3b)
 head(attr(expData3, "weights")); head(attr(expData3b, "weights"))
-expData3bf <- neWeight(negaffect3 ~ s(att) + gender + educ + age, FUN = vgam, family = poissonff, data = UPBdata)
+expData3bf <- neWeight(negaff3 ~ s(att) + gender + educ + age, FUN = vgam, family = poissonff, data = UPBdata)
 head(attr(expData3b, "weights")); head(attr(expData3bf, "weights"))}
 }
 \seealso{

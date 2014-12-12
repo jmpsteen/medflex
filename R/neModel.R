@@ -21,7 +21,7 @@
 #' @examples
 #' data(UPBdata)
 #' 
-#' impData <- neImpute(UPB ~ att * negaffect + educ + gender + age, 
+#' impData <- neImpute(UPB ~ att * negaff + educ + gender + age, 
 #'                     family = binomial, data = UPBdata)
 #' \donttest{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, 
 #'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, family = binomial, expData = impData, nBoot = 2)}
@@ -69,11 +69,13 @@ confint.neModelBoot <- function (object, parm, level = 0.95, type = "norm", ...)
     return(ci)
 }
 
+#' @export
 df.residual.neModel <- function (object, ...) 
 {
     df.residual(object$neModelFit, ...)
 }
 
+#' @export
 model.matrix.neModel <- function (object, ...) 
 {
     model.matrix(object$neModelFit, ...)
@@ -126,7 +128,7 @@ model.matrix.neModel <- function (object, ...)
 #' data(UPBdata)
 #' 
 #' ## weighting-based approach
-#' weightData <- neWeight(negaffect ~ att + gender + educ + age, 
+#' weightData <- neWeight(negaff ~ att + gender + educ + age, 
 #'                        data = UPBdata)
 #' 
 #' # stratum-specific natural effects
@@ -141,7 +143,7 @@ model.matrix.neModel <- function (object, ...)
 #' summary(weightFit2)
 #' 
 #' ## imputation-based approach
-#' impData <- neImpute(UPB ~ att * negaffect + gender + educ + age, 
+#' impData <- neImpute(UPB ~ att * negaff + gender + educ + age, 
 #'                     family = binomial, data = UPBdata)
 #' 
 #' # stratum-specific natural effects
@@ -156,8 +158,8 @@ model.matrix.neModel <- function (object, ...)
 #' 
 #' \dontshow{# check with vgam (VGAM package)
 #' library(VGAM)
-#' weightData <- neWeight(negaffect ~ att + gender + educ + age, family = "gaussianff", data = UPBdata, FUN = vgam)
-#' impData <- neImpute(UPB ~ att + negaffect + gender + educ + age, family = "binomialff", data = UPBdata, FUN = vgam)
+#' weightData <- neWeight(negaff ~ att + gender + educ + age, family = "gaussianff", data = UPBdata, FUN = vgam)
+#' impData <- neImpute(UPB ~ att + negaff + gender + educ + age, family = "binomialff", data = UPBdata, FUN = vgam)
 #' # debug(neModel)
 #' weightFit <- neModel(UPB ~ att0 + att1 + gender + educ + age, family = binomial, expData = weightData, nBoot = 2)
 #' impFit <- neModel(UPB ~ att0 + att1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)
@@ -232,7 +234,7 @@ neModel <- function (formula, family = gaussian, expData, xFit, nBoot = 1000,
         bootExpData <- eval(attr(expData, "call")[[1]])(bootExpFit, 
             skipExpand = TRUE, expData = bootExpData)
         if (!is.null(extrCall(neModelFit)$xFit)) {
-            call3 <- as.list(eval(extrCall(neModelFit)$xFit)$call)
+            call3 <- as.list(extrCall(eval(extrCall(neModelFit)$xFit)))
             call3$data <- substitute(bootData)
             bootxFit <- eval(as.call(call3))
         }
@@ -271,7 +273,7 @@ neModel <- function (formula, family = gaussian, expData, xFit, nBoot = 1000,
 #' @examples
 #' data(UPBdata)
 #' 
-#' impData <- neImpute(UPB ~ att * negaffect + educ + gender + age, 
+#' impData <- neImpute(UPB ~ att * negaff + educ + gender + age, 
 #'                     family = binomial, data = UPBdata)
 #' \donttest{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, 
 #'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, family = binomial, expData = impData, nBoot = 2)}

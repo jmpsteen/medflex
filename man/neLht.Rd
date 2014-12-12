@@ -45,7 +45,7 @@ In total, five causal effect estimates are returned in this case.
 \examples{
 data(UPBdata)
 
-impData <- neImpute(UPB ~ att * negaffect + gender + educ + age,
+impData <- neImpute(UPB ~ att * negaff + gender + educ + age,
                     family = binomial, data = UPBdata)
 \donttest{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age,
                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}

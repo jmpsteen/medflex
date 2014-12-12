@@ -3,6 +3,8 @@
 S3method(coef,neModel)
 S3method(confint,neLhtBoot)
 S3method(confint,neModelBoot)
+S3method(df.residual,neModel)
+S3method(model.matrix,neModel)
 S3method(neEffdecomp,neModel)
 S3method(neImpute,default)
 S3method(neImpute,formula)
