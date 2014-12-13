@@ -120,7 +120,7 @@ model.matrix.neModel <- function (object, ...)
 #' The function \code{\link[parallel]{detectCores}} from the \pkg{parallel} package can be helpful at determining the number of available cores (although this may not always correspond to the number of \emph{allowed} cores).
 #'
 #' @note It is important to note that the original mediator(s) should not be specified in the \code{formula} argument, as the natural indirect effect in natural effect models
-#' should by captured solely by parameter(s) corresponding to the auxiliary hypothetical variable \emph{x*} in the expanded dataset (see \code{\link{expData}}).
+#' should be captured solely by parameter(s) corresponding to the auxiliary hypothetical variable \emph{x*} in the expanded dataset (see \code{\link{expData}}).
 #'
 #' @seealso \code{\link{neModel-methods}}, \code{\link{plot.neModel}}, \code{\link{neImpute}}, \code{\link{neWeight}}, \code{\link{neLht}}, \code{\link{neEffdecomp}}
 #'

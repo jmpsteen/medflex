@@ -256,6 +256,7 @@ plot.neLht <- function (x, level = 0.95, ci.type = "norm", transf = identity,
         ...)
 }
 
+#' @export
 plot.neLhtCI <- function (x, transf = identity, ylabels, yticks.at, main, xlab = NULL, 
     ylab = NULL, xlim, ylim, mar, mai, ...) 
 {

@@ -26,7 +26,7 @@ and the object stores an additional attribute, \code{"weights"}, containing a ve
 
 If the imputation-based approach (\code{\link{neImpute}}) is applied, the nested counterfactual outcomes are imputed by predictions from the imputation model.
 
-In the former case, this object inherits from classes \code{c("data.frame", "expData", "impData"))}, whereas in the latter case it inherits from classes \code{c("data.frame", "expData", "weightData"))}.
+In the former case, this object inherits from classes \code{c("data.frame", "expData", "impData")}, whereas in the latter case it inherits from classes \code{c("data.frame", "expData", "weightData")}.
 }
 \seealso{
 \code{\link{neImpute}}, \code{\link{neWeight}}

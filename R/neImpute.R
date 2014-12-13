@@ -3,7 +3,7 @@
 #' @description This function both expands the data along hypothetical exposure values and imputes nested counterfactual outcomes.
 #' @param object an object used to select a method.
 #' @param ... additional arguments.
-#' @return A data frame of class \code{c("data.frame", "expData", "impData"))}. See \code{\link{expData}} for its structure.
+#' @return A data frame of class \code{c("data.frame", "expData", "impData")}. See \code{\link{expData}} for its structure.
 #' @details Generic function that both expands the data along hypothetical exposure values (for each observation unit \emph{i}) and imputes nested counterfactual outcomes in this expanded dataset in a single run.
 #' Imputed counterfactual outcomes 
 #' 
@@ -35,7 +35,7 @@ neImpute <- function (object, ...)
 #' @param xFit an optional fitted object (preferably \code{glm}) for the conditional exposure distribution (see details).
 #' @param percLim a numerical vector of the form \code{c(lower, upper)} indicating the extreme percentiles to sample when using \code{"quantiles"} as sampling method to sample from the conditional exposure distribution (see details).
 #' @param ... additional arguments.
-#' @return A data frame of class \code{c("data.frame", "expData", "impData"))}. See \code{\link{expData}} for its structure.
+#' @return A data frame of class \code{c("data.frame", "expData", "impData")}. See \code{\link{expData}} for its structure.
 #' @details Imputed counterfactual outcomes are predictions from the imputation model that needs to be specified as a fitted object in the \code{object} argument.
 #'
 #' If the model-fitting function used to fit the imputation model does not require specification of a \code{formula} or \code{data} argument (when using e.g. \code{\link[SuperLearner]{SuperLearner}}),
@@ -234,7 +234,7 @@ neImpute.default <- function (object, formula, data, nMed = 1, nRep = 5, xSampli
 #' @param FUN function used to fit model specified in \code{formula}.
 #' @param ... additional arguments (passed to \code{FUN}).
 #' @inheritParams neImpute.default
-#' @return A data frame of class \code{c("data.frame", "expData", "impData"))}. See \code{\link{expData}} for its structure.
+#' @return A data frame of class \code{c("data.frame", "expData", "impData")}. See \code{\link{expData}} for its structure.
 #' @details Imputed counterfactual outcomes are predictions from the imputation model that is fitted internally by extracting information from the arguments \code{object}, \code{family}, \code{data}, \code{FUN} and \code{...}.
 #'
 #' For imputation model specification via the \code{object} argument, use a \code{\link[stats]{formula}} of the form 

@@ -30,7 +30,7 @@ Possible values are \code{"quantiles"} or \code{"random"} (see details).}
 \item{...}{additional arguments (passed to \code{FUN}).}
 }
 \value{
-A data frame of class \code{c("data.frame", "expData", "impData"))}. See \code{\link{expData}} for its structure.
+A data frame of class \code{c("data.frame", "expData", "impData")}. See \code{\link{expData}} for its structure.
 }
 \description{
 This function both expands the data along hypothetical exposure values and imputes nested counterfactual outcomes.

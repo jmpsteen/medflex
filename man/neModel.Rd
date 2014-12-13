@@ -68,7 +68,7 @@ The function \code{\link[parallel]{detectCores}} from the \pkg{parallel} package
 }
 \note{
 It is important to note that the original mediator(s) should not be specified in the \code{formula} argument, as the natural indirect effect in natural effect models
-should by captured solely by parameter(s) corresponding to the auxiliary hypothetical variable \emph{x*} in the expanded dataset (see \code{\link{expData}}).
+should be captured solely by parameter(s) corresponding to the auxiliary hypothetical variable \emph{x*} in the expanded dataset (see \code{\link{expData}}).
 }
 \examples{
 data(UPBdata)
