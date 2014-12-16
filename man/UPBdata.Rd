@@ -2,13 +2,11 @@
 \name{UPBdata}
 \alias{UPBdata}
 \title{UPB data}
-\format{A data frame with 385 rows and 11 variables:
+\format{A data frame with 385 rows and 9 variables:
 \describe{
   \item{att}{self-reported anxious attachment level (standardized)}
   \item{attbin}{binary version of self-reported anxious attachment level: 1 = higher than sample mean, 0 = lower than sample mean}
-  \item{attcat}{multicategorical version of self-reported anxious attachment level: \code{L} = low, \code{M} = intermediate, \code{H} = high}
   \item{negaff}{level of self-reported experienced negative affectivity (standardized)}
-  \item{negaffbin}{binary version of self-reported experienced negative affectivity: 1 = higher than sample mean, 0 = lower than sample mean}
   \item{negaffcat}{multicategorical version of level of self-reported experienced negative affectivity: \code{L} = low, \code{M} = intermediate, \code{H} = high}
   \item{initiator}{initiator of the divorce}
   \item{gender}{gender: \code{F} = female, \code{M} = male}

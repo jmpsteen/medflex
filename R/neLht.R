@@ -152,7 +152,7 @@ neEffdecomp.neModel <- function (model, ...)
     Klast <- rep(0, length(coef(model)))
     ind <- grep(paste(Xexp, collapse = "|"), names(coef(model)))
     Klast[ind] <- 1
-    ind <- grep(paste(C, collapse = "|"), names(coef(model)))
+    ind <- if(length(C)) grep(paste(C, collapse = "|"), names(coef(model)))
     Klast[ind] <- 0
     K <- rbind(K, Klast)
     extrName <- function(x) names(x[x != 0])

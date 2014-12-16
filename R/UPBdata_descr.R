@@ -2,13 +2,13 @@
 #'
 #' Data from a survey study that was part of the Interdisciplinary Project for the Optimization of Separation trajectories (IPOS). This large-scale project involved the recruitment of individuals who divorced between March 2008 and March 2009 in four major courts in Flanders. It aimed to improve the quality of life in families during and after the divorce by translating research findings into practical guidelines for separation specialists and by promoting evidence-based policy.
 #' This dataset involves a subsample of 385 individuals, namely those who responded to a battery of questionnaires related to romantic relationship and breakup characteristics (De Smet, 2012).
-#' @format A data frame with 385 rows and 11 variables:
+#' @format A data frame with 385 rows and 9 variables:
 #' \describe{
 #'   \item{att}{self-reported anxious attachment level (standardized)}
 #'   \item{attbin}{binary version of self-reported anxious attachment level: 1 = higher than sample mean, 0 = lower than sample mean}
-#'   \item{attcat}{multicategorical version of self-reported anxious attachment level: \code{L} = low, \code{M} = intermediate, \code{H} = high}
+#   \item{attcat}{multicategorical version of self-reported anxious attachment level: \code{L} = low, \code{M} = intermediate, \code{H} = high}
 #'   \item{negaff}{level of self-reported experienced negative affectivity (standardized)}
-#'   \item{negaffbin}{binary version of self-reported experienced negative affectivity: 1 = higher than sample mean, 0 = lower than sample mean}
+#   \item{negaffbin}{binary version of self-reported experienced negative affectivity: 1 = higher than sample mean, 0 = lower than sample mean}
 #'   \item{negaffcat}{multicategorical version of level of self-reported experienced negative affectivity: \code{L} = low, \code{M} = intermediate, \code{H} = high}
 #'   \item{initiator}{initiator of the divorce}
 #'   \item{gender}{gender: \code{F} = female, \code{M} = male}
