@@ -101,6 +101,10 @@ impSL <- neImpute(fit.SL,
                   data = UPBdata)
 head(impSL)}
 \dontshow{
+library(VGAM)
+expData <- neImpute(UPB ~ factor(attbin) + negaff + gender + educ + age, family = binomialff, data = UPBdata, FUN = vglm)
+neMod <- neModel(UPB ~ attbin0 + attbin1 + gender + educ + age, family = binomial, expData = expData, nBoot = 2)
+
 UPBdata$att2 <- UPBdata$attbin
 impData <- neImpute(UPB ~ factor(att2) * negaff + gender + educ + age, family = binomial, data = UPBdata)
 impFit1 <- neModel(UPB ~ att20 * att21 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)
@@ -109,7 +113,6 @@ summary(impFit1)
 summary(impFit2)
 
 head(neImpute(UPB ~ att + negaff + gender + educ + age, data = UPBdata, weights = rep(1, nrow(UPBdata))))
-library(VGAM)
 fit1 <- vglm(UPB ~ att + negaff + gender + educ + age, family = binomialff, data = UPBdata)
 head(neImpute(fit1))
 head(neImpute(UPB ~ att + negaff + gender + educ + age, family = binomialff, data = UPBdata, FUN = vglm, weights = rep(1, nrow(UPBdata))))

@@ -106,6 +106,10 @@ neImpute <- function (object, ...)
 #'                   data = UPBdata)
 #' head(impSL)}
 #' \dontshow{
+#' library(VGAM) 
+#' expData <- neImpute(UPB ~ factor(attbin) + negaff + gender + educ + age, family = binomialff, data = UPBdata, FUN = vglm)
+#' neMod <- neModel(UPB ~ attbin0 + attbin1 + gender + educ + age, family = binomial, expData = expData, nBoot = 2)
+#' 
 # UPBdata$att2 <- ifelse(UPBdata$attbin == "H", 1, 0)
 #' UPBdata$att2 <- UPBdata$attbin
 #' impData <- neImpute(UPB ~ factor(att2) * negaff + gender + educ + age, family = binomial, data = UPBdata)
@@ -115,7 +119,6 @@ neImpute <- function (object, ...)
 #' summary(impFit2)
 #' 
 #' head(neImpute(UPB ~ att + negaff + gender + educ + age, data = UPBdata, weights = rep(1, nrow(UPBdata))))
-#' library(VGAM)
 #' fit1 <- vglm(UPB ~ att + negaff + gender + educ + age, family = binomialff, data = UPBdata)
 #' head(neImpute(fit1))
 #' head(neImpute(UPB ~ att + negaff + gender + educ + age, family = binomialff, data = UPBdata, FUN = vglm, weights = rep(1, nrow(UPBdata))))
@@ -199,7 +202,7 @@ neImpute.default <- function (object, formula, data, nMed = 1, nRep = 5, xSampli
         attr <- attributes(expData)
         vartype <- attr(attr$terms, "vartype")
     }
-    expData[, vartype$X] <- expData[, vartype$Xexp[1]]
+    expData[, vartype$X] <- expData[, vartype$Xexp[1]]    
     if ("SuperLearner" %in% class(fit)) {
         newdata <- expData[, names(eval(fit$call$X))]
         type <- NULL
@@ -210,6 +213,9 @@ neImpute.default <- function (object, formula, data, nMed = 1, nRep = 5, xSampli
         type <- "response"
         ind <- seq.int(nrow(newdata))
     }
+    try(pred <- predict(fit, newdata = newdata, type = type)[ind], silent = TRUE)
+    checkExist <- exists("pred")
+    if (!checkExist) newdata[, attr(vartype, "xasis")] <- newdata[, vartype$Xexp[1]]  
     expData[, vartype$Y] <- predict(fit, newdata = newdata, type = type)[ind]
     expData <- expData[, -ncol(expData)]
     if (!isTRUE(args$skipExpand)) {

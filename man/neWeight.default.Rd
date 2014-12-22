@@ -77,7 +77,12 @@ weightData2 <- neWeight(fit.vglm, nRep = 2)
 weights2 <- attr(weightData2, "weights")
 head(cbind(weightData2, weights2))
 
-\dontshow{fit1 <- glm(negaff ~ att + gender + educ + age, data = UPBdata)
+\dontshow{
+library(VGAM)
+expData <- neWeight(negaff ~ factor(attbin) + gender + educ + age, family = gaussianff, data = UPBdata, FUN = vglm)
+neMod <- neModel(UPB ~ attbin0 + attbin1 + gender + educ + age, family = binomial, expData = expData, nBoot = 2)
+
+fit1 <- glm(negaff ~ att + gender + educ + age, data = UPBdata)
 expData1 <- neWeight(fit1)
 w1 <- attr(expData1, "weights")
 expData1f <- neWeight(negaff ~ att + gender + educ + age, data = UPBdata)
@@ -86,7 +91,6 @@ head(expData1); head(expData1f)
 head(w1); head(w1f)
 
 # test vglm (vglm is also vgam class, but not other way around!)
-library(VGAM)
 fit1b <- vgam(negaff ~ att + gender + educ + age, family = gaussianff, data = UPBdata)
 expData1b <- neWeight(fit1b)
 head(attr(expData1, "weights")); head(attr(expData1b, "weights"))

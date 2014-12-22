@@ -76,7 +76,12 @@ neWeight <- function (object, ...)
 #' weights2 <- attr(weightData2, "weights")
 #' head(cbind(weightData2, weights2))
 #'
-#' \dontshow{fit1 <- glm(negaff ~ att + gender + educ + age, data = UPBdata)
+#' \dontshow{
+#' library(VGAM) 
+#' expData <- neWeight(negaff ~ factor(attbin) + gender + educ + age, family = gaussianff, data = UPBdata, FUN = vglm)
+#' neMod <- neModel(UPB ~ attbin0 + attbin1 + gender + educ + age, family = binomial, expData = expData, nBoot = 2)
+#'  
+#' fit1 <- glm(negaff ~ att + gender + educ + age, data = UPBdata)
 #' expData1 <- neWeight(fit1)
 #' w1 <- attr(expData1, "weights")
 #' expData1f <- neWeight(negaff ~ att + gender + educ + age, data = UPBdata)
@@ -85,7 +90,6 @@ neWeight <- function (object, ...)
 #' head(w1); head(w1f)
 #'
 #' # test vglm (vglm is also vgam class, but not other way around!)
-#' library(VGAM)
 #' fit1b <- vgam(negaff ~ att + gender + educ + age, family = gaussianff, data = UPBdata)
 #' expData1b <- neWeight(fit1b)
 #' head(attr(expData1, "weights")); head(attr(expData1b, "weights"))
@@ -210,8 +214,12 @@ neWeight.default <- function (object, formula, data, nRep = 5, xSampling = c("qu
         multinomial = {pred <- predict(fit, newdata = expData, type = "response")
           return(sapply(1:nrow(expData), function(i) pred[i, as.character(x[i])]))})
     expData[, vartype$X] <- expData[, vartype$Xexp[2]]
+    try(weightsNum <- dfun(expData[, vartype$M]), silent = TRUE)
+    checkExist <- exists("weightsNum")
+    if (!checkExist) expData[, attr(vartype, "xasis")] <- expData[, vartype$Xexp[2]] 
     weightsNum <- dfun(expData[, vartype$M])
     expData[, vartype$X] <- expData[, vartype$Xexp[1]]
+    if (!checkExist) expData[, attr(vartype, "xasis")] <- expData[, vartype$Xexp[1]] 
     weightsDenom <- dfun(expData[, vartype$M])
     expData <- expData[, -ncol(expData)]
     if (!isTRUE(args$skipExpand)) {
