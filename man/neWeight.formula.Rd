@@ -68,15 +68,11 @@ data(UPBdata)
 ## example using glm
 weightData <- neWeight(negaff ~ att + gender + educ + age,
                        data = UPBdata, nRep = 2)
-weights <- attr(weightData, "weights")
-head(cbind(weightData, weights))
 
 ## example using vglm (yielding identical results as with glm)
 library(VGAM)
 weightData2 <- neWeight(negaff ~ att + gender + educ + age,
                         family = gaussianff, data = UPBdata, nRep = 2, FUN = vglm)
-weights2 <- attr(weightData2, "weights")
-head(cbind(weightData2, weights2))
 }
 \seealso{
 \code{\link{neWeight.default}}, \code{\link{expData}}

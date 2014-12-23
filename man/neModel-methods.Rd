@@ -5,6 +5,7 @@
 \alias{neModel-methods}
 \alias{summary.neModel}
 \alias{vcov.neModelBoot}
+\alias{weights.neModel}
 \title{Methods for natural effect models}
 \usage{
 \method{coef}{neModel}(object, ...)
@@ -15,6 +16,8 @@
 \method{summary}{neModel}(object, ...)
 
 \method{vcov}{neModelBoot}(object, ...)
+
+\method{weights}{neModel}(object, ...)
 }
 \arguments{
 \item{object}{a fitted natural effect model object.}
@@ -30,16 +33,23 @@
 \item{type}{the type of bootstrap intervals required. The default \code{"norm"} returns normal approximation bootstrap confidence intervals. Currently, only \code{"norm"}, \code{"basic"} and \code{"perc"} are supported (see \code{\link[boot]{boot.ci}}).}
 }
 \description{
-Confidence intervals and statistical tests for natural effect models.
+Extractor functions, confidence intervals and statistical tests for natural effect models.
 }
 \details{
-\code{vcov} returns the variance covariance matrix calculated from the bootstrap samples stored in\cr \code{object$bootRes} (see \code{\link{neModel}}).
-
 \code{confint} yields bootstrap confidence intervals. These confidence intervals are internally called via the \code{\link[boot]{boot.ci}} function from the \pkg{boot} package.
 The default confidence level specified in \code{level} (which corresponds to the \code{conf} argument in \code{\link[boot]{boot.ci}}) is 0.95
 and the default type of bootstrap confidence interval, \code{"norm"}, is based on the normal approximation (for more details see \code{\link[boot]{boot.ci}}).
 
 A summary table with large sample tests, similar to that for \code{\link[stats]{glm}} output, can be obtained using \code{summary}.
+
+\code{vcov} returns the variance covariance matrix calculated from the bootstrap samples stored in\cr \code{object$bootRes} (see \code{\link{neModel}}).
+
+\code{weights} returns a vector containing the regression weights used to fit the natural effect model.
+These weights can be based on
+\enumerate{
+ \item ratio-of-mediator probability (density) weights (only if the weighting-based approach is used)
+ \item inverse probability of treatment (exposure) weights (only if \code{xFit} was specified in \code{\link{neModel}})
+}
 }
 \note{
 \emph{Z}-values in the summary table are simply calculated by dividing the parameter estimate by its corresponding bootstrap standard error.
@@ -49,16 +59,20 @@ Therefore, where possible, it is generally recommend to focus mainly on bootstra
 \examples{
 data(UPBdata)
 
-impData <- neImpute(UPB ~ att * negaff + educ + gender + age,
-                    family = binomial, data = UPBdata)
+weightData <- neWeight(negaff ~ att + educ + gender + age,
+                       data = UPBdata)
 \donttest{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age,
-                 family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, family = binomial, expData = impData, nBoot = 2)}
+                 family = binomial, expData = weightData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, family = binomial, expData = weightData, nBoot = 2)}
 
 ## extract coefficients
 coef(neMod)
 
 ## extract (bootstrap) variance-covariance matrix
 vcov(neMod)
+
+## extract regression weights
+w <- weights(neMod)
+head(w)
 
 ## obtain bootstrap confidence intervals
 confint(neMod)
@@ -69,6 +83,6 @@ confint(neMod, type = "perc", level = 0.90)
 summary(neMod)
 }
 \seealso{
-\code{\link{neModel}}, \code{\link{plot.neModel}}
+\code{\link{neModel}}, \code{\link{plot.neModel}}, \code{\link{weights}}
 }
 

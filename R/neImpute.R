@@ -221,13 +221,14 @@ neImpute.default <- function (object, formula, data, nMed = 1, nRep = 5, xSampli
     if (!isTRUE(args$skipExpand)) {
         attributes(expData) <- c(attributes(expData), list(model = fit, 
             call = match.call(), terms = neTerms(formula, nMed, 
-                joint)))
+                joint), weights = rep(1L, nrow(expData))))
         attr(attr(expData, "terms"), "vartype") <- vartype
         class(expData) <- c(class(expData), "expData", "impData")
     }
     else {
         attributes(expData) <- attr
         attr(expData, "model") <- fit
+        attr(expData, "weights") <- rep(1L, nrow(expData))
     }
     return(expData)
 }

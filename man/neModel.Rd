@@ -18,7 +18,7 @@ neModel(formula, family = gaussian, expData, xFit, nBoot = 1000,
 
 \item{expData}{the expanded dataset (of class \code{"\link{expData}"}).}
 
-\item{xFit}{fitted model object representing a model for the exposure (used for inverse treatment probability weighting).}
+\item{xFit}{fitted model object representing a model for the exposure (used for inverse treatment (exposure) probability weighting).}
 
 \item{nBoot}{number of bootstrap replicates (see \code{R} argument of \code{\link[boot]{boot}}).}
 

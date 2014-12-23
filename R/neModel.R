@@ -1,36 +1,50 @@
 #' Methods for natural effect models
 #'
-#' @description Confidence intervals and statistical tests for natural effect models.
+#' @description Extractor functions, confidence intervals and statistical tests for natural effect models.
 #' @param object a fitted natural effect model object.
 #' @param ... additional arguments (see \code{\link[boot]{boot.ci}} for \code{confint} or \code{\link[stats]{summary.glm}} for \code{summary}).
 #' @inheritParams stats::confint.default
 #' @inheritParams neLht-methods
-#' @details \code{vcov} returns the variance covariance matrix calculated from the bootstrap samples stored in\cr \code{object$bootRes} (see \code{\link{neModel}}).
-#'
+#' @details 
 #' \code{confint} yields bootstrap confidence intervals. These confidence intervals are internally called via the \code{\link[boot]{boot.ci}} function from the \pkg{boot} package.
 #' The default confidence level specified in \code{level} (which corresponds to the \code{conf} argument in \code{\link[boot]{boot.ci}}) is 0.95
 #' and the default type of bootstrap confidence interval, \code{"norm"}, is based on the normal approximation (for more details see \code{\link[boot]{boot.ci}}).
 #'
 #' A summary table with large sample tests, similar to that for \code{\link[stats]{glm}} output, can be obtained using \code{summary}.
 #'
+#' \code{vcov} returns the variance covariance matrix calculated from the bootstrap samples stored in\cr \code{object$bootRes} (see \code{\link{neModel}}).
+#'
+#' \code{weights} returns a vector containing the regression weights used to fit the natural effect model.
+#' These weights can be based on
+#' \enumerate{
+#'  \item ratio-of-mediator probability (density) weights (only if the weighting-based approach is used)
+#'  \item inverse probability of treatment (exposure) weights (only if \code{xFit} was specified in \code{\link{neModel}})
+#' }
+#'
 #' @name neModel-methods
 #' @note \emph{Z}-values in the summary table are simply calculated by dividing the parameter estimate by its corresponding bootstrap standard error. 
 #' Corresponding \emph{p}-values in the summary table are only indicative, since the null distribution for each statistic is assumed to be approximately standard normal.
 #' Therefore, where possible, it is generally recommend to focus mainly on bootstrap confidence intervals for inference, rather than the provided \emph{p}-values.
-#' @seealso \code{\link{neModel}}, \code{\link{plot.neModel}}
+#' @seealso \code{\link{neModel}}, \code{\link{plot.neModel}}, \code{\link{weights}}
 #' @examples
 #' data(UPBdata)
 #' 
-#' impData <- neImpute(UPB ~ att * negaff + educ + gender + age, 
-#'                     family = binomial, data = UPBdata)
+# impData <- neImpute(UPB ~ att * negaff + educ + gender + age, 
+#                     family = binomial, data = UPBdata)
+#' weightData <- neWeight(negaff ~ att + educ + gender + age,
+#'                        data = UPBdata)
 #' \donttest{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, 
-#'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, family = binomial, expData = impData, nBoot = 2)}
+#'                  family = binomial, expData = weightData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, family = binomial, expData = weightData, nBoot = 2)}
 #' 
 #' ## extract coefficients
 #' coef(neMod)
 #' 
 #' ## extract (bootstrap) variance-covariance matrix
 #' vcov(neMod)
+#' 
+#' ## extract regression weights
+#' w <- weights(neMod)
+#' head(w)
 #' 
 #' ## obtain bootstrap confidence intervals
 #' confint(neMod)
@@ -86,7 +100,7 @@ model.matrix.neModel <- function (object, ...)
 #' @description \code{neModel} is used to fit a natural effect model on the expanded dataset.
 #' @param formula a \code{\link[stats]{formula}} object providing a symbolic description of the natural effect model.
 #' @param expData the expanded dataset (of class \code{"\link{expData}"}).
-#' @param xFit fitted model object representing a model for the exposure (used for inverse treatment probability weighting).
+#' @param xFit fitted model object representing a model for the exposure (used for inverse treatment (exposure) probability weighting).
 #' @param nBoot number of bootstrap replicates (see \code{R} argument of \code{\link[boot]{boot}}).
 #' @param ncpus integer: number of processes to be used in parallel operation: typically one would chose this to the number of available CPUs (see details).
 #' @param progress logical value indicating whether or not a progress bar should be displayed. Progress bars are automatically disabled for multicore processing.
@@ -341,4 +355,36 @@ vcov.neModelBoot <- function (object, ...)
     covmat <- cov(object$bootRes$t)
     dimnames(covmat) <- dimnames(summary.glm(object$neModelFit)$cov.scaled)
     return(covmat)
+}
+
+#' Extract regression weights from the expanded dataset
+#'
+#' @description This function extracts the regression weights (to be used in the natural effect model) for each observation of an expanded dataset.
+#' @param object an expanded dataset (of class \code{"\link{expData}"}).
+#' @param ... additional arguments.
+#' @return a vector of length \code{nrow(object)}, containing the regression weights for the expanded dataset specified in \code{object}.
+# @details 
+# The regression weights are a multiplication of (and hence reflect)
+# \enumerate{
+#  \item ratio-of-mediator probability (density) weights: only when the weighted-based approach is used and \code{object} hence inherits from the class \code{"\link{weightData}"}
+#  \item survey weights
+# }
+#' @seealso \code{\link{coef}}, \code{\link{confint}}, \code{\link{expData}}, \code{\link{neWeight}}, \code{\link{summary}}, \code{\link{vcov}}, \code{\link{weights}}
+#' @examples
+#' data(UPBdata)
+#' 
+#' weightData <- neWeight(negaff ~ att + gender + educ + age, 
+#'                        data = UPBdata, nRep = 2)
+#' head(weights(weightData)) 
+#' @export
+weights.expData <- function (object, ...)
+{
+    attr(object, "weights")
+}
+
+#' @rdname neModel-methods
+#' @export
+weights.neModel <- function (object, ...) 
+{
+    weights(object$neModelFit, ...)
 }

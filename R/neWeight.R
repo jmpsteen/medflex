@@ -65,16 +65,12 @@ neWeight <- function (object, ...)
 #' ## example using glm
 #' fit.glm <- glm(negaff ~ att + gender + educ + age, data = UPBdata)
 #' weightData <- neWeight(fit.glm, nRep = 2)
-#' weights <- attr(weightData, "weights")
-#' head(cbind(weightData, weights))
 #' 
 #' ## example using vglm (yielding identical results as with glm)
 #' library(VGAM)
 #' fit.vglm <- vglm(negaff ~ att + gender + educ + age, 
 #'                  family = gaussianff, data = UPBdata)
 #' weightData2 <- neWeight(fit.vglm, nRep = 2)
-#' weights2 <- attr(weightData2, "weights")
-#' head(cbind(weightData2, weights2))
 #'
 #' \dontshow{
 #' library(VGAM) 
@@ -146,11 +142,17 @@ neWeight.default <- function (object, formula, data, nRep = 5, xSampling = c("qu
     args <- as.list(match.call())[-1L]
     nMed <- args$nMed <- 1
     fit <- object
+    ###
+    args$data <- if (missing(data)) {
+      extrCall(fit)$data
+    }
+    else substitute(data)
+    ###
     if (!isTRUE(args$skipExpand)) {
-        args$data <- if (missing(data)) {
-            extrCall(fit)$data
-        }
-        else substitute(data)
+#         args$data <- if (missing(data)) {
+#             extrCall(fit)$data
+#         }
+#         else substitute(data)
         if (missing(formula)) 
             formula <- extrCall(fit)$formula
         class(formula) <- c("Mformula", "formula")
@@ -279,15 +281,11 @@ neWeight.default <- function (object, formula, data, nRep = 5, xSampling = c("qu
 #' ## example using glm
 #' weightData <- neWeight(negaff ~ att + gender + educ + age, 
 #'                        data = UPBdata, nRep = 2)
-#' weights <- attr(weightData, "weights")
-#' head(cbind(weightData, weights))
 #' 
 #' ## example using vglm (yielding identical results as with glm)
 #' library(VGAM)
 #' weightData2 <- neWeight(negaff ~ att + gender + educ + age, 
 #'                         family = gaussianff, data = UPBdata, nRep = 2, FUN = vglm)
-#' weights2 <- attr(weightData2, "weights")
-#' head(cbind(weightData2, weights2))
 #' @export
 neWeight.formula <- function (object, family, data, FUN = glm, nRep = 5, xSampling = c("quantiles", 
     "random"), xFit, percLim = c(0.05, 0.95), ...) 

@@ -66,16 +66,12 @@ data(UPBdata)
 ## example using glm
 fit.glm <- glm(negaff ~ att + gender + educ + age, data = UPBdata)
 weightData <- neWeight(fit.glm, nRep = 2)
-weights <- attr(weightData, "weights")
-head(cbind(weightData, weights))
 
 ## example using vglm (yielding identical results as with glm)
 library(VGAM)
 fit.vglm <- vglm(negaff ~ att + gender + educ + age,
                  family = gaussianff, data = UPBdata)
 weightData2 <- neWeight(fit.vglm, nRep = 2)
-weights2 <- attr(weightData2, "weights")
-head(cbind(weightData2, weights2))
 
 \dontshow{
 library(VGAM)

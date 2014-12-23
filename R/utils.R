@@ -1,3 +1,4 @@
+#' @importFrom stats weights
 #' @import multcomp
 
 extrCall <- function (x) 
