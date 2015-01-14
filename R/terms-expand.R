@@ -76,11 +76,9 @@ expandX.factor <- function (x, data, ...)
     args <- as.list(match.call())[-1L]
     aux0 <- rep(x, each = nlevels(x))
     tmp1 <- as.numeric(x)
-    aux1 <- as.vector(mapply(function(y) (y + seq.int(nlevels(x)) - 
-        2)%%nlevels(x) + 1, tmp1))
-    res <- cbind(aux0, aux1)
-    res <- as.data.frame(apply(res, 2, function(y) factor(y, 
-        labels = levels(x))))
+    aux1 <- factor(as.vector(mapply(function(y) (y + seq.int(nlevels(x)) - 
+        2) %% nlevels(x) + 1, tmp1)), labels = levels(x))
+    res <- data.frame(aux0, aux1)
     attr(res, "x") <- x
     return(res)
 }

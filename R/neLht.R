@@ -2,6 +2,7 @@
 #'
 #' @description \code{neLht} allows to calculate linear combinations of natural effect model parameter estimates.\cr \code{neEffdecomp} automatically extracts relevant causal parameter estimates from a natural effect model.
 #' @param model a fitted natural effect model object.
+#' @param xRef a numerical vector including reference levels for the exposure, \emph{x*} and \emph{x}, at which natural effect components need to be evaluated (see details). 
 #' @param ... additional arguments (passed to \code{\link[multcomp]{glht}}).
 #' @return An object of class \code{c("neLhtBoot", "neLht", "glht")} (see \code{\link[multcomp]{glht}}). \code{neEffdecomp} returns an object that additionally inherits from class \code{"neEffdecomp"}.
 #' 
@@ -16,6 +17,11 @@
 #' If mediated interaction is allowed for in the natural effect model, there are two ways of decomposing the total effect into (natural) direct and indirect effects components: 
 #' either as the sum of the pure direct and the total indirect effect or as the sum of the pure indirect and the total direct effect (i.e. three-way decomposition).
 #' In total, five causal effect estimates are returned in this case.
+#' 
+#' For continuous exposures, default exposure levels at which natural effect components are evaluated are \emph{x*} = 0 and \emph{x} = 1.
+#' For multicategorical exposures, default levels are the reference level of the factor that encodes the exposure variable and the level corresponding to its first dummy variable for \emph{x*} and \emph{x}, respectively.  
+#' If one wishes to evaluate natural effect components at different reference levels (e.g. if the natural effect model includes mediated interaction, quadratic or polynomial terms for the exposure; see examples), 
+#' these can be specified as a vector of the form \code{c(x*,x)} via the \code{xRef} argument.
 #' @name neLht
 #' @note \code{neEffdecomp} is internally called by \code{\link{plot.neModel}} to create confidence interval plots for \code{neModel} objects.
 #' @seealso \code{\link{confint}}, \code{\link{plot.neLht}}, \code{\link{neLht-methods}}, \code{\link[multcomp]{glht}}, \code{\link[=coef.glht]{glht-methods}}, \code{\link{neModel}}, \code{\link{plot.neModel}}, \code{\link{summary}}
@@ -35,6 +41,24 @@
 #' ## or obtain directly via neEffdecomp
 #' eff <- neEffdecomp(neMod)
 #' summary(eff)
+#' 
+#' ## changing reference levels for multicategorical exposures
+#' UPBdata$attcat <- factor(cut(UPBdata$att, 3), labels = c("L", "M", "H"))
+#' impData <- neImpute(UPB ~ attcat * negaff + gender + educ + age,
+#'                     family = binomial, data = UPBdata)
+#' \donttest{neMod <- neModel(UPB ~ attcat0 * attcat1 + gender + educ + age,
+#'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ attcat0 * attcat1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
+#' neEffdecomp(neMod)
+#' neEffdecomp(neMod, xRef = c("L", "H"))
+#' neEffdecomp(neMod, xRef = c("M", "H"))
+#' 
+#' ## changing reference levels for continuous exposures
+#' impData <- neImpute(UPB ~ poly(att, 2, raw = TRUE) * negaff + gender + educ + age,
+#'                     family = binomial, data = UPBdata)
+#' \donttest{neMod <- neModel(UPB ~ poly(att0, 2, raw = TRUE) * poly(att1, 2, raw = TRUE) + gender + educ + age,
+#'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ poly(att0, 2, raw = TRUE) * poly(att1, 2, raw = TRUE) + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
+#' neEffdecomp(neMod)
+#' neEffdecomp(neMod, xRef = c(2, 1))
 #' @export
 NULL
 
@@ -123,50 +147,64 @@ confint.neLhtBoot <- function (object, parm, level = 0.95, type = "norm", ...)
 
 #' @rdname neLht
 #' @export
-neEffdecomp <- function (model, ...) 
+neEffdecomp <- function (model, xRef, ...) 
 {
     UseMethod("neEffdecomp")
 }
 
 #' @rdname neLht
 #' @export
-neEffdecomp.neModel <- function (model, ...) 
+neEffdecomp.neModel <- function (model, xRef, ...) 
 {
-    args <- as.list(match.call())
-    orderIA <- function(x) sum(unlist(strsplit(x, "")) == ":") + 
-        1
-    orderCoef <- sapply(names(coef(model)), orderIA)
-    C <- attr(attr(model, "terms"), "vartype")$C
-    Xexp <- attr(attr(model, "terms"), "vartype")$Xexp
-    ind <- grep(paste(C, collapse = "|"), names(coef(model)))
-    orderCoef[ind] <- 1
-    K <- diag(length(coef(model)))
-    dimnames(K) <- list(names(coef(model)), names(coef(model)))
-    ind <- sort(unique(as.vector(sapply(Xexp, grep, dimnames(K)[[1]][orderCoef < 
-        2]))))
-    K <- K[ind, ]
-    if (max(orderCoef) > 1) {
-        K <- K[rep(seq.int(nrow(K)), each = 2), ]
-        K[, orderCoef > 1] <- rep(c(0, 1), times = 2)
+    xFact <- is.factor(model$neModelFit$data[, attr(terms(model), "vartype")$Xexp[[1]]])
+    if (xFact) xRefCheck <- levels(model$neModelFit$data[, attr(terms(model), "vartype")$Xexp[[1]]])
+
+    if (missing(xRef)) {
+        xRef <- if (xFact) xRefCheck[1:2] else c(0, 1)
+    } else {
+        if (xFact && !all(xRef %in% xRefCheck)) {
+            warning(gettextf("Invalid reference levels! Default reference levels %s were used instead.", 
+                             paste0("c(", paste(paste0("'", xRefCheck, "'"), collapse = ", "), ")")))
+            xRef <- xRefCheck[1:2]
+        }
     }
-    Klast <- rep(0, length(coef(model)))
-    ind <- grep(paste(Xexp, collapse = "|"), names(coef(model)))
-    Klast[ind] <- 1
-    ind <- if(length(C)) grep(paste(C, collapse = "|"), names(coef(model)))
-    Klast[ind] <- 0
-    K <- rbind(K, Klast)
-    extrName <- function(x) names(x[x != 0])
-    dimnames(K)[[1]] <- unlist(lapply(apply(K, 1, extrName), 
-        function(x) paste(x, collapse = " + ")))
-    if (max(orderCoef) == 1) 
-        dimnames(K)[[1]] <- c("natural direct effect", "natural indirect effect", 
-            "total direct effect")
-    else if (max(orderCoef) > 1) 
-        dimnames(K)[[1]] <- c("pure direct effect", "total direct effect", 
-            "pure indirect effect", "total indirect effect", 
-            "total effect")
+
+    calcContr <- function(x, formula) {
+        if (xFact) x <- factor(x, levels = xRefCheck)
+        dat1 <- data.frame(1, x[1], x[2])
+        names(dat1) <- all.vars(formula)
+        modmat1 <- model.matrix(formula, data = dat1)
+        dat2 <- data.frame(1, x[3], x[4])
+        names(dat2) <- all.vars(formula)
+        modmat2 <- model.matrix(formula, data = dat2)
+        return(t(modmat1 - modmat2))
+    }
+
+    list <- list(xRef[c(2, 1, 1, 1)],
+                 xRef[c(2, 2, 1, 2)],
+                 xRef[c(1, 2, 1, 1)],
+                 xRef[c(2, 2, 2, 1)],
+                 xRef[c(2, 2, 1, 1)])
+  
+    form <- model$neModelFit$formula
+    ind <- sort(unlist(lapply(attr(terms(model), "vartype")$C, grep, attr(terms(form), "term.labels"))))
+    keep <- attr(terms(form), "term.labels")[-ind]
+    rhs <- paste(keep, collapse = " + ")
+    updateForm <- as.formula(paste(form[[2]], "~", rhs))
+    
+    K2 <- t(data.frame(lapply(list, calcContr, updateForm)))
+    K2 <- unique(K2)
+    
+    rownames <- if (nrow(K2) == 3) {
+        c("natural direct effect", "natural indirect effect", "total effect")
+    } else {
+        c("pure direct effect", "total direct effect", "pure indirect effect", "total indirect effect", "total effect")
+    }
+    K <- matrix(0, nrow = nrow(K2), ncol = length(coef(model)), dimnames = list(rownames, names(coef(model))))
+    K[, colnames(K2)] <- K2
+    colnames(K) <- NULL
+    
     effdecomp <- neLht(model, linfct = K)
-    attr(effdecomp, "orderCoef") <- orderCoef
     class(effdecomp) <- c("neEffdecomp", class(effdecomp))
     return(effdecomp)
 }
@@ -194,7 +232,7 @@ plot.neEffdecomp <- function (x, level = 0.95, ci.type = "norm", transf = identi
     ylabels, yticks.at, ...) 
 {
     args <- as.list(match.call())
-    if (max(attr(x, "orderCoef")) > 1) 
+    if (nrow(x$linfct) == 5)
         if (missing(yticks.at)) 
             args$yticks.at <- c(0, 0.15, 0.5, 0.65, 1)
         else if (missing(yticks.at)) 

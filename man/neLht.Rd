@@ -6,9 +6,9 @@
 \alias{neLht.neModelBoot}
 \title{Linear hypotheses for natural effect models}
 \usage{
-neEffdecomp(model, ...)
+neEffdecomp(model, xRef, ...)
 
-\method{neEffdecomp}{neModel}(model, ...)
+\method{neEffdecomp}{neModel}(model, xRef, ...)
 
 neLht(model, ...)
 
@@ -16,6 +16,8 @@ neLht(model, ...)
 }
 \arguments{
 \item{model}{a fitted natural effect model object.}
+
+\item{xRef}{a numerical vector including reference levels for the exposure, \emph{x*} and \emph{x}, at which natural effect components need to be evaluated (see details).}
 
 \item{...}{additional arguments (passed to \code{\link[multcomp]{glht}}).}
 }
@@ -38,6 +40,11 @@ That is, natural direct, natural indirect and total causal effect estimates are 
 If mediated interaction is allowed for in the natural effect model, there are two ways of decomposing the total effect into (natural) direct and indirect effects components:
 either as the sum of the pure direct and the total indirect effect or as the sum of the pure indirect and the total direct effect (i.e. three-way decomposition).
 In total, five causal effect estimates are returned in this case.
+
+For continuous exposures, default exposure levels at which natural effect components are evaluated are \emph{x*} = 0 and \emph{x} = 1.
+For multicategorical exposures, default levels are the reference level of the factor that encodes the exposure variable and the level corresponding to its first dummy variable for \emph{x*} and \emph{x}, respectively.
+If one wishes to evaluate natural effect components at different reference levels (e.g. if the natural effect model includes mediated interaction, quadratic or polynomial terms for the exposure; see examples),
+these can be specified as a vector of the form \code{c(x*,x)} via the \code{xRef} argument.
 }
 \note{
 \code{neEffdecomp} is internally called by \code{\link{plot.neModel}} to create confidence interval plots for \code{neModel} objects.
@@ -58,8 +65,26 @@ summary(lht)
 ## or obtain directly via neEffdecomp
 eff <- neEffdecomp(neMod)
 summary(eff)
+
+## changing reference levels for multicategorical exposures
+UPBdata$attcat <- factor(cut(UPBdata$att, 3), labels = c("L", "M", "H"))
+impData <- neImpute(UPB ~ attcat * negaff + gender + educ + age,
+                    family = binomial, data = UPBdata)
+\donttest{neMod <- neModel(UPB ~ attcat0 * attcat1 + gender + educ + age,
+                 family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ attcat0 * attcat1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
+neEffdecomp(neMod)
+neEffdecomp(neMod, xRef = c("L", "H"))
+neEffdecomp(neMod, xRef = c("M", "H"))
+
+## changing reference levels for continuous exposures
+impData <- neImpute(UPB ~ poly(att, 2, raw = TRUE) * negaff + gender + educ + age,
+                    family = binomial, data = UPBdata)
+\donttest{neMod <- neModel(UPB ~ poly(att0, 2, raw = TRUE) * poly(att1, 2, raw = TRUE) + gender + educ + age,
+                 family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ poly(att0, 2, raw = TRUE) * poly(att1, 2, raw = TRUE) + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
+neEffdecomp(neMod)
+neEffdecomp(neMod, xRef = c(2, 1))
 }
 \seealso{
-\code{\link{plot.neLht}}, \code{\link{neLht-methods}}, \code{\link[multcomp]{glht}}, \code{\link[=coef.glht]{glht-methods}}, \code{\link{neModel}}, \code{\link{plot.neModel}}
+\code{\link{confint}}, \code{\link{plot.neLht}}, \code{\link{neLht-methods}}, \code{\link[multcomp]{glht}}, \code{\link[=coef.glht]{glht-methods}}, \code{\link{neModel}}, \code{\link{plot.neModel}}, \code{\link{summary}}
 }
 

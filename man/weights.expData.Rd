@@ -24,6 +24,6 @@ weightData <- neWeight(negaff ~ att + gender + educ + age,
 head(weights(weightData))
 }
 \seealso{
-\code{\link{expData}}, \code{\link{neWeight}}, \code{\link{weights}}
+\code{\link{coef}}, \code{\link{confint}}, \code{\link{expData}}, \code{\link{neWeight}}, \code{\link{summary}}, \code{\link{vcov}}, \code{\link{weights}}
 }
 
