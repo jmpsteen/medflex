@@ -3,7 +3,7 @@
 #' @description This function both expands the data along hypothetical exposure values and calculates ratio-of-mediator probability weights.
 #' @param object an object used to select a method.
 #' @param ... additional arguments.
-#' @return A data frame of class \code{c("data.frame", "expData", "weightData"))}. See \code{\link{expData}} for its structure.
+#' @return A data frame of class \code{c("data.frame", "expData", "weightData")}. See \code{\link{expData}} for its structure.
 #' @details Generic function that both expands the data along hypothetical exposure values and
 #' calculates ratio-of-mediator probability weights 
 #' 
@@ -27,7 +27,7 @@ neWeight <- function (object, ...)
 #' @param object fitted model object representing the mediator model.
 #' @param formula a \code{\link[stats]{formula}} object providing a symbolic description of the mediator model. Redundant if already specified in call for fitted model specified in \code{object} (see details).
 #' @inheritParams neImpute.default
-#' @return A data frame of class \code{c("data.frame", "expData", "weightData"))}. See \code{\link{expData}} for its structure.
+#' @return A data frame of class \code{c("data.frame", "expData", "weightData")}. See \code{\link{expData}} for its structure.
 #' @details The calculated weights are ratios of fitted probabilities or probability densities from the distribution of the mediator model.
 #' This model needs to be specified as a fitted object in the \code{object} argument.
 #'
@@ -142,17 +142,11 @@ neWeight.default <- function (object, formula, data, nRep = 5, xSampling = c("qu
     args <- as.list(match.call())[-1L]
     nMed <- args$nMed <- 1
     fit <- object
-    ###
     args$data <- if (missing(data)) {
-      extrCall(fit)$data
+        extrCall(fit)$data
     }
     else substitute(data)
-    ###
     if (!isTRUE(args$skipExpand)) {
-#         args$data <- if (missing(data)) {
-#             extrCall(fit)$data
-#         }
-#         else substitute(data)
         if (missing(formula)) 
             formula <- extrCall(fit)$formula
         class(formula) <- c("Mformula", "formula")
@@ -199,22 +193,23 @@ neWeight.default <- function (object, formula, data, nRep = 5, xSampling = c("qu
         attr <- attributes(expData)
         vartype <- attr(attr$terms, "vartype")
     }
-    family <- if (is.null(extrCall(fit)$family)) 
-        formals(eval(extrCall(fit)[[1]]))$family
-    else extrCall(fit)$family
+#     family <- if (is.null(extrCall(fit)$family)) 
+#         formals(eval(extrCall(fit)[[1]]))$family #
+#     else extrCall(fit)$family
+    family <- if(inherits(fit, "vglm")) fit@family@vfamily[1] else fit$family$family
     family <- c("gaussian", "binomial", "poisson", "multinomial")[mapply(function(x, 
         y) grepl(y, x), as.character(family), c("gaussian", "binomial", 
         "poisson", "multinomial"))]
     dispersion <- if (inherits(fit, "vglm")) 
         fit@misc$dispersion
     else summary(fit)$dispersion
-    dfun <- function(x) switch(family, 
-        gaussian = dnorm(x, mean = predict(fit, newdata = expData, type = "response"), sd = sqrt(dispersion)), 
-        binomial = {if (is.factor(x)) x <- as.numeric(x) - 1
-          return(dbinom(x, size = 1, prob = predict(fit, newdata = expData, type = "response")))}, 
-        poisson = dpois(x, lambda = predict(fit, newdata = expData, type = "response")),
-        multinomial = {pred <- predict(fit, newdata = expData, type = "response")
-          return(sapply(1:nrow(expData), function(i) pred[i, as.character(x[i])]))})
+    dfun <- switch(family, 
+         gaussian = function(x) dnorm(x, mean = predict(fit, newdata = expData, type = "response"), sd = sqrt(dispersion)), 
+         binomial = function(x) {if (is.factor(x)) x <- as.numeric(x) - 1
+                     return(dbinom(x, size = 1, prob = predict(fit, newdata = expData, type = "response")))}, 
+         poisson = function(x) dpois(x, lambda = predict(fit, newdata = expData, type = "response")),
+         multinomial = function(x) {pred <- predict(fit, newdata = expData, type = "response")
+                        return(sapply(1:nrow(expData), function(i) pred[i, as.character(x[i])]))})
     expData[, vartype$X] <- expData[, vartype$Xexp[2]]
     try(weightsNum <- dfun(expData[, vartype$M]), silent = TRUE)
     checkExist <- exists("weightsNum")

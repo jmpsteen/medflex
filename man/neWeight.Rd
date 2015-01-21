@@ -11,7 +11,7 @@ neWeight(object, ...)
 \item{...}{additional arguments.}
 }
 \value{
-A data frame of class \code{c("data.frame", "expData", "weightData"))}. See \code{\link{expData}} for its structure.
+A data frame of class \code{c("data.frame", "expData", "weightData")}. See \code{\link{expData}} for its structure.
 }
 \description{
 This function both expands the data along hypothetical exposure values and calculates ratio-of-mediator probability weights.

@@ -3,7 +3,7 @@
 \alias{neEffdecomp}
 \alias{neEffdecomp.neModel}
 \alias{neLht}
-\alias{neLht.neModelBoot}
+\alias{neLht.neModel}
 \title{Linear hypotheses for natural effect models}
 \usage{
 neEffdecomp(model, xRef, ...)
@@ -12,7 +12,7 @@ neEffdecomp(model, xRef, ...)
 
 neLht(model, ...)
 
-\method{neLht}{neModelBoot}(model, ...)
+\method{neLht}{neModel}(model, ...)
 }
 \arguments{
 \item{model}{a fitted natural effect model object.}

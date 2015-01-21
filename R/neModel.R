@@ -39,7 +39,7 @@
 #' ## extract coefficients
 #' coef(neMod)
 #' 
-#' ## extract (bootstrap) variance-covariance matrix
+#' ## extract variance-covariance matrix
 #' vcov(neMod)
 #' 
 #' ## extract regression weights
@@ -83,6 +83,17 @@ confint.neModelBoot <- function (object, parm, level = 0.95, type = "norm", ...)
     return(ci)
 }
 
+#' @rdname neModel-methods
+#' @export
+confint.neModel <- function (object, parm, level = 0.95, ...) 
+{
+  ci <- confint.default(object, parm, level, ...)
+  dimnames(ci)[[2]] <- paste0(100 * level, c("% LCL", "% UCL"))
+  attributes(ci) <- c(attributes(ci), list(level = level, coef = coef(object)[parm]))
+  class(ci) <- c("neModelCI", class(ci))
+  return(ci)
+}
+
 #' @export
 df.residual.neModel <- function (object, ...) 
 {
@@ -101,6 +112,7 @@ model.matrix.neModel <- function (object, ...)
 #' @param formula a \code{\link[stats]{formula}} object providing a symbolic description of the natural effect model.
 #' @param expData the expanded dataset (of class \code{"\link{expData}"}).
 #' @param xFit fitted model object representing a model for the exposure (used for inverse treatment (exposure) probability weighting).
+#' @param se character string indicating the type of standard errors to be calculated. The default type is based on the bootstrap (see details).
 #' @param nBoot number of bootstrap replicates (see \code{R} argument of \code{\link[boot]{boot}}).
 #' @param ncpus integer: number of processes to be used in parallel operation: typically one would chose this to the number of available CPUs (see details).
 #' @param progress logical value indicating whether or not a progress bar should be displayed. Progress bars are automatically disabled for multicore processing.
@@ -109,7 +121,7 @@ model.matrix.neModel <- function (object, ...)
 #' @inheritParams boot::boot
 #' @return An object of class \code{"\link[=neModel-methods]{neModel}"} consisting of a list of 2 objects:
 #' \item{\code{neModelFit}}{the fitted natural model object (of class \code{"\link[stats]{glm}"}) with downwardly biased standard errors}
-#' \item{\code{bootRes}}{the bootstrap results (of class \code{"\link[boot]{boot}"})}
+#' \item{\code{bootRes}, \code{vcov}}{the bootstrap results (of class \code{"\link[boot]{boot}"}; if \code{se = "bootstrap"}) or the sandwich estimator variance-covariance matrix (if \code{se = "robust"})}
 #' See \code{\link{neModel-methods}} for methods for \code{neModel} objects.
 #' @details This function is a wrapper for \code{\link[stats]{glm}}, providing unbiased bootstrap standard errors for the parameter estimates.
 #'
@@ -126,8 +138,11 @@ model.matrix.neModel <- function (object, ...)
 #' The latter are automatically extracted from the \code{\link{expData}} object and weighting is done internally.
 #'
 #' As the default \code{\link[stats]{glm}} standard errors fail to reflect the uncertainty inherent to the working model(s) (i.e. either a model for the mediator or an imputation model for the outcome and possibly a model for the exposure),
-#' bootstrap standard errors are calculated (using the \code{\link[boot]{boot}} function from the \pkg{boot} package). The bootstrap procedure entails refitting these working models on each bootstrap sample, reconstructing the expanded dataset and subsequently refitting the specified natural effect model on this dataset.
-#' In order to obtain stable standard errors, the number of bootstrap samples (specified via the \code{nBoot} argument) should be chosen relatively high. Although the default is 1000, it is recommended to use at least 500 bootstrap samples.
+#' bootstrap standard errors (using the \code{\link[boot]{boot}} function from the \pkg{boot} package) or robust standard errors are calculated. The default type of standard errors is bootstrap standard errors. 
+#' Robust standard errors (based on the sandwich estimator) can be requested to be calculated instead by specifying \code{se = "robust"}.
+#' 
+#' The bootstrap procedure entails refitting these working models on each bootstrap sample, reconstructing the expanded dataset and subsequently refitting the specified natural effect model on this dataset.
+#' In order to obtain stable standard errors, the number of bootstrap samples (specified via the \code{nBoot} argument) should be chosen relatively high (default is 1000).
 #' 
 #' To speed up the bootstrap procedure, parallel processing can be used by specifying the desired type of parallel operation via the \code{parallel} argument (for more details, see \code{\link[boot]{boot}}).
 #' The number of parallel processes (\code{ncpus}) is suggested to be specified explicitly (its default is 1, unless the global option \code{options("boot.cpus")} is specified). 
@@ -141,34 +156,58 @@ model.matrix.neModel <- function (object, ...)
 #' @examples
 #' data(UPBdata)
 #' 
-#' ## weighting-based approach
+#' ##############################
+#' ## weighting-based approach ##
+#' ##############################
 #' weightData <- neWeight(negaff ~ att + gender + educ + age, 
 #'                        data = UPBdata)
 #' 
-#' # stratum-specific natural effects
-#' \donttest{weightFit1 <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
-#'                       family = binomial, expData = weightData)}\dontshow{weightFit1 <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = weightData, nBoot = 2)}
-#' summary(weightFit1)
+#' ## stratum-specific natural effects
+#' # bootstrap SE
+#' \donttest{weightFit1b <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
+#'                        family = binomial, expData = weightData)}\dontshow{weightFit1b <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = weightData, nBoot = 2)}
+#' summary(weightFit1b)
+#' # robust SE
+#' weightFit1r <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
+#'                        family = binomial, expData = weightData, se = "robust")
+#' summary(weightFit1r)
 #' 
-#' # population-average natural effects
+#' ## population-average natural effects
 #' expFit <- glm(att ~ gender + educ + age, data = UPBdata)
-#' \donttest{weightFit2 <- neModel(UPB ~ att0 * att1, family = binomial, 
-#'                       expData = weightData, xFit = expFit)}\dontshow{weightFit2 <- neModel(UPB ~ att0 * att1, family = binomial, expData = weightData, xFit = expFit, nBoot = 2)}
-#' summary(weightFit2)
+#' # bootstrap SE
+#' \donttest{weightFit2b <- neModel(UPB ~ att0 * att1, family = binomial, 
+#'                        expData = weightData, xFit = expFit)}\dontshow{weightFit2b <- neModel(UPB ~ att0 * att1, family = binomial, expData = weightData, xFit = expFit, nBoot = 2)}
+#' summary(weightFit2b)
+#' # robust SE
+#' weightFit2r <- neModel(UPB ~ att0 * att1, family = binomial, 
+#'                        expData = weightData, xFit = expFit, se = "robust")
+#' summary(weightFit2r)
 #' 
-#' ## imputation-based approach
+#' ###############################
+#' ## imputation-based approach ##
+#' ###############################
 #' impData <- neImpute(UPB ~ att * negaff + gender + educ + age, 
 #'                     family = binomial, data = UPBdata)
 #' 
-#' # stratum-specific natural effects
-#' \donttest{impFit1 <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
-#'                    family = binomial, expData = impData)
-#' summary(impFit1)}
+#' ## stratum-specific natural effects
+#' # bootstrap SE
+#' \donttest{impFit1b <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
+#'                     family = binomial, expData = impData)
+#' summary(impFit1b)}
+#' # robust SE
+#' impFit1r <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
+#'                     family = binomial, expData = impData, se = "robust")
+#' summary(impFit1r)
 #' 
-#' # population-average natural effects
-#' \donttest{impFit2 <- neModel(UPB ~ att0 * att1, family = binomial, 
-#'                    expData = impData, xFit = expFit)}\dontshow{impFit2 <- neModel(UPB ~ att0 * att1, family = binomial, expData = impData, xFit = expFit, nBoot = 2)}
-#' summary(impFit2)
+#' ## population-average natural effects
+#' # bootstrap SE
+#' \donttest{impFit2b <- neModel(UPB ~ att0 * att1, family = binomial, 
+#'                     expData = impData, xFit = expFit)}\dontshow{impFit2b <- neModel(UPB ~ att0 * att1, family = binomial, expData = impData, xFit = expFit, nBoot = 2)}
+#' summary(impFit2b)
+#' # robust SE
+#' impFit2r <- neModel(UPB ~ att0 * att1, family = binomial, 
+#'                     expData = impData, xFit = expFit, se = "robust")
+#' summary(impFit2r)
 #' 
 #' \dontshow{# check with vgam (VGAM package)
 #' library(VGAM)
@@ -193,8 +232,8 @@ model.matrix.neModel <- function (object, ...)
 #' 
 #' Loeys, T., Moerkerke, B., De Smet, O., Buysse, A., Steen, J., & Vansteelandt, S. (2013). Flexible Mediation Analysis in the Presence of Nonlinear Relations: Beyond the Mediation Formula. \emph{Multivariate Behavioral Research}, \bold{48}(6), 871-894.
 #' @export
-neModel <- function (formula, family = gaussian, expData, xFit, nBoot = 1000, 
-    parallel = c("no", "multicore", "snow"), ncpus = getOption("boot.ncpus", 
+neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstrap", "robust"), 
+    nBoot = 1000, parallel = c("no", "multicore", "snow"), ncpus = getOption("boot.ncpus", 
         1L), progress = TRUE, ...) 
 {
     args <- as.list(match.call())
@@ -202,11 +241,17 @@ neModel <- function (formula, family = gaussian, expData, xFit, nBoot = 1000,
     args <- c(args[[1]], args[names(args) %in% names(formals(neModelEst))])
     neModelFit <- eval(as.call(args))
     fit <- attr(expData, "model")
-    parallel <- match.arg(parallel)
-    if (parallel != "no") {
-        if (progress) {
+    se <- match.arg(se)
+    if (se == "robust") {
+        progress <- FALSE
+    }
+    else {
+        parallel <- match.arg(parallel)
+        if (parallel != "no") {
+          if (progress) {
             message("Progress bar disabled for parallel processing.")
             progress <- FALSE
+          }
         }
     }
     if (progress) {
@@ -233,46 +278,136 @@ neModel <- function (formula, family = gaussian, expData, xFit, nBoot = 1000,
         if (sum(!termsNeModel %in% termsImpData)) 
             warning("The imputation model should at least reflect the structure of the natural effect model! This may cause some of the effect estimates to be attenuated. Please consult the terms of the models 'x' using 'labels(terms(x))'.")
     }
-    neModelBootfun <- function(data, ind, fit, expData, neModelFit) {
-        bootData <- data[ind, ]
-        FUN <- extrCall(fit)[[1]]
-        call1 <- as.list(match.call(eval(FUN), extrCall(fit)))
-        if (inherits(fit, "SuperLearner")) 
-            call1$X[[2]] <- call1$Y[[2]] <- substitute(bootData)
-        else call1$data <- substitute(bootData)
-        bootExpFit <- eval(as.call(call1))
-        nRep <- nrow(expData)/nrow(data)
-        indExp <- as.vector(sapply(ind, function(x) (x * nRep - 
-            (nRep - 1)):(x * nRep)))
-        bootExpData <- expData[indExp, ]
-        bootExpData <- eval(attr(expData, "call")[[1]])(bootExpFit, 
-            skipExpand = TRUE, expData = bootExpData)
-        if (!is.null(extrCall(neModelFit)$xFit)) {
-            call3 <- as.list(extrCall(eval(extrCall(neModelFit)$xFit)))
-            call3$data <- substitute(bootData)
-            bootxFit <- eval(as.call(call3))
-        }
-        call4 <- as.list(attr(neModelFit, "call"))
-        call4$expData <- substitute(bootExpData)
-        if (!is.null(extrCall(neModelFit)$xFit)) 
-            call4$xFit <- substitute(bootxFit)
-        bootFit <- eval(as.call(call4))
-        if (progress) {
-            curVal <- get("counter", envir = env)
-            assign("counter", curVal + 1, envir = env)
-            setTxtProgressBar(get("progbar", envir = env), curVal + 
-                1)
-        }
-        return(coef(bootFit))
-    }
-    bootRes <- boot::boot(data = extrData(fit), statistic = neModelBootfun, 
-        R = nBoot, fit = fit, expData = expData, neModelFit = neModelFit, 
-        parallel = parallel, ncpus = ncpus)
-    neModel <- list(neModelFit = neModelFit, bootRes = bootRes)
+    switch(se, 
+           "bootstrap" = {
+             neModelBootfun <- function(data, ind, fit, expData, neModelFit) {
+               bootData <- data[ind, ]
+               FUN <- extrCall(fit)[[1]]
+               call1 <- as.list(match.call(eval(FUN), extrCall(fit)))
+               if (inherits(fit, "SuperLearner")) 
+                 call1$X[[2]] <- call1$Y[[2]] <- substitute(bootData)
+               else call1$data <- substitute(bootData)
+               bootExpFit <- eval(as.call(call1))
+               nRep <- nrow(expData)/nrow(data)
+               indExp <- as.vector(sapply(ind, function(x) (x * nRep - 
+                                                              (nRep - 1)):(x * nRep)))
+               bootExpData <- expData[indExp, ]
+               bootExpData <- eval(attr(expData, "call")[[1]])(bootExpFit, 
+                                                               skipExpand = TRUE, expData = bootExpData)
+               if (!is.null(extrCall(neModelFit)$xFit)) {
+                 call3 <- as.list(extrCall(eval(extrCall(neModelFit)$xFit)))
+                 call3$data <- substitute(bootData)
+                 bootxFit <- eval(as.call(call3))
+               }
+               call4 <- as.list(attr(neModelFit, "call"))
+               call4$expData <- substitute(bootExpData)
+               if (!is.null(extrCall(neModelFit)$xFit)) 
+                 call4$xFit <- substitute(bootxFit)
+               bootFit <- eval(as.call(call4))
+               if (progress) {
+                 curVal <- get("counter", envir = env)
+                 assign("counter", curVal + 1, envir = env)
+                 setTxtProgressBar(get("progbar", envir = env), curVal + 
+                                     1)
+               }
+               return(coef(bootFit))
+             }
+             bootRes <- boot::boot(data = extrData(fit), statistic = neModelBootfun, 
+                                   R = nBoot, fit = fit, expData = expData, neModelFit = neModelFit, 
+                                   parallel = parallel, ncpus = ncpus)
+             neModel <- list(neModelFit = neModelFit, bootRes = bootRes)
+           },
+           "robust" = {
+             fit1 <- neModelFit
+             fit2 <- attr(expData, "model")
+             fit3 <- if (!missing(xFit)) xFit else NULL
+             fit <- list(fit1, fit2, fit3)
+             rm(fit1, fit2, fit3)
+             fit <- fit[!sapply(fit, is.null)]
+             
+             if (any(!sapply(fit, function(x) inherits(x, "glm"))))
+               stop("Robust standard errors only available if all working models are fitted via glm function. Use the bootstrap instead.")
+             if (all(inherits(expData, "weightData"), !fit[[2]]$family$family %in% c("gaussian", "binomial", "poisson"))) 
+               stop("Robust standard errors only available for weighting-based approach if family of the working model is either 'gaussian', 'binomial' or 'poisson'.")
+             if (length(fit) > 2 && !fit[[3]]$family$family %in% c("gaussian", "binomial", "poisson"))
+               stop("Robust standard errors only available if family of the exposure model is either 'gaussian', 'binomial' or 'poisson'.")
+
+             coefnames <- lapply(fit, function(x) names(coef(x)))
+             dimnames <- unlist(coefnames)
+             ind <- lapply(coefnames, indmatch, dimnames)
+             
+             ## ESTIMATING EQUATIONS        
+             estEqList <- lapply(fit, sandwich::estfun)
+             estEqList[[1]] <- as.matrix(aggregate(estEqList[[1]], by = list(as.numeric(fit[[1]]$data$id)), FUN = mean)[, -1])
+             estEq <- as.matrix(data.frame(estEqList))
+             rm(estEqList)
+             dimnames(estEq)[[2]] <- dimnames
+             
+             ## MEAT
+             meat <- crossprod(estEq) / nrow(estEq)
+             
+             ## BREAD
+             # diagonal
+             breadInv <- as.matrix(Matrix::bdiag(lapply(fit, function(x) solve(sandwich::bread(x)))))
+             dimnames(breadInv) <- list(dimnames, dimnames)
+             
+             # off-diagonal        
+             # deriv12
+             if (inherits(expData, "weightData")) {
+               derivFUN <- switch(fit[[2]]$family$family, 
+                                  gaussian = deriv(~ (- (M - mu)^2 / (2 * sigma^2)), "mu"), 
+                                  binomial = deriv(~ (M * log(mu) + (1-M) * log(1-mu)), "mu"), 
+                                  poisson = deriv(~ (M * log(mu) - mu), "mu"))
+               sigma <- sqrt(summary(fit[[2]])$dispersion)
+               # first
+               X12 <- adaptx(expData, fit[[1]], obs = FALSE)
+               mu <- predict(fit[[2]], newdat = X12$newdat, type = "response")
+               M <- X12$newdat[, attr(terms(expData), "vartype")$M]
+               if (!is.numeric(M)) M <- as.numeric(M) - 1
+               deriv12a <- X12$modmat * fit[[2]]$family$mu.eta(predict(fit[[2]], newdat = X12$newdat)) * as.vector(attr(eval(derivFUN), "gradient"))
+               
+               # second
+               X12 <- adaptx(expData, fit[[1]], obs = TRUE)
+               mu <- predict(fit[[2]], newdat = X12$newdat, type = "response")
+               M <- X12$newdat[, attr(terms(expData), "vartype")$M]
+               if (!is.numeric(M)) M <- as.numeric(M) - 1
+               deriv12b <- X12$modmat * fit[[2]]$family$mu.eta(predict(fit[[2]], newdat = X12$newdat)) * as.vector(attr(eval(derivFUN), "gradient"))
+               
+               deriv12 <- deriv12a - deriv12b
+               breadInv[ind[[1]], ind[[2]]] <- -t(sandwich::estfun(fit[[1]])) %*% deriv12 / nrow(fit[[1]]$data)
+             }
+             else if (inherits(expData, "impData")) {
+               X12 <- adaptx(expData, fit[[1]], obs = FALSE)
+               deriv12 <- X12$modmat * fit[[2]]$family$mu.eta(predict(fit[[2]], newdat = X12$newdat))
+               
+               breadInv[ind[[1]], ind[[2]]] <- -t(sandwich::estfun(fit[[1]]) / resid(fit[[1]], type = "response")) %*% deriv12 / nrow(fit[[1]]$data)
+             }
+             
+             # deriv13
+             if (length(fit) > 2) {
+               derivFUN <- switch(fit[[3]]$family$family, 
+                                  gaussian = deriv(~ (- (X - mu)^2 / (2 * sigma^2)), "mu"), 
+                                  binomial = deriv(~ (X * log(mu) + (1-X) * log(1-mu)), "mu"), 
+                                  poisson = deriv(~ (X * log(mu) - mu), "mu"))
+               sigma <- sqrt(summary(fit[[3]])$dispersion)
+               X13 <- adaptx(expData, fit[[1]], obs = TRUE, xFit = fit[[3]])
+               mu <- predict(fit[[3]], newdata = X13$newdat, type = "response")
+               X <- X13$newdat[, attr(terms(expData), "vartype")$X]
+               if (!is.numeric(X)) X <- as.numeric(X) - 1
+               deriv13 <- - X13$modmat * fit[[3]]$family$mu.eta(predict(fit[[3]], newdat = X13$newdat)) * as.vector(attr(eval(derivFUN), "gradient"))
+               breadInv[ind[[1]], ind[[3]]] <- -t(sandwich::estfun(fit[[1]])) %*% deriv13 / nrow(fit[[1]]$data)
+             }
+             
+             bread <- solve(breadInv)
+             vcov <- as.matrix((bread %*% meat %*% t(bread)) / nrow(estEq))
+             
+             neModel <- list(neModelFit = neModelFit, vcov = vcov[ind[[1]], ind[[1]]])
+           })
+    
     attr(neModel, "terms") <- neModelFit$terms
     attr(attr(neModel, "terms"), "vartype") <- attr(attr(expData, 
         "terms"), "vartype")
-    class(neModel) <- c("neModelBoot", "neModel")
+    class(neModel) <- c(if (se == "bootstrap") "neModelBoot", "neModel")
     return(neModel)
 }
 
@@ -305,6 +440,7 @@ plot.neModel <- function (x, level = 0.95, ci.type = "norm", transf = identity,
     eval(as.call(args))
 }
 
+#' @method print neBootCI
 #' @export
 print.neBootCI <- function (x, ...) 
 {
@@ -317,13 +453,24 @@ print.neBootCI <- function (x, ...)
         perc = "bootstrap percentile", bca = "adjusted bootstrap percentile (BCa)"), 
         " confidence intervals\nbased on ", attr$R, " bootstrap samples", 
         sep = "")
+    cat("\n\n")
 }
 
+#' @method print neModelCI
+#' @export
+print.neModelCI <- function (x, ...) 
+{
+    attributes(x)[c("level", "coef", "class")] <- NULL
+    print.default(x)
+}
+
+#' @method print summary.neModel
 #' @export
 print.summary.neModel <- function (x, digits = max(3, getOption("digits") - 3), ...) 
 {
     cat("Natural effect model\n")
-    cat("with standard errors based on the non-parametric bootstrap\n---\n")
+    if (attr(x, "class_object")[1] == "neModelBoot") cat("with standard errors based on the non-parametric bootstrap\n---\n")
+    else if (attr(x, "class_object")[1] == "neModel") cat("with robust standard errors based on the sandwich estimator\n---\n")
     cat("Exposure:", x$terms$X, "\nMediator(s):", paste(x$terms$M, 
         collapse = ", "), "\n---\n")
     cat("Parameter estimates:\n")
@@ -332,6 +479,7 @@ print.summary.neModel <- function (x, digits = max(3, getOption("digits") - 3), 
 }
 
 #' @rdname neModel-methods
+#' @method summary neModel
 #' @export
 summary.neModel <- function (object, ...) 
 {
@@ -345,10 +493,17 @@ summary.neModel <- function (object, ...)
     summary$coef.table <- coef.table
     summary$terms <- attr(attr(object, "terms"), "vartype")
     class(summary) <- "summary.neModel"
+    attr(summary, "class_object") <- class(object) 
     return(summary)
 }
 
 #' @rdname neModel-methods
+#' @export
+vcov.neModel <- function (object, ...) 
+{
+  return(object$vcov)
+}
+
 #' @export
 vcov.neModelBoot <- function (object, ...) 
 {

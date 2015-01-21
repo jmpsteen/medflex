@@ -2,20 +2,22 @@
 \name{plot.neEffdecomp}
 \alias{plot.neEffdecomp}
 \alias{plot.neLht}
+\alias{plot.neLhtBoot}
 \title{Confidence interval plots for linear hypotheses in natural effect models}
 \usage{
-\method{plot}{neEffdecomp}(x, level = 0.95, ci.type = "norm",
-  transf = identity, ylabels, yticks.at, ...)
+\method{plot}{neEffdecomp}(x, level = 0.95, transf = identity, ylabels,
+  yticks.at, ...)
 
-\method{plot}{neLht}(x, level = 0.95, ci.type = "norm", transf = identity,
-  ylabels, yticks.at, ...)
+\method{plot}{neLht}(x, level = 0.95, transf = identity, ylabels, yticks.at,
+  ...)
+
+\method{plot}{neLhtBoot}(x, level = 0.95, ci.type = "norm",
+  transf = identity, ylabels, yticks.at, ...)
 }
 \arguments{
 \item{x}{an object of class \code{neLht}.}
 
 \item{level}{the confidence level required.}
-
-\item{ci.type}{the type of bootstrap intervals required. The default \code{"norm"} returns normal approximation bootstrap confidence intervals. Currently, only \code{"norm"}, \code{"basic"} and \code{"perc"} are supported (see \code{\link[boot]{boot.ci}}).}
 
 \item{transf}{transformation function to be applied internally on the (linear hypothesis) estimates and their confidence intervals (e.g. \code{exp} for logit or Poisson regression). The default is \code{identity} (i.e. no transformation).}
 
@@ -24,6 +26,8 @@
 \item{yticks.at}{numeric vector containing the y-coordinates (from 0 to 1) to draw the tick marks for the different estimates and their corresponding confidence intervals.}
 
 \item{...}{additional arguments.}
+
+\item{ci.type}{the type of bootstrap intervals required. The default \code{"norm"} returns normal approximation bootstrap confidence intervals. Currently, only \code{"norm"}, \code{"basic"} and \code{"perc"} are supported (see \code{\link[boot]{boot.ci}}).}
 }
 \description{
 Confidence interval plots for linear hypotheses in natural effect models.
@@ -62,6 +66,6 @@ plot(neMod, transf = exp)
 }
 }
 \seealso{
-\code{\link{neModel}}, \code{\link{neEffdecomp}}, \code{\link{plot.neLht}}, \code{\link{plot.neEffdecomp}}
+\code{\link{neModel}}, \code{\link{neLht}}, \code{\link{neEffdecomp}}, \code{\link{plot.neLht}}, \code{\link{plot.neEffdecomp}}
 }
 

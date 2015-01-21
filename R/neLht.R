@@ -67,6 +67,7 @@ NULL
 #' @description Obtain confidence intervals and statistical tests for linear hypotheses in natural effect models.
 #' @param object an object of class \code{neLht}.
 #' @param type the type of bootstrap intervals required. The default \code{"norm"} returns normal approximation bootstrap confidence intervals. Currently, only \code{"norm"}, \code{"basic"} and \code{"perc"} are supported (see \code{\link[boot]{boot.ci}}).
+#' @param calpha a function computing the critical value. The default \code{univariate_calpha()} returns unadjusted confidence intervals, whereas \code{adjusted_calpha()} returns adjusted confidence intervals.
 #' @param test a function for computing p-values. The default \code{univariate()} does not apply a multiple testing correction. The function \code{adjusted()} allows to correct for multiple testing (see \code{\link[multcomp]{summary.glht}} and \code{\link[multcomp]{adjusted}}) and \code{Chisquare()} allows to test global linear hypotheses.
 #' @param ... additional arguments.
 #' @inheritParams stats::confint.default
@@ -145,6 +146,18 @@ confint.neLhtBoot <- function (object, parm, level = 0.95, type = "norm", ...)
     return(ci)
 }
 
+#' @rdname neLht-methods
+#' @export
+confint.neLht <- function (object, parm, level = 0.95, calpha = univariate_calpha(), ...) 
+{
+  class(object) <- c("glht", class(object))
+  ci <- confint(object, parm, level, calpha, ...)$confint[, c("lwr", "upr")]
+  dimnames(ci)[[2]] <- paste0(100 * level, c("% LCL", "% UCL"))
+  attributes(ci) <- c(attributes(ci), list(level = level, coef = coef(object)[parm], calpha = calpha))
+  class(ci) <- c("neLhtCI", class(ci))
+  return(ci)
+}
+
 #' @rdname neLht
 #' @export
 neEffdecomp <- function (model, xRef, ...) 
@@ -218,17 +231,17 @@ neLht <- function (model, ...)
 
 #' @rdname neLht
 #' @export
-neLht.neModelBoot <- function (model, ...) 
+neLht.neModel <- function (model, ...) 
 {
     lht <- multcomp::glht(model, ...)
-    attr(lht, "R") <- model$bootRes$R
-    class(lht) <- c("neLhtBoot", "neLht", class(lht))
+    if (inherits(model, "neModelBoot")) attr(lht, "R") <- model$bootRes$R
+    class(lht) <- c(if (inherits(model, "neModelBoot")) "neLhtBoot", "neLht", class(lht))
     return(lht)
 }
 
 #' @rdname plot.neLht
 #' @export
-plot.neEffdecomp <- function (x, level = 0.95, ci.type = "norm", transf = identity, 
+plot.neEffdecomp <- function (x, level = 0.95, transf = identity, 
     ylabels, yticks.at, ...) 
 {
     args <- as.list(match.call())
@@ -253,7 +266,7 @@ plot.neEffdecomp <- function (x, level = 0.95, ci.type = "norm", transf = identi
 #' @inheritParams stats::confint.default
 #' @details This function is an adapted version of \code{\link[multcomp]{plot.glht}} from the \pkg{multcomp} package and
 #' yields confidence interval plots for each of the linear hypothesis parameters.
-#' @seealso \code{\link{neModel}}, \code{\link{neEffdecomp}}, \code{\link{plot.neLht}}, \code{\link{plot.neEffdecomp}}
+#' @seealso \code{\link{neModel}}, \code{\link{neLht}}, \code{\link{neEffdecomp}}, \code{\link{plot.neLht}}, \code{\link{plot.neEffdecomp}}
 #' @examples
 #' data(UPBdata)
 #' 
@@ -283,15 +296,28 @@ plot.neEffdecomp <- function (x, level = 0.95, ci.type = "norm", transf = identi
 #'   summary(lht)
 #' }
 #' @export
-plot.neLht <- function (x, level = 0.95, ci.type = "norm", transf = identity, 
-    ylabels, yticks.at, ...) 
+plot.neLht <- function (x, level = 0.95, transf = identity, ylabels, 
+    yticks.at, ...) 
 {
     args <- as.list(match.call())[-1L]
-    args <- c(substitute(confint), object = substitute(x), type = ci.type, 
+    args <- c(substitute(confint), object = substitute(x),
         args[names(args) %in% names(formals(confint.neLhtBoot))])
     confint <- eval(as.call(args))
     plot(confint, transf = transf, ylabels = ylabels, yticks.at = yticks.at, 
         ...)
+}
+
+#' @rdname plot.neLht
+#' @export
+plot.neLhtBoot <- function (x, level = 0.95, ci.type = "norm", transf = identity, 
+    ylabels, yticks.at, ...) 
+{
+    args <- as.list(match.call())[-1L]
+    args <- c(substitute(confint), object = substitute(x), type = ci.type, 
+              args[names(args) %in% names(formals(confint.neLhtBoot))])
+    confint <- eval(as.call(args))
+    plot(confint, transf = transf, ylabels = ylabels, yticks.at = yticks.at, 
+         ...)
 }
 
 #' @export
@@ -349,6 +375,7 @@ plot.neLhtCI <- function (x, transf = identity, ylabels, yticks.at, main, xlab =
     par(mar = old.par$mar, mai = old.par$mai)
 }
 
+#' @method print neLht
 #' @export
 print.neLht <- function (x, digits = max(3, getOption("digits") - 3), ...) 
 {
@@ -358,12 +385,25 @@ print.neLht <- function (x, digits = max(3, getOption("digits") - 3), ...)
     print(coef, digits = digits, ...)
 }
 
+#' @method print neLhtCI
+#' @export
+print.neLhtCI <- function (x, ...) 
+{
+  adj <- attr(attr(x, "calpha"), "type")
+  attributes(x)[c("level", "coef", "class", "calpha")] <- NULL
+  print.default(x)
+  switch(adj, 
+         "univariate" = cat("---\nconfidence intervals\nbased on the sandwich estimator\n\n"),
+         "adjusted" = cat("---\nadjusted confidence intervals\nbased on the sandwich estimator\n\n"))
+}
+
+#' @method print summary.neLht
 #' @export
 print.summary.neLht <- function (x, digits = max(3, getOption("digits") - 3), ...) 
 {
     if (inherits(x, "summary.neLhtBoot")) 
         catSE <- "with standard errors based on the non-parametric bootstrap\n"
-    else catSE <- NULL
+    else catSE <- "with standard errors based on the sandwich estimator\n"
     if (inherits(x$test, "mtest")) {
         cat("Linear hypotheses for natural effect models\n", 
             catSE, "---\n", sep = "")
@@ -390,10 +430,11 @@ print.summary.neLht <- function (x, digits = max(3, getOption("digits") - 3), ..
 }
 
 #' @rdname neLht-methods
+#' @method summary neLht
 #' @export
 summary.neLht <- function (object, test = univariate(), ...) 
 {
-    class(object) <- "glht"
+    class(object) <- c("glht", class(object))
     summary <- summary(object, test = test, ...)
     pq <- summary$test
     if (inherits(pq, "mtest")) {
@@ -403,7 +444,7 @@ summary.neLht <- function (object, test = univariate(), ...)
             "Std. Error", "z value", "Pr(>|z|)"))
         summary$coef.table <- coef.table
     }
-    class(summary) <- c("summary.neLhtBoot", "summary.neLht", 
+    class(summary) <- c(if (inherits(object, "neLhtBoot")) "summary.neLhtBoot", "summary.neLht", 
         class(summary))
     return(summary)
 }

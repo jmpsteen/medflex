@@ -25,6 +25,33 @@ mgsub <- function (pattern, replacement, x, ...)
     return(x)
 }
 
+indmatch <- function (x, y) 
+{
+    tmp <- which(sapply(seq.int(length(y) - length(x) + 1), function(i) identical(x, y[i + (seq_along(x)-1)])))
+    return(seq.int(x) - 1 + tmp)
+}
+
+adaptx <- function(expData, neModelFit, obs = NULL, xFit = NULL) 
+{
+    fit1 <- neModelFit
+    fit2 <- if (missing(xFit)) attr(expData, "model") else xFit
+    vartype <- attr(terms(expData), "vartype")
+    
+    if (inherits(expData, "weightData")) X <- ifelse(obs, vartype$Xexp[[1]], vartype$Xexp[[2]])
+    else if (inherits(expData, "impData")) X <- ifelse(obs, vartype$Xexp[[2]], vartype$Xexp[[1]])
+    
+    ind <- c(unlist(vartype[c("Y", "M", "C")]), X)
+    if (is.na(ind["Y"])) vartype$Y <- ind["Y"] <- all.vars(fit1$formula)[1]
+    
+    newdat <- expData[, ind]
+    colnames(newdat) <- gsub(X, vartype$X, colnames(newdat))
+    newdat <- newdat[, unlist(vartype[c("Y", "X", "M", "C")])]
+    
+    modmat <- model.matrix(fit2$formula, newdat)
+    
+    return(list(newdat = newdat, modmat = modmat))
+}
+
 neModelEst <- function (formula, family, expData, xFit, ...) 
 {
     args <- as.list(match.call())[-1L]
@@ -49,14 +76,14 @@ neModelEst <- function (formula, family, expData, xFit, ...)
             "poisson", "multinomial"))]
         dispersion <- if (inherits(xFit, "vglm")) 
           xFit@misc$dispersion
-        else summary(xFit)$dispersion
-        dfun <- function(x) switch(family, 
-          gaussian = dnorm(x, mean = predict(xFit, newdata = expData, type = "response"), sd = sqrt(dispersion)), 
-          binomial = {if (is.factor(x)) x <- as.numeric(x) - 1
-            return(dbinom(x, size = 1, prob = predict(xFit, newdata = expData, type = "response")))}, 
-          poisson = dpois(x, lambda = predict(xFit, newdata = expData, type = "response")),
-          multinomial = {pred <- predict(xFit, newdata = expData, type = "response")
-            return(sapply(1:nrow(expData), function(i) pred[i, as.character(x[i])]))})
+        else summary(xFit)$dispersion 
+        dfun <- switch(family, 
+                       gaussian = function(x) dnorm(x, mean = predict(xFit, newdata = expData, type = "response"), sd = sqrt(dispersion)), 
+                       binomial = function(x) {if (is.factor(x)) x <- as.numeric(x) - 1
+                                               return(dbinom(x, size = 1, prob = predict(xFit, newdata = expData, type = "response")))}, 
+                       poisson = function(x) dpois(x, lambda = predict(xFit, newdata = expData, type = "response")),
+                       multinomial = function(x) {pred <- predict(xFit, newdata = expData, type = "response")
+                                                  return(sapply(1:nrow(expData), function(i) pred[i, as.character(x[i])]))})
         denominator <- if (inherits(expData, "weightData")) 
           dfun(expData[, vartype$Xexp[1]])
         else if (inherits(expData, "impData")) 

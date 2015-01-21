@@ -3,9 +3,9 @@
 \alias{neModel}
 \title{Fit a natural effect model}
 \usage{
-neModel(formula, family = gaussian, expData, xFit, nBoot = 1000,
-  parallel = c("no", "multicore", "snow"), ncpus = getOption("boot.ncpus",
-  1L), progress = TRUE, ...)
+neModel(formula, family = gaussian, expData, xFit, se = c("bootstrap",
+  "robust"), nBoot = 1000, parallel = c("no", "multicore", "snow"),
+  ncpus = getOption("boot.ncpus", 1L), progress = TRUE, ...)
 }
 \arguments{
 \item{formula}{a \code{\link[stats]{formula}} object providing a symbolic description of the natural effect model.}
@@ -19,6 +19,8 @@ neModel(formula, family = gaussian, expData, xFit, nBoot = 1000,
 \item{expData}{the expanded dataset (of class \code{"\link{expData}"}).}
 
 \item{xFit}{fitted model object representing a model for the exposure (used for inverse treatment (exposure) probability weighting).}
+
+\item{se}{character string indicating the type of standard errors to be calculated. The default type is based on the bootstrap (see details).}
 
 \item{nBoot}{number of bootstrap replicates (see \code{R} argument of \code{\link[boot]{boot}}).}
 
@@ -37,7 +39,7 @@ neModel(formula, family = gaussian, expData, xFit, nBoot = 1000,
 \value{
 An object of class \code{"\link[=neModel-methods]{neModel}"} consisting of a list of 2 objects:
 \item{\code{neModelFit}}{the fitted natural model object (of class \code{"\link[stats]{glm}"}) with downwardly biased standard errors}
-\item{\code{bootRes}}{the bootstrap results (of class \code{"\link[boot]{boot}"})}
+\item{\code{bootRes}, \code{vcov}}{the bootstrap results (of class \code{"\link[boot]{boot}"}; if \code{se = "bootstrap"}) or the sandwich estimator variance-covariance matrix (if \code{se = "robust"})}
 See \code{\link{neModel-methods}} for methods for \code{neModel} objects.
 }
 \description{
@@ -59,8 +61,11 @@ and possibly ratio-of-mediator probability weights.
 The latter are automatically extracted from the \code{\link{expData}} object and weighting is done internally.
 
 As the default \code{\link[stats]{glm}} standard errors fail to reflect the uncertainty inherent to the working model(s) (i.e. either a model for the mediator or an imputation model for the outcome and possibly a model for the exposure),
-bootstrap standard errors are calculated (using the \code{\link[boot]{boot}} function from the \pkg{boot} package). The bootstrap procedure entails refitting these working models on each bootstrap sample, reconstructing the expanded dataset and subsequently refitting the specified natural effect model on this dataset.
-In order to obtain stable standard errors, the number of bootstrap samples (specified via the \code{nBoot} argument) should be chosen relatively high. Although the default is 1000, it is recommended to use at least 500 bootstrap samples.
+bootstrap standard errors (using the \code{\link[boot]{boot}} function from the \pkg{boot} package) or robust standard errors are calculated. The default type of standard errors is bootstrap standard errors.
+Robust standard errors (based on the sandwich estimator) can be requested to be calculated instead by specifying \code{se = "robust"}.
+
+The bootstrap procedure entails refitting these working models on each bootstrap sample, reconstructing the expanded dataset and subsequently refitting the specified natural effect model on this dataset.
+In order to obtain stable standard errors, the number of bootstrap samples (specified via the \code{nBoot} argument) should be chosen relatively high (default is 1000).
 
 To speed up the bootstrap procedure, parallel processing can be used by specifying the desired type of parallel operation via the \code{parallel} argument (for more details, see \code{\link[boot]{boot}}).
 The number of parallel processes (\code{ncpus}) is suggested to be specified explicitly (its default is 1, unless the global option \code{options("boot.cpus")} is specified).
@@ -73,34 +78,58 @@ should be captured solely by parameter(s) corresponding to the auxiliary hypothe
 \examples{
 data(UPBdata)
 
-## weighting-based approach
+##############################
+## weighting-based approach ##
+##############################
 weightData <- neWeight(negaff ~ att + gender + educ + age,
                        data = UPBdata)
 
-# stratum-specific natural effects
-\donttest{weightFit1 <- neModel(UPB ~ att0 * att1 + gender + educ + age,
-                      family = binomial, expData = weightData)}\dontshow{weightFit1 <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = weightData, nBoot = 2)}
-summary(weightFit1)
+## stratum-specific natural effects
+# bootstrap SE
+\donttest{weightFit1b <- neModel(UPB ~ att0 * att1 + gender + educ + age,
+                       family = binomial, expData = weightData)}\dontshow{weightFit1b <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = weightData, nBoot = 2)}
+summary(weightFit1b)
+# robust SE
+weightFit1r <- neModel(UPB ~ att0 * att1 + gender + educ + age,
+                       family = binomial, expData = weightData, se = "robust")
+summary(weightFit1r)
 
-# population-average natural effects
+## population-average natural effects
 expFit <- glm(att ~ gender + educ + age, data = UPBdata)
-\donttest{weightFit2 <- neModel(UPB ~ att0 * att1, family = binomial,
-                      expData = weightData, xFit = expFit)}\dontshow{weightFit2 <- neModel(UPB ~ att0 * att1, family = binomial, expData = weightData, xFit = expFit, nBoot = 2)}
-summary(weightFit2)
+# bootstrap SE
+\donttest{weightFit2b <- neModel(UPB ~ att0 * att1, family = binomial,
+                       expData = weightData, xFit = expFit)}\dontshow{weightFit2b <- neModel(UPB ~ att0 * att1, family = binomial, expData = weightData, xFit = expFit, nBoot = 2)}
+summary(weightFit2b)
+# robust SE
+weightFit2r <- neModel(UPB ~ att0 * att1, family = binomial,
+                       expData = weightData, xFit = expFit, se = "robust")
+summary(weightFit2r)
 
-## imputation-based approach
+###############################
+## imputation-based approach ##
+###############################
 impData <- neImpute(UPB ~ att * negaff + gender + educ + age,
                     family = binomial, data = UPBdata)
 
-# stratum-specific natural effects
-\donttest{impFit1 <- neModel(UPB ~ att0 * att1 + gender + educ + age,
-                   family = binomial, expData = impData)
-summary(impFit1)}
+## stratum-specific natural effects
+# bootstrap SE
+\donttest{impFit1b <- neModel(UPB ~ att0 * att1 + gender + educ + age,
+                    family = binomial, expData = impData)
+summary(impFit1b)}
+# robust SE
+impFit1r <- neModel(UPB ~ att0 * att1 + gender + educ + age,
+                    family = binomial, expData = impData, se = "robust")
+summary(impFit1r)
 
-# population-average natural effects
-\donttest{impFit2 <- neModel(UPB ~ att0 * att1, family = binomial,
-                   expData = impData, xFit = expFit)}\dontshow{impFit2 <- neModel(UPB ~ att0 * att1, family = binomial, expData = impData, xFit = expFit, nBoot = 2)}
-summary(impFit2)
+## population-average natural effects
+# bootstrap SE
+\donttest{impFit2b <- neModel(UPB ~ att0 * att1, family = binomial,
+                    expData = impData, xFit = expFit)}\dontshow{impFit2b <- neModel(UPB ~ att0 * att1, family = binomial, expData = impData, xFit = expFit, nBoot = 2)}
+summary(impFit2b)
+# robust SE
+impFit2r <- neModel(UPB ~ att0 * att1, family = binomial,
+                    expData = impData, xFit = expFit, se = "robust")
+summary(impFit2r)
 
 \dontshow{# check with vgam (VGAM package)
 library(VGAM)
