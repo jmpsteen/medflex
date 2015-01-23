@@ -24,7 +24,7 @@
 #' @name neModel-methods
 #' @note \emph{Z}-values in the summary table are simply calculated by dividing the parameter estimate by its corresponding bootstrap standard error. 
 #' Corresponding \emph{p}-values in the summary table are only indicative, since the null distribution for each statistic is assumed to be approximately standard normal.
-#' Therefore, where possible, it is generally recommend to focus mainly on bootstrap confidence intervals for inference, rather than the provided \emph{p}-values.
+#' Therefore, where possible, it is recommended to focus mainly on bootstrap confidence intervals for inference, rather than the provided \emph{p}-values.
 #' @seealso \code{\link{neModel}}, \code{\link{plot.neModel}}, \code{\link{weights}}
 #' @examples
 #' data(UPBdata)

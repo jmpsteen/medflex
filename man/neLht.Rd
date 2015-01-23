@@ -6,9 +6,9 @@
 \alias{neLht.neModel}
 \title{Linear hypotheses for natural effect models}
 \usage{
-neEffdecomp(model, xRef, ...)
+neEffdecomp(model, xRef, covLev, ...)
 
-\method{neEffdecomp}{neModel}(model, xRef, ...)
+\method{neEffdecomp}{neModel}(model, xRef, covLev, ...)
 
 neLht(model, ...)
 
@@ -17,7 +17,9 @@ neLht(model, ...)
 \arguments{
 \item{model}{a fitted natural effect model object.}
 
-\item{xRef}{a numerical vector including reference levels for the exposure, \emph{x*} and \emph{x}, at which natural effect components need to be evaluated (see details).}
+\item{xRef}{a vector including reference levels for the exposure, \emph{x*} and \emph{x}, at which natural effect components need to be evaluated (see details).}
+
+\item{covLev}{a vector including covariate levels at which natural effect components need to be evaluated (see details).}
 
 \item{...}{additional arguments (passed to \code{\link[multcomp]{glht}}).}
 }
@@ -45,6 +47,12 @@ For continuous exposures, default exposure levels at which natural effect compon
 For multicategorical exposures, default levels are the reference level of the factor that encodes the exposure variable and the level corresponding to its first dummy variable for \emph{x*} and \emph{x}, respectively.
 If one wishes to evaluate natural effect components at different reference levels (e.g. if the natural effect model includes mediated interaction, quadratic or polynomial terms for the exposure; see examples),
 these can be specified as a vector of the form \code{c(x*,x)} via the \code{xRef} argument.
+
+For stratum-specific natural effect models with effect modification by baseline covariates (i.e. moderated mediation), covariate levels at which natural effect components are evaluated can also be specified.
+By default, these levels are set to 0 for continuous covariates and to the reference level for categorical covariates coded as factors.
+These covariate levels can be changed via the \code{covLev} argument, which requires a vector including valid covariate levels for each of the covariates that are specified in the natural effect model (also those for which no effect modification is postulated).
+If corresponding covariate levels are specified in the same order as covariates are specified in the natural effect model, the names of the covariates do not need to be included in the vector.
+If covariate names are specified in the vector, the order of covariate (levels) is of no importance (see example).
 }
 \note{
 \code{neEffdecomp} is internally called by \code{\link{plot.neModel}} to create confidence interval plots for \code{neModel} objects.
@@ -76,6 +84,7 @@ neEffdecomp(neMod)
 neEffdecomp(neMod, xRef = c("L", "H"))
 neEffdecomp(neMod, xRef = c("M", "H"))
 
+
 ## changing reference levels for continuous exposures
 impData <- neImpute(UPB ~ poly(att, 2, raw = TRUE) * negaff + gender + educ + age,
                     family = binomial, data = UPBdata)
@@ -83,6 +92,18 @@ impData <- neImpute(UPB ~ poly(att, 2, raw = TRUE) * negaff + gender + educ + ag
                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ poly(att0, 2, raw = TRUE) * poly(att1, 2, raw = TRUE) + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
 neEffdecomp(neMod)
 neEffdecomp(neMod, xRef = c(2, 1))
+
+## changing covariate levels when allowing for modification
+## of the indirect effect by baseline covariates
+impData <- neImpute(UPB ~ (att + negaff + gender + educ + age)^2,
+                    family = binomial, data = UPBdata)
+\donttest{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age + att1:gender + att1:educ + att1:age,
+                 family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age + att1:gender + att1:educ + att1:age, family = binomial, expData = impData, nBoot = 2)}
+neEffdecomp(neMod)
+neEffdecomp(neMod, covLev = c("F", "L", 0)) # default covariate levels
+neEffdecomp(neMod, covLev = c("F", "M", mean(UPBdata$age)))
+neEffdecomp(neMod, covLev = c(age = mean(UPBdata$age), educ = "M", gender = "F"))
+# yields identical results
 }
 \seealso{
 \code{\link{confint}}, \code{\link{plot.neLht}}, \code{\link{neLht-methods}}, \code{\link[multcomp]{glht}}, \code{\link[=coef.glht]{glht-methods}}, \code{\link{neModel}}, \code{\link{plot.neModel}}, \code{\link{summary}}

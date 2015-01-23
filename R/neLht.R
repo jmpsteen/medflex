@@ -2,7 +2,8 @@
 #'
 #' @description \code{neLht} allows to calculate linear combinations of natural effect model parameter estimates.\cr \code{neEffdecomp} automatically extracts relevant causal parameter estimates from a natural effect model.
 #' @param model a fitted natural effect model object.
-#' @param xRef a numerical vector including reference levels for the exposure, \emph{x*} and \emph{x}, at which natural effect components need to be evaluated (see details). 
+#' @param xRef a vector including reference levels for the exposure, \emph{x*} and \emph{x}, at which natural effect components need to be evaluated (see details). 
+#' @param covLev a vector including covariate levels at which natural effect components need to be evaluated (see details). 
 #' @param ... additional arguments (passed to \code{\link[multcomp]{glht}}).
 #' @return An object of class \code{c("neLhtBoot", "neLht", "glht")} (see \code{\link[multcomp]{glht}}). \code{neEffdecomp} returns an object that additionally inherits from class \code{"neEffdecomp"}.
 #' 
@@ -22,6 +23,13 @@
 #' For multicategorical exposures, default levels are the reference level of the factor that encodes the exposure variable and the level corresponding to its first dummy variable for \emph{x*} and \emph{x}, respectively.  
 #' If one wishes to evaluate natural effect components at different reference levels (e.g. if the natural effect model includes mediated interaction, quadratic or polynomial terms for the exposure; see examples), 
 #' these can be specified as a vector of the form \code{c(x*,x)} via the \code{xRef} argument.
+#' 
+#' For stratum-specific natural effect models with effect modification by baseline covariates (i.e. moderated mediation), covariate levels at which natural effect components are evaluated can also be specified.
+#' By default, these levels are set to 0 for continuous covariates and to the reference level for categorical covariates coded as factors. 
+#' These covariate levels can be changed via the \code{covLev} argument, which requires a vector including valid covariate levels for each of the covariates that are specified in the natural effect model (also those for which no effect modification is postulated).
+#' If corresponding covariate levels are specified in the same order as covariates are specified in the natural effect model, the names of the covariates do not need to be included in the vector.
+#' If covariate names are specified in the vector, the order of covariate (levels) is of no importance (see example).
+#' 
 #' @name neLht
 #' @note \code{neEffdecomp} is internally called by \code{\link{plot.neModel}} to create confidence interval plots for \code{neModel} objects.
 #' @seealso \code{\link{confint}}, \code{\link{plot.neLht}}, \code{\link{neLht-methods}}, \code{\link[multcomp]{glht}}, \code{\link[=coef.glht]{glht-methods}}, \code{\link{neModel}}, \code{\link{plot.neModel}}, \code{\link{summary}}
@@ -52,6 +60,7 @@
 #' neEffdecomp(neMod, xRef = c("L", "H"))
 #' neEffdecomp(neMod, xRef = c("M", "H"))
 #' 
+#' 
 #' ## changing reference levels for continuous exposures
 #' impData <- neImpute(UPB ~ poly(att, 2, raw = TRUE) * negaff + gender + educ + age,
 #'                     family = binomial, data = UPBdata)
@@ -59,6 +68,19 @@
 #'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ poly(att0, 2, raw = TRUE) * poly(att1, 2, raw = TRUE) + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
 #' neEffdecomp(neMod)
 #' neEffdecomp(neMod, xRef = c(2, 1))
+#' 
+#' ## changing covariate levels when allowing for modification 
+#' ## of the indirect effect by baseline covariates
+#' impData <- neImpute(UPB ~ (att + negaff + gender + educ + age)^2,
+#'                     family = binomial, data = UPBdata)
+#' \donttest{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age + att1:gender + att1:educ + att1:age,
+#'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age + att1:gender + att1:educ + att1:age, family = binomial, expData = impData, nBoot = 2)}
+#' neEffdecomp(neMod)
+#' neEffdecomp(neMod, covLev = c("F", "L", 0)) # default covariate levels
+#' neEffdecomp(neMod, covLev = c("F", "M", mean(UPBdata$age)))
+#' neEffdecomp(neMod, covLev = c(age = mean(UPBdata$age), educ = "M", gender = "F")) 
+#' # yields identical results
+#' 
 #' @export
 NULL
 
@@ -91,7 +113,7 @@ NULL
 #'
 #' @note \emph{Z}-values in the summary table are simply calculated by dividing the parameter estimate by its corresponding bootstrap standard error. 
 #' Corresponding \emph{p}-values in the summary table are only indicative, since the null distribution for each statistic is assumed to be approximately standard normal.
-#' Therefore, where possible, it is generally recommend to focus mainly on bootstrap confidence intervals for inference, rather than the provided \emph{p}-values.
+#' Therefore, where possible, it is recommended to focus mainly on bootstrap confidence intervals for inference, rather than the provided \emph{p}-values.
 #' @seealso \code{\link{neLht}}, \code{\link{plot.neLht}}, \code{\link[multcomp]{glht}}, \code{\link[=coef.glht]{glht-methods}}
 #' @examples
 #' data(UPBdata)
@@ -116,6 +138,51 @@ NULL
 #' 
 #' ## summary table with omnibus Chisquare test
 #' summary(lht, test = Chisqtest())
+NULL
+
+#' Confidence interval plots for linear hypotheses in natural effect models
+#'
+#' @description Confidence interval plots for linear hypotheses in natural effect models.
+#' @param x an object of class \code{neLht}.
+#' @param ci.type the type of bootstrap intervals required. The default \code{"norm"} returns normal approximation bootstrap confidence intervals. Currently, only \code{"norm"}, \code{"basic"} and \code{"perc"} are supported (see \code{\link[boot]{boot.ci}}).
+#' @param transf transformation function to be applied internally on the (linear hypothesis) estimates and their confidence intervals (e.g. \code{exp} for logit or Poisson regression). The default is \code{identity} (i.e. no transformation).
+#' @param ylabels character vector containing the labels for the (linear hypothesis) estimates to be plotted on the y-axis.
+#' @param yticks.at numeric vector containing the y-coordinates (from 0 to 1) to draw the tick marks for the different estimates and their corresponding confidence intervals.
+#' @param ... additional arguments.
+#' @inheritParams stats::confint.default
+#' @name plot.neLht
+#' @details This function is an adapted version of \code{\link[multcomp]{plot.glht}} from the \pkg{multcomp} package and
+#' yields confidence interval plots for each of the linear hypothesis parameters.
+#' @seealso \code{\link{neModel}}, \code{\link{neLht}}, \code{\link{neEffdecomp}}
+#' @examples
+#' data(UPBdata)
+#' 
+#' impData <- neImpute(UPB ~ att * negaff + gender + educ + age, 
+#'                     family = binomial, data = UPBdata)
+#' \donttest{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
+#'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
+#' 
+#' lht <- neLht(neMod, linfct = c("att0 = 0", "att0 + att0:att1 = 0", 
+#'                                "att1 = 0", "att1 + att0:att1 = 0", 
+#'                                "att0 + att1 + att0:att1 = 0"))
+#' 
+#' ## all pairs return identical output
+#' plot(confint(lht), transf = exp)
+#' plot(lht, transf = exp)
+#' 
+#' plot(neEffdecomp(neMod), transf = exp)
+#' plot(neMod, transf = exp)
+#' 
+#' \dontshow{
+#'   plot(neEffdecomp(neMod), level = 0.8, transf = exp, ylabels = c("PDE", "TDE", "PIE", "TIE", "TE"), yticks.at = c(0, 0.1, 0.5, 0.6, 1))
+#'   plot(neMod, level = 0.8, transf = exp, ylabels = c("PDE", "TDE", "PIE", "TIE", "TE"), yticks.at = c(0, 0.1, 0.5, 0.6, 1))
+#'   
+#'   lht <- neLht(neMod, linfct = c("att0 = 0"))
+#'   summary(lht)
+#'   lht <- neLht(neMod, linfct = c("att0 = 0", "att0 + att0:att1 = 2"))
+#'   summary(lht)
+#' }
+#' @export
 NULL
 
 coef.neLhtCI <- function (object, ...) 
@@ -160,66 +227,81 @@ confint.neLht <- function (object, parm, level = 0.95, calpha = univariate_calph
 
 #' @rdname neLht
 #' @export
-neEffdecomp <- function (model, xRef, ...) 
+neEffdecomp <- function (model, xRef, covLev, ...) 
 {
     UseMethod("neEffdecomp")
 }
 
 #' @rdname neLht
 #' @export
-neEffdecomp.neModel <- function (model, xRef, ...) 
+neEffdecomp.neModel <- function (model, xRef, covLev, ...) 
 {
-    xFact <- is.factor(model$neModelFit$data[, attr(terms(model), "vartype")$Xexp[[1]]])
-    if (xFact) xRefCheck <- levels(model$neModelFit$data[, attr(terms(model), "vartype")$Xexp[[1]]])
-
-    if (missing(xRef)) {
-        xRef <- if (xFact) xRefCheck[1:2] else c(0, 1)
-    } else {
-        if (xFact && !all(xRef %in% xRefCheck)) {
-            warning(gettextf("Invalid reference levels! Default reference levels %s were used instead.", 
-                             paste0("c(", paste(paste0("'", xRefCheck, "'"), collapse = ", "), ")")))
-            xRef <- xRefCheck[1:2]
-        }
+  xFact <- is.factor(model$neModelFit$data[, attr(terms(model), "vartype")$Xexp[[1]]])
+  if (xFact) xRefCheck <- levels(model$neModelFit$data[, attr(terms(model), "vartype")$Xexp[[1]]])
+  if (missing(xRef)) {
+    xRef <- if (xFact) xRefCheck[1:2] else c(0, 1)
+  } else {
+    if (xFact && !all(xRef %in% xRefCheck)) {
+      warning(gettextf("Invalid reference levels! Default reference levels %s were used instead.", 
+                       paste0("c(", paste(paste0("'", xRefCheck, "'"), collapse = ", "), ")")))
+      xRef <- xRefCheck[1:2]
     }
-
-    calcContr <- function(x, formula) {
-        if (xFact) x <- factor(x, levels = xRefCheck)
-        dat1 <- data.frame(1, x[1], x[2])
-        names(dat1) <- all.vars(formula)
-        modmat1 <- model.matrix(formula, data = dat1)
-        dat2 <- data.frame(1, x[3], x[4])
-        names(dat2) <- all.vars(formula)
-        modmat2 <- model.matrix(formula, data = dat2)
-        return(t(modmat1 - modmat2))
-    }
-
-    list <- list(xRef[c(2, 1, 1, 1)],
-                 xRef[c(2, 2, 1, 2)],
-                 xRef[c(1, 2, 1, 1)],
-                 xRef[c(2, 2, 2, 1)],
-                 xRef[c(2, 2, 1, 1)])
-  
-    form <- model$neModelFit$formula
-    ind <- sort(unlist(lapply(attr(terms(model), "vartype")$C, grep, attr(terms(form), "term.labels"))))
-    keep <- attr(terms(form), "term.labels")[-ind]
-    rhs <- paste(keep, collapse = " + ")
-    updateForm <- as.formula(paste(form[[2]], "~", rhs))
-    
-    K2 <- t(data.frame(lapply(list, calcContr, updateForm)))
-    K2 <- unique(K2)
-    
-    rownames <- if (nrow(K2) == 3) {
-        c("natural direct effect", "natural indirect effect", "total effect")
-    } else {
-        c("pure direct effect", "total direct effect", "pure indirect effect", "total indirect effect", "total effect")
-    }
-    K <- matrix(0, nrow = nrow(K2), ncol = length(coef(model)), dimnames = list(rownames, names(coef(model))))
-    K[, colnames(K2)] <- K2
-    colnames(K) <- NULL
-    
-    effdecomp <- neLht(model, linfct = K)
-    class(effdecomp) <- c("neEffdecomp", class(effdecomp))
-    return(effdecomp)
+  }
+  calcContr <- function(x, formula, covDat) {
+    if (xFact) x <- factor(x, levels = xRefCheck)
+    dat1 <- if (nrow(covDat)) data.frame(1, x[1], x[2], covDat) else data.frame(1, x[1], x[2])
+    names(dat1) <- all.vars(formula)
+    modmat1 <- model.matrix(formula, data = dat1)
+    dat2 <- if (nrow(covDat)) data.frame(1, x[3], x[4], covDat) else data.frame(1, x[3], x[4])
+    names(dat2) <- all.vars(formula)
+    modmat2 <- model.matrix(formula, data = dat2)
+    return(t(modmat1 - modmat2))
+  }
+  list <- list(xRef[c(2, 1, 1, 1)],
+               xRef[c(2, 2, 1, 2)],
+               xRef[c(1, 2, 1, 1)],
+               xRef[c(2, 2, 2, 1)],
+               xRef[c(2, 2, 1, 1)])
+  form <- model$neModelFit$formula
+  vartype <- attr(terms(model), "vartype")
+  cov <- all.vars(form)[!all.vars(form) %in% unlist(vartype[c("Y", "Xexp")])]
+  if (!missing(covLev) & !length(cov)) warning("As the natural effect model does not encode covariate effects, specified covariate levels are not taken into account.")
+  covClass <- sapply(model$neModelFit$data[, cov], class)
+  if (!missing(covLev)) {
+    covLev <- if (is.null(names(covLev))) covLev else covLev[cov]
+    if (sum(is.na(covLev))) stop("Invalid covariate level specification! Please check whether (valid) levels are specified for all covariates and whether covariate names are entered correctly.")
+  }
+  covMat <- cbind(if (!missing(covLev)) covLev, cov, covClass)
+  covList <- split(covMat, 1:nrow(covMat))
+  if (!missing(covLev)) {
+    covDat <- as.data.frame(lapply(covList, function(x) {
+      switch(x[3],
+             "factor" = {factor(x[1], levels = levels(model$neModelFit$data[, x[2]]))},
+             "numeric" = {as.numeric(x[1])},
+             "integer" = {as.numeric(x[1])})
+    }))
+  }
+  else {
+    covDat <- as.data.frame(lapply(covList, function(x) {
+      switch(x[2],
+             "factor" = {factor(levels(model$neModelFit$data[, x[[1]]])[1], levels = levels(model$neModelFit$data[, x[1]]))},
+             "numeric" = {0},
+             "integer" = {0})
+    }))
+  }
+  K2 <- t(data.frame(lapply(list, calcContr, form, covDat)))
+  K2 <- unique(K2)
+  rownames <- if (nrow(K2) == 3) {
+    c("natural direct effect", "natural indirect effect", "total effect")
+  } else {
+    c("pure direct effect", "total direct effect", "pure indirect effect", "total indirect effect", "total effect")
+  }
+  K <- matrix(0, nrow = nrow(K2), ncol = length(coef(model)), dimnames = list(rownames, names(coef(model))))
+  K[, colnames(K2)] <- K2
+  colnames(K) <- NULL
+  effdecomp <- neLht(model, linfct = K)
+  class(effdecomp) <- c("neEffdecomp", class(effdecomp))
+  return(effdecomp)
 }
 
 #' @rdname neLht
@@ -254,47 +336,7 @@ plot.neEffdecomp <- function (x, level = 0.95, transf = identity,
     eval(as.call(args))
 }
 
-#' Confidence interval plots for linear hypotheses in natural effect models
-#'
-#' @description Confidence interval plots for linear hypotheses in natural effect models.
-#' @param x an object of class \code{neLht}.
-#' @param ci.type the type of bootstrap intervals required. The default \code{"norm"} returns normal approximation bootstrap confidence intervals. Currently, only \code{"norm"}, \code{"basic"} and \code{"perc"} are supported (see \code{\link[boot]{boot.ci}}).
-#' @param transf transformation function to be applied internally on the (linear hypothesis) estimates and their confidence intervals (e.g. \code{exp} for logit or Poisson regression). The default is \code{identity} (i.e. no transformation).
-#' @param ylabels character vector containing the labels for the (linear hypothesis) estimates to be plotted on the y-axis.
-#' @param yticks.at numeric vector containing the y-coordinates (from 0 to 1) to draw the tick marks for the different estimates and their corresponding confidence intervals.
-#' @param ... additional arguments.
-#' @inheritParams stats::confint.default
-#' @details This function is an adapted version of \code{\link[multcomp]{plot.glht}} from the \pkg{multcomp} package and
-#' yields confidence interval plots for each of the linear hypothesis parameters.
-#' @seealso \code{\link{neModel}}, \code{\link{neLht}}, \code{\link{neEffdecomp}}, \code{\link{plot.neLht}}, \code{\link{plot.neEffdecomp}}
-#' @examples
-#' data(UPBdata)
-#' 
-#' impData <- neImpute(UPB ~ att * negaff + gender + educ + age, 
-#'                     family = binomial, data = UPBdata)
-#' \donttest{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
-#'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
-#' 
-#' lht <- neLht(neMod, linfct = c("att0 = 0", "att0 + att0:att1 = 0", 
-#'                                "att1 = 0", "att1 + att0:att1 = 0", 
-#'                                "att0 + att1 + att0:att1 = 0"))
-#' 
-#' ## all pairs return identical output
-#' plot(confint(lht), transf = exp)
-#' plot(lht, transf = exp)
-#' 
-#' plot(neEffdecomp(neMod), transf = exp)
-#' plot(neMod, transf = exp)
-#' 
-#' \dontshow{
-#'   plot(neEffdecomp(neMod), level = 0.8, transf = exp, ylabels = c("PDE", "TDE", "PIE", "TIE", "TE"), yticks.at = c(0, 0.1, 0.5, 0.6, 1))
-#'   plot(neMod, level = 0.8, transf = exp, ylabels = c("PDE", "TDE", "PIE", "TIE", "TE"), yticks.at = c(0, 0.1, 0.5, 0.6, 1))
-#'   
-#'   lht <- neLht(neMod, linfct = c("att0 = 0"))
-#'   summary(lht)
-#'   lht <- neLht(neMod, linfct = c("att0 = 0", "att0 + att0:att1 = 2"))
-#'   summary(lht)
-#' }
+#' @rdname plot.neLht
 #' @export
 plot.neLht <- function (x, level = 0.95, transf = identity, ylabels, 
     yticks.at, ...) 
