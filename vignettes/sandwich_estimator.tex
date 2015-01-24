@@ -26,9 +26,10 @@ working model $\mu_2(X,C;\theta)$:
 
 \subsubsection*{Estimating equations}
 \begin{align*}
-\displaystyle U_{1}(X_i,x^*,C_i;\beta) &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij},C_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\\[-0.6em] & \qquad \qquad \qquad \cdot \big[ Y_i - \mu_1(X_i,x^*_{ij},C_i;\beta) \big]\\[1em]
+\displaystyle U_{1}(X_i,x^*,C_i;\beta,\theta) &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij},C_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\\[-0.6em] & \qquad \qquad \qquad \cdot \big[ Y_i - \mu_1(X_i,x^*_{ij},C_i;\beta) \big]\\[1em]
 \displaystyle U_{2}(X_i,C_i;\theta) &= \frac{\partial \mu_2(X_i,C_i;\theta)}{\partial \theta} \Sigma_{\mu_2}^{-1} \big[ Y_i - \mu_2(X_i,C_i;\theta) \big]
 \end{align*}
+with $k$ the number of replications or hypothetical values $x^*$ for each observation unit $i$ and $\Sigma_{\mu_i}$ the residual variance-covariance matrix for model $\mu_i$.
 
 \subsubsection*{Sandwich estimator}
 
@@ -38,7 +39,7 @@ Let $\zeta = (\beta, \theta)$ and $\tilde U = (U_1, U_2)$. The sandwich estimato
 \displaystyle n^{-1}\cdot\mbox{E}\left(-\frac{\partial \tilde U}{\partial \zeta}\right)^{-1} \mbox{Var}(\tilde U) \cdot \mbox{E}\left(-\frac{\partial \tilde U}{\partial \zeta}\right)^{-T}
 \end{eqnarray*}
 
-\noindent with 
+\noindent with $n$ the total sample size of the original dataset, 
 \[
 \renewcommand\arraystretch{2.5}
 \displaystyle \mbox{E}\left(-\frac{\partial \tilde U}{\partial \zeta}\right)^{-1} = 
@@ -69,7 +70,7 @@ working model $\mu_3(C;\tau)$:
 \subsubsection*{Estimating equations}
 
 \begin{align*}
-\displaystyle U_{1}(X_i,x^*;\beta) &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij};\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \Pr(X_i\vert C_i;\tau)^{-1} \cdot \frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\\[-0.6em] & \qquad \qquad \qquad \cdot \big[ Y_i - \mu_1(X_i,x^*_{ij};\beta) \big]\\[1em]
+\displaystyle U_{1}(X_i,x^*;\beta,\theta,\tau) &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij};\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \Pr(X_i\vert C_i;\tau)^{-1} \cdot \frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\\[-0.6em] & \qquad \qquad \qquad \cdot \big[ Y_i - \mu_1(X_i,x^*_{ij};\beta) \big]\\[1em]
 \displaystyle U_{2}(X_i,C_i;\theta) &= \frac{\partial \mu_2(X_i,C_i;\theta)}{\partial \theta} \Sigma_{\mu_2}^{-1} \big[ Y_i - \mu_2(X_i,C_i;\theta) \big]\\[1em]
 \displaystyle U_{3}(C_i;\tau) &= \frac{\partial \mu_3(C_i;\tau)}{\partial \tau} \Sigma_{\mu_3}^{-1} \big[ X_i - \mu_3(C_i;\tau) \big]
 \end{align*}
@@ -117,7 +118,7 @@ working model $\mu_2(X,M,C;\gamma)$:
 \subsubsection*{Estimating equations}
 
 \begin{align*}
-\displaystyle U_{1}(x,X_i,C_i;\beta) &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(x_{ij},X_i,C_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1}\\[-0.6em] & \qquad \qquad \qquad \cdot \big[ \mu_2(x_{ij},M_i,C_i;\gamma) - \mu_1(x_{ij},X_i,C_i;\beta) \big]\\[1em]
+\displaystyle U_{1}(x,X_i,C_i;\beta,\gamma) &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(x_{ij},X_i,C_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1}\\[-0.6em] & \qquad \qquad \qquad \cdot \big[ \mu_2(x_{ij},M_i,C_i;\gamma) - \mu_1(x_{ij},X_i,C_i;\beta) \big]\\[1em]
 \displaystyle U_{2}(X_i,M_i,C_i;\gamma) &= \frac{\partial \mu_2(X_i,M_i,C_i;\gamma)}{\partial \gamma} \Sigma_{\mu_2}^{-1} \big[ Y_i - \mu_2(X_i,M_i,C_i;\gamma) \big]
 \end{align*}
 
@@ -162,7 +163,7 @@ working model $\mu_3(C;\tau)$:
 \subsubsection*{Estimating equations}
 
 \begin{align*}
-\displaystyle U_{1}(x,X_i;\beta) &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(x_{ij},X_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \Pr(X_i\vert C_i; \tau)^{-1} \\[-0.6em] & \qquad \qquad \qquad \cdot \big[ \mu_2(x_{ij},M_i,C_i;\gamma) - \mu_1(x_{ij},X_i;\beta) \big]\\[1em]
+\displaystyle U_{1}(x,X_i;\beta,\gamma,\tau) &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(x_{ij},X_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \Pr(X_i\vert C_i; \tau)^{-1} \\[-0.6em] & \qquad \qquad \qquad \cdot \big[ \mu_2(x_{ij},M_i,C_i;\gamma) - \mu_1(x_{ij},X_i;\beta) \big]\\[1em]
 \displaystyle U_{2}(X_i,M_i,C_i;\gamma) &= \frac{\partial \mu_2(X_i,M_i,C_i;\gamma)}{\partial \gamma} \Sigma_{\mu_2}^{-1} \big[ Y_i - \mu_2(X_i,M_i,C_i;\gamma) \big]\\[1em]
 \displaystyle U_{3}(C_i;\tau) &= \frac{\partial \mu_3(C_i;\tau)}{\partial \tau} \Sigma_{\mu_3}^{-1} \big[ X_i - \mu_3(C_i;\tau) \big]
 \end{align*}
