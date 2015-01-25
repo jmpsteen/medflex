@@ -24,7 +24,7 @@
 #' If one wishes to evaluate natural effect components at different reference levels (e.g. if the natural effect model includes mediated interaction, quadratic or polynomial terms for the exposure; see examples), 
 #' these can be specified as a vector of the form \code{c(x*,x)} via the \code{xRef} argument.
 #' 
-#' For natural effect models with effect modification by baseline covariates (i.e. moderated mediation), covariate levels at which natural effect components are evaluated can also be specified.
+#' For natural effect models encoding effect modification by baseline covariates (i.e. moderated mediation), covariate levels at which natural effect components are evaluated can also be specified.
 #' By default, these levels are set to 0 for continuous covariates and to the reference level for categorical covariates coded as factors. 
 #' These covariate levels can be changed via the \code{covLev} argument, which requires a vector including valid covariate levels for each of the covariates that are specified in the natural effect model (also those for which no effect modification is postulated).
 #' If corresponding covariate levels are specified in the same order as covariates are specified in the natural effect model, the names of the covariates do not need to be included in the vector.
@@ -264,9 +264,10 @@ neEffdecomp.neModel <- function (model, xRef, covLev, ...)
                xRef[c(2, 2, 1, 1)])
   form <- model$neModelFit$formula
   vartype <- attr(terms(model), "vartype")
+  if (is.na(vartype$Y)) vartype$Y <- as.character(form[[2]])
   cov <- all.vars(form)[!all.vars(form) %in% unlist(vartype[c("Y", "Xexp")])]
   if (!missing(covLev) & !length(cov)) warning("As the natural effect model does not encode covariate effects, specified covariate levels are not taken into account.")
-  covClass <- sapply(model$neModelFit$data[, cov], class)
+  covClass <- sapply(data.frame(model$neModelFit$data[, cov]), class)
   if (!missing(covLev)) {
     covLev <- if (is.null(names(covLev))) covLev else covLev[cov]
     if (sum(is.na(covLev))) stop("Invalid covariate level specification! Please check whether (valid) levels are specified for all covariates and whether covariate names are entered correctly.")
@@ -289,6 +290,13 @@ neEffdecomp.neModel <- function (model, xRef, covLev, ...)
              "integer" = {0})
     }))
   }
+  if (nrow(covDat)) {
+    covLev <- as.matrix(covDat)
+    colnames(covLev) <- cov
+  }
+  else {
+    covLev <- NULL
+  }
   K2 <- t(data.frame(lapply(list, calcContr, form, covDat)))
   K2 <- unique(K2)
   rownames <- if (nrow(K2) == 3) {
@@ -301,6 +309,7 @@ neEffdecomp.neModel <- function (model, xRef, covLev, ...)
   colnames(K) <- NULL
   effdecomp <- neLht(model, linfct = K)
   class(effdecomp) <- c("neEffdecomp", class(effdecomp))
+  attributes(effdecomp) <- c(attributes(effdecomp), list(xRef = xRef, covLev = covLev))
   return(effdecomp)
 }
 
@@ -343,7 +352,7 @@ plot.neLht <- function (x, level = 0.95, transf = identity, ylabels,
 {
     args <- as.list(match.call())[-1L]
     args <- c(substitute(confint), object = substitute(x),
-        args[names(args) %in% names(formals(confint.neLhtBoot))])
+              args[names(args) %in% names(formals(confint.neLhtBoot))])
     confint <- eval(as.call(args))
     plot(confint, transf = transf, ylabels = ylabels, yticks.at = yticks.at, 
         ...)
@@ -421,7 +430,12 @@ plot.neLhtCI <- function (x, transf = identity, ylabels, yticks.at, main, xlab =
 #' @export
 print.neLht <- function (x, digits = max(3, getOption("digits") - 3), ...) 
 {
-    cat("Linear hypotheses for natural effect models\n---\n")
+    if (inherits(x, "neEffdecomp")) {
+      cat("Effect decomposition on the scale of the linear predictor\n---\n")
+      cat(paste0("x = ", attr(x, "xRef")[1], ", x* = ", attr(x, "xRef")[2]), "\n")
+      if (!is.null(attr(x, "covLev"))) cat("covariate levels:", paste(colnames(attr(x, "covLev")), attr(x, "covLev"), sep = " = ", collapse = ", "), "\n---\n") else cat("---\n")
+    }
+    else cat("Linear hypotheses for natural effect models\n---\n")
     coef <- as.matrix(coef(x))
     dimnames(coef)[[2]] <- "Estimate"
     print(coef, digits = digits, ...)
@@ -443,12 +457,17 @@ print.neLhtCI <- function (x, ...)
 #' @export
 print.summary.neLht <- function (x, digits = max(3, getOption("digits") - 3), ...) 
 {
-    if (inherits(x, "summary.neLhtBoot")) 
-        catSE <- "with standard errors based on the non-parametric bootstrap\n"
-    else catSE <- "with standard errors based on the sandwich estimator\n"
+    catSE <- if (inherits(x, "summary.neLhtBoot")) "with standard errors based on the non-parametric bootstrap\n---\n"
+    else "with standard errors based on the sandwich estimator\n---\n"
     if (inherits(x$test, "mtest")) {
-        cat("Linear hypotheses for natural effect models\n", 
-            catSE, "---\n", sep = "")
+        if (inherits(x, "summary.neEffdecomp")) {
+          cat("Effect decomposition on the scale of the linear predictor\n", catSE, sep = "")
+          cat(paste0("x = ", attr(x, "xRef")[1], ", x* = ", attr(x, "xRef")[2]), "\n")
+          if (!is.null(attr(x, "covLev"))) cat("covariate levels:", paste(colnames(attr(x, "covLev")), attr(x, "covLev"), sep = " = ", collapse = ", "), "\n---\n") else cat("---\n")
+        }
+        else {
+          cat("Linear hypotheses for natural effect models\n", catSE)
+        }
         if (!identical(x$rhs, rep(0, length(x$rhs)))) 
             dimnames(x$coef.table)[[1]] <- paste(dimnames(x$coef.table)[[1]], 
                 "=", x$rhs)
@@ -464,7 +483,7 @@ print.summary.neLht <- function (x, digits = max(3, getOption("digits") - 3), ..
     }
     else if (inherits(x$test, "gtest")) {
         cat("Global linear hypothesis test for natural effect models\n", 
-            catSE, "---\n", sep = "")
+            catSE, sep = "")
         pr <- data.frame(x$test$SSH, x$test$df[1], x$test$pval)
         names(pr) <- c("Chisq", "DF", "Pr(>Chisq)")
         print(pr, digits = digits, ...)
@@ -486,7 +505,7 @@ summary.neLht <- function (object, test = univariate(), ...)
             "Std. Error", "z value", "Pr(>|z|)"))
         summary$coef.table <- coef.table
     }
-    class(summary) <- c(if (inherits(object, "neLhtBoot")) "summary.neLhtBoot", "summary.neLht", 
-        class(summary))
+    class(summary) <- c(if (inherits(object, "neEffdecomp")) "summary.neEffdecomp",
+                        if (inherits(object, "neLhtBoot")) "summary.neLhtBoot", "summary.neLht", class(summary))
     return(summary)
 }

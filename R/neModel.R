@@ -165,12 +165,12 @@ model.matrix.neModel <- function (object, ...)
 #' ## stratum-specific natural effects
 #' # bootstrap SE
 #' \donttest{weightFit1b <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
-#'                        family = binomial, expData = weightData)}\dontshow{weightFit1b <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = weightData, nBoot = 2)}
-#' summary(weightFit1b)
+#'                        family = binomial, expData = weightData)
+#' summary(weightFit1b)}
 #' # robust SE
-#' weightFit1r <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
+#' \donttest{weightFit1r <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
 #'                        family = binomial, expData = weightData, se = "robust")
-#' summary(weightFit1r)
+#' summary(weightFit1r)}
 #' 
 #' ## population-average natural effects
 #' expFit <- glm(att ~ gender + educ + age, data = UPBdata)
@@ -195,9 +195,9 @@ model.matrix.neModel <- function (object, ...)
 #'                     family = binomial, expData = impData)
 #' summary(impFit1b)}
 #' # robust SE
-#' impFit1r <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
+#' \donttest{impFit1r <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
 #'                     family = binomial, expData = impData, se = "robust")
-#' summary(impFit1r)
+#' summary(impFit1r)}
 #' 
 #' ## population-average natural effects
 #' # bootstrap SE
@@ -210,14 +210,14 @@ model.matrix.neModel <- function (object, ...)
 #' summary(impFit2r)
 #' 
 #' \dontshow{# check with vgam (VGAM package)
-#' library(VGAM)
-#' weightData <- neWeight(negaff ~ att + gender + educ + age, family = "gaussianff", data = UPBdata, FUN = vgam)
-#' impData <- neImpute(UPB ~ att + negaff + gender + educ + age, family = "binomialff", data = UPBdata, FUN = vgam)
+#' # library(VGAM)
+#' # weightData <- neWeight(negaff ~ att + gender + educ + age, family = "gaussianff", data = UPBdata, FUN = vgam)
+#' # impData <- neImpute(UPB ~ att + negaff + gender + educ + age, family = "binomialff", data = UPBdata, FUN = vgam)
 #' # debug(neModel)
-#' weightFit <- neModel(UPB ~ att0 + att1 + gender + educ + age, family = binomial, expData = weightData, nBoot = 2)
-#' impFit <- neModel(UPB ~ att0 + att1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)
-#' summary(weightFit)
-#' summary(impFit)
+#' # weightFit <- neModel(UPB ~ att0 + att1 + gender + educ + age, family = binomial, expData = weightData, nBoot = 2)
+#' # impFit <- neModel(UPB ~ att0 + att1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)
+#' # summary(weightFit)
+#' # summary(impFit)
 #'
 #' # warning!
 #' impFit <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)
