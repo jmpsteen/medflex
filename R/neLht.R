@@ -432,7 +432,7 @@ print.neLht <- function (x, digits = max(3, getOption("digits") - 3), ...)
 {
     if (inherits(x, "neEffdecomp")) {
       cat("Effect decomposition on the scale of the linear predictor\n---\n")
-      cat(paste0("x = ", attr(x, "xRef")[1], ", x* = ", attr(x, "xRef")[2]), "\n")
+      cat(paste0("x* = ", attr(x, "xRef")[1], ", x = ", attr(x, "xRef")[2]), "\n")
       if (!is.null(attr(x, "covLev"))) cat("covariate levels:", paste(colnames(attr(x, "covLev")), attr(x, "covLev"), sep = " = ", collapse = ", "), "\n---\n") else cat("---\n")
     }
     else cat("Linear hypotheses for natural effect models\n---\n")
@@ -462,7 +462,7 @@ print.summary.neLht <- function (x, digits = max(3, getOption("digits") - 3), ..
     if (inherits(x$test, "mtest")) {
         if (inherits(x, "summary.neEffdecomp")) {
           cat("Effect decomposition on the scale of the linear predictor\n", catSE, sep = "")
-          cat(paste0("x = ", attr(x, "xRef")[1], ", x* = ", attr(x, "xRef")[2]), "\n")
+          cat(paste0("x* = ", attr(x, "xRef")[1], ", x = ", attr(x, "xRef")[2]), "\n")
           if (!is.null(attr(x, "covLev"))) cat("covariate levels:", paste(colnames(attr(x, "covLev")), attr(x, "covLev"), sep = " = ", collapse = ", "), "\n---\n") else cat("---\n")
         }
         else {
