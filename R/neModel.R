@@ -2,17 +2,21 @@
 #'
 #' @description Extractor functions, confidence intervals and statistical tests for natural effect models.
 #' @param object a fitted natural effect model object.
-#' @param ... additional arguments (see \code{\link[boot]{boot.ci}} for \code{confint} or \code{\link[stats]{summary.glm}} for \code{summary}).
+#' @param ... additional arguments.
+# (see \code{\link[boot]{boot.ci}} for \code{confint} or \code{\link[stats]{summary.glm}} for \code{summary}).
 #' @inheritParams stats::confint.default
 #' @inheritParams neLht-methods
 #' @details 
-#' \code{confint} yields bootstrap confidence intervals. These confidence intervals are internally called via the \code{\link[boot]{boot.ci}} function from the \pkg{boot} package.
+#' \code{confint} yields bootstrap confidence intervals or confidence intervals based on the sandwich estimator (depending on the type of standard errors requested when fitting the \code{\link{neModel}} object). 
+#' Bootstrap confidence intervals are internally called via the \code{\link[boot]{boot.ci}} function from the \pkg{boot} package.
+#' Confidence intervals based on the sandwich estimator are internally called via \code{\link[stats]{confint.default}}.
 #' The default confidence level specified in \code{level} (which corresponds to the \code{conf} argument in \code{\link[boot]{boot.ci}}) is 0.95
 #' and the default type of bootstrap confidence interval, \code{"norm"}, is based on the normal approximation (for more details see \code{\link[boot]{boot.ci}}).
 #'
 #' A summary table with large sample tests, similar to that for \code{\link[stats]{glm}} output, can be obtained using \code{summary}.
 #'
-#' \code{vcov} returns the variance covariance matrix calculated from the bootstrap samples stored in\cr \code{object$bootRes} (see \code{\link{neModel}}).
+#' \code{vcov} returns either the bootstrap variance-covariance matrix (calculated from the bootstrap samples stored in\cr \code{object$bootRes}; see \code{\link{neModel}})
+#' or the robust variance-covariance matrix (which is a diagonal block matrix of the original sandwich covariance matrix).
 #'
 #' \code{weights} returns a vector containing the regression weights used to fit the natural effect model.
 #' These weights can be based on
@@ -22,9 +26,10 @@
 #' }
 #'
 #' @name neModel-methods
-#' @note \emph{Z}-values in the summary table are simply calculated by dividing the parameter estimate by its corresponding bootstrap standard error. 
-#' Corresponding \emph{p}-values in the summary table are only indicative, since the null distribution for each statistic is assumed to be approximately standard normal.
-#' Therefore, where possible, it is recommended to focus mainly on bootstrap confidence intervals for inference, rather than the provided \emph{p}-values.
+#' @note \emph{Z}-values in the summary table are calculated by dividing the parameter estimate by its corresponding bootstrap standard error. 
+#' Corresponding \emph{p}-values in the summary table are indicative, since the null distribution for each statistic is assumed to be approximately standard normal.
+#' Therefore, whenever possible, it is recommended to focus mainly on bootstrap confidence intervals for inference, rather than the provided \emph{p}-values.
+# AANPASSEN? => NIET TE STERK WANNEER SANDWICH ESTIMATOR GEBRUIKT WORDT?
 #' @seealso \code{\link{neModel}}, \code{\link{plot.neModel}}, \code{\link{weights}}
 #' @examples
 #' data(UPBdata)
@@ -114,16 +119,20 @@ model.matrix.neModel <- function (object, ...)
 #' @param xFit fitted model object representing a model for the exposure (used for inverse treatment (exposure) probability weighting).
 #' @param se character string indicating the type of standard errors to be calculated. The default type is based on the bootstrap (see details).
 #' @param nBoot number of bootstrap replicates (see \code{R} argument of \code{\link[boot]{boot}}).
-#' @param ncpus integer: number of processes to be used in parallel operation: typically one would chose this to the number of available CPUs (see details).
-#' @param progress logical value indicating whether or not a progress bar should be displayed. Progress bars are automatically disabled for multicore processing.
+#' @param parallel (only for bootstrap) The type of parallel operation to be used (if any). If missing, the default is taken from the option \code{"boot.parallel"} (and if that is not set, \code{"no"}).
+#' @param ncpus (only for bootstrap) integer: number of processes to be used in parallel operation: typically one would chose this to the number of available CPUs (see details).
+#' @param progress (only for bootstrap) logical value indicating whether or not a progress bar should be displayed. Progress bars are automatically disabled for multicore processing.
 #' @param ... additional arguments (passed to \code{\link[stats]{glm}}).
 #' @inheritParams stats::glm
-#' @inheritParams boot::boot
-#' @return An object of class \code{"\link[=neModel-methods]{neModel}"} consisting of a list of 2 objects:
+# @inheritParams boot::boot
+#' @return An object of class \code{"\link[=neModel-methods]{neModel}"} (which additionally inherits from class \code{"neModelBoot"} if the bootstrap is used) consisting of a list of 3 objects:
 #' \item{\code{neModelFit}}{the fitted natural model object (of class \code{"\link[stats]{glm}"}) with downwardly biased standard errors}
-#' \item{\code{bootRes}, \code{vcov}}{the bootstrap results (of class \code{"\link[boot]{boot}"}; if \code{se = "bootstrap"}) or the sandwich estimator variance-covariance matrix (if \code{se = "robust"})}
+#' \item{\code{bootRes}, \code{vcov}}{the bootstrap results (of class \code{"\link[boot]{boot}"}; if \code{se = "bootstrap"}) or the robust variance-covariance matrix (if \code{se = "robust"})}
+#' \item{\code{terms}}{the \code{neTerms} (internal class) object used. This object is equivalent to the \code{\link[=terms.object]{terms}} object returned by the \code{\link[stats]{glm}} function, 
+#' but has an additional \code{"vartype"} attribute, a list including pointers to the names of the outcome variable (\code{Y}), exposure (\code{X}), mediator (\code{M}), covariates (\code{C}) and auxiliary hypothetical variables \emph{x} and \emph{x*} (\code{Xexp}).}
 #' See \code{\link{neModel-methods}} for methods for \code{neModel} objects.
-#' @details This function is a wrapper for \code{\link[stats]{glm}}, providing unbiased bootstrap standard errors for the parameter estimates.
+#' 
+#' @details This function is a wrapper for \code{\link[stats]{glm}}, providing unbiased bootstrap (\code{se = "bootstrap"}, the default) or robust (\code{se = "robust"}) standard errors for the parameter estimates (see below for more details).
 #'
 #' The \code{formula} argument requires to be specified in function of the variables from the expanded dataset (specified in \code{expData}) whose corresponding parameters index the direct and indirect effect.
 #' Stratum-specific natural effects can be estimated by additionally modeling the relation between the outcome and baseline covariates.
@@ -132,21 +141,29 @@ model.matrix.neModel <- function (object, ...)
 #' In this case, such a model for the exposure distribution is needed to weight by the reciprocal of the probability (density) of the exposure (i.e. inverse probability weighting) in order to adjust for confounding.
 #' Just as for ratio-of-mediator probability weighting (see paragraph below), this kind of weighting is done internally.
 #'
-#' In contrast to \code{\link[stats]{glm}}, the \code{expData} argument (rather than \code{data} argument) requires specification of a data frame that inherits from the class \code{"\link{expData}"},
+#' Quadratic, cubic or other polynomial terms can be included in the \code{formula} by making use of the \code{\link[base]{I}} function or by using the \code{\link[stats]{poly}} function.
+#' However, we do not recommend the use of orthogonal polynomials (i.e. using the default argument specification \code{raw = FALSE} in \code{poly}), as these are not compatible with the \code{\link[medflex]{neEffdecomp}} function.
+#'
+#' In contrast to \code{\link[stats]{glm}}, the \code{expData} argument (rather than \code{data} argument) requires specification of a data frame that inherits from class \code{"\link{expData}"},
 #' which contains additional information about e.g. the fitted working model, the variable types or terms of this working model 
 #' and possibly ratio-of-mediator probability weights.
 #' The latter are automatically extracted from the \code{\link{expData}} object and weighting is done internally.
 #'
 #' As the default \code{\link[stats]{glm}} standard errors fail to reflect the uncertainty inherent to the working model(s) (i.e. either a model for the mediator or an imputation model for the outcome and possibly a model for the exposure),
 #' bootstrap standard errors (using the \code{\link[boot]{boot}} function from the \pkg{boot} package) or robust standard errors are calculated. The default type of standard errors is bootstrap standard errors. 
-#' Robust standard errors (based on the sandwich estimator) can be requested to be calculated instead by specifying \code{se = "robust"}.
+#' Robust standard errors (based on the sandwich estimator) can be requested (to be calculated) instead by specifying \code{se = "robust"}.
 #' 
-#' The bootstrap procedure entails refitting these working models on each bootstrap sample, reconstructing the expanded dataset and subsequently refitting the specified natural effect model on this dataset.
+#' @section Bootstrap standard errors:
+#' The bootstrap procedure entails refitting all working models on each bootstrap sample, reconstructing the expanded dataset and subsequently refitting the specified natural effect model on this dataset.
 #' In order to obtain stable standard errors, the number of bootstrap samples (specified via the \code{nBoot} argument) should be chosen relatively high (default is 1000).
 #' 
 #' To speed up the bootstrap procedure, parallel processing can be used by specifying the desired type of parallel operation via the \code{parallel} argument (for more details, see \code{\link[boot]{boot}}).
 #' The number of parallel processes (\code{ncpus}) is suggested to be specified explicitly (its default is 1, unless the global option \code{options("boot.cpus")} is specified). 
 #' The function \code{\link[parallel]{detectCores}} from the \pkg{parallel} package can be helpful at determining the number of available cores (although this may not always correspond to the number of \emph{allowed} cores).
+#'
+#' @section Robust standard errors:
+#' Robust variance-covariance matrices for the model parameters, based on the sandwich estimator, are calculated using core functions from the \pkg{sandwich} package.
+#' Additional details and derivations for the sandwich estimator for natural effect models can be found in the vignette sandwich_estimator.pdf
 #'
 #' @note It is important to note that the original mediator(s) should not be specified in the \code{formula} argument, as the natural indirect effect in natural effect models
 #' should be captured solely by parameter(s) corresponding to the auxiliary hypothetical variable \emph{x*} in the expanded dataset (see \code{\link{expData}}).
@@ -403,10 +420,10 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
              
              neModel <- list(neModelFit = neModelFit, vcov = vcov[ind[[1]], ind[[1]]])
            })
-    
-    attr(neModel, "terms") <- neModelFit$terms
-    attr(attr(neModel, "terms"), "vartype") <- attr(attr(expData, 
-        "terms"), "vartype")
+    terms <- neModelFit$terms
+    attr(terms, "vartype") <- attr(attr(expData, "terms"), "vartype")
+    class(terms) <- c("neTerms.object", class(terms))
+    neModel <- c(neModel, terms = terms)
     class(neModel) <- c(if (se == "bootstrap") "neModelBoot", "neModel")
     return(neModel)
 }
@@ -415,8 +432,9 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
 #'
 #' @description Obtain effect decomposition confidence interval plots for natural effect models.
 #' @param x a fitted natural effect model object.
+#' @param ci.type (only for bootstrap) the type of bootstrap intervals required (see \code{type} argument in \code{\link[medflex]{neModel-methods}}).
 #' @inheritParams plot.neLht
-#' @details This function yields confidence interval plots for the natural effect parameters of interest.
+#' @details This function yields confidence interval plots for the natural effect components.
 #' These causal parameter estimates are first internally extracted from the \code{neModel} object by applying\cr\code{\link{neEffdecomp}}.
 #'
 #' @examples
@@ -491,7 +509,7 @@ summary.neModel <- function (object, ...)
     dimnames(coef.table) <- list(names(coef(object)), c("Estimate", 
         "Std. Error", "z value", "Pr(>|z|)"))
     summary$coef.table <- coef.table
-    summary$terms <- attr(attr(object, "terms"), "vartype")
+    summary$terms <- attr(object$terms, "vartype")
     class(summary) <- "summary.neModel"
     attr(summary, "class_object") <- class(object) 
     return(summary)
@@ -501,7 +519,7 @@ summary.neModel <- function (object, ...)
 #' @export
 vcov.neModel <- function (object, ...) 
 {
-  return(object$vcov)
+    return(object$vcov)
 }
 
 #' @export
@@ -521,7 +539,7 @@ vcov.neModelBoot <- function (object, ...)
 # @details 
 # The regression weights are a multiplication of (and hence reflect)
 # \enumerate{
-#  \item ratio-of-mediator probability (density) weights: only when the weighted-based approach is used and \code{object} hence inherits from the class \code{"\link{weightData}"}
+#  \item ratio-of-mediator probability (density) weights: only when the weighted-based approach is used and \code{object} hence inherits from class \code{"\link{weightData}"}
 #  \item survey weights
 # }
 #' @seealso \code{\link{coef}}, \code{\link{confint}}, \code{\link{expData}}, \code{\link{neWeight}}, \code{\link{summary}}, \code{\link{vcov}}, \code{\link{weights}}

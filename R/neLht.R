@@ -5,7 +5,9 @@
 #' @param xRef a vector including reference levels for the exposure, \emph{x*} and \emph{x}, at which natural effect components need to be evaluated (see details). 
 #' @param covLev a vector including covariate levels at which natural effect components need to be evaluated (see details). 
 #' @param ... additional arguments (passed to \code{\link[multcomp]{glht}}).
-#' @return An object of class \code{c("neLhtBoot", "neLht", "glht")} (see \code{\link[multcomp]{glht}}). \code{neEffdecomp} returns an object that additionally inherits from class \code{"neEffdecomp"}.
+#' @return An object of class \code{c("neLht", "glht")} (see \code{\link[multcomp]{glht}}). 
+#' If the bootstrap is used for obtaining standard errors when fitting the \code{\link{neModel}} object, the returned object additionally inherits from class \code{"neLhtBoot"}. 
+#' \code{neEffdecomp} returns an object that additionally inherits from class \code{"neEffdecomp"}.
 #' 
 #' See \code{\link{neLht-methods}} for methods for \code{neLht} objects (and \code{\link[=coef.glht]{glht-methods}} for additional methods for \code{glht} objects).
 #' @details \code{neLht} is a wrapper of \code{\link[multcomp]{glht}} and offers the same functionality (see `Details' section of  \code{\link[multcomp]{glht}} for details on argument specification). 
@@ -62,12 +64,12 @@
 #' 
 #' 
 #' ## changing reference levels for continuous exposures
-#' impData <- neImpute(UPB ~ poly(att, 2, raw = TRUE) * negaff + gender + educ + age,
+#' impData <- neImpute(UPB ~ (att + I(att^2)) * negaff + gender + educ + age,
 #'                     family = binomial, data = UPBdata)
-#' \donttest{neMod <- neModel(UPB ~ poly(att0, 2, raw = TRUE) * poly(att1, 2, raw = TRUE) + gender + educ + age,
-#'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ poly(att0, 2, raw = TRUE) * poly(att1, 2, raw = TRUE) + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
+#' \donttest{neMod <- neModel(UPB ~ (att0 + I(att0^2)) * (att1 + I(att1^2)) + gender + educ + age,
+#'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ (att0 + I(att0^2)) * (att1 + I(att1^2)) + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
 #' neEffdecomp(neMod)
-#' neEffdecomp(neMod, xRef = c(2, 1))
+#' neEffdecomp(neMod, xRef = c(-1, 0))
 #' 
 #' ## changing covariate levels when allowing for modification 
 #' ## of the indirect effect by baseline covariates
@@ -77,8 +79,8 @@
 #'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age + att1:gender + att1:educ + att1:age, family = binomial, expData = impData, nBoot = 2)}
 #' neEffdecomp(neMod)
 #' neEffdecomp(neMod, covLev = c("F", "L", 0)) # default covariate levels
-#' neEffdecomp(neMod, covLev = c("F", "M", mean(UPBdata$age)))
-#' neEffdecomp(neMod, covLev = c(age = mean(UPBdata$age), educ = "M", gender = "F")) 
+#' neEffdecomp(neMod, covLev = c("F", "M", 40))
+#' neEffdecomp(neMod, covLev = c(age = 40, educ = "M", gender = "F")) 
 #' # yields identical results
 #' 
 #' @export
@@ -95,8 +97,9 @@ NULL
 #' @inheritParams stats::confint.default
 #' @name neLht-methods
 #' @details 
-#' \code{confint} yields bootstrap confidence intervals. These confidence intervals are internally called via the \code{\link[boot]{boot.ci}} function from the \pkg{boot} package 
-#' (and not via the corresponding \code{\link[multcomp]{confint.glht}} function from the \pkg{multcomp} package!).
+#' \code{confint} yields bootstrap confidence intervals  or confidence intervals based on the sandwich estimator (depending on the type of standard errors requested when fitting the \code{\link{neModel}} object). 
+#' Bootstrap confidence intervals are internally called via the \code{\link[boot]{boot.ci}} function from the \pkg{boot} package.
+#' Confidence intervals based on the sandwich estimator are internally called via the corresponding \code{\link[multcomp]{confint.glht}} function from the \pkg{multcomp} package.
 #' The default confidence level specified in \code{level} (which corresponds to the \code{conf} argument in \code{\link[boot]{boot.ci}}) is 0.95
 #' and the default type of bootstrap confidence interval, \code{"norm"}, is based on the normal approximation (for more details see \code{\link[boot]{boot.ci}}).
 #'
@@ -113,7 +116,7 @@ NULL
 #'
 #' @note \emph{Z}-values in the summary table are simply calculated by dividing the parameter estimate by its corresponding bootstrap standard error. 
 #' Corresponding \emph{p}-values in the summary table are only indicative, since the null distribution for each statistic is assumed to be approximately standard normal.
-#' Therefore, where possible, it is recommended to focus mainly on bootstrap confidence intervals for inference, rather than the provided \emph{p}-values.
+#' Therefore, whenever possible, it is recommended to focus mainly on bootstrap confidence intervals for inference, rather than the provided \emph{p}-values.
 #' @seealso \code{\link{neLht}}, \code{\link{plot.neLht}}, \code{\link[multcomp]{glht}}, \code{\link[=coef.glht]{glht-methods}}
 #' @examples
 #' data(UPBdata)
@@ -144,7 +147,7 @@ NULL
 #'
 #' @description Confidence interval plots for linear hypotheses in natural effect models.
 #' @param x an object of class \code{neLht}.
-#' @param ci.type the type of bootstrap intervals required. The default \code{"norm"} returns normal approximation bootstrap confidence intervals. Currently, only \code{"norm"}, \code{"basic"} and \code{"perc"} are supported (see \code{\link[boot]{boot.ci}}).
+#' @param ci.type the type of bootstrap intervals required (see \code{type} argument in \code{\link[medflex]{neModel-methods}}).
 #' @param transf transformation function to be applied internally on the (linear hypothesis) estimates and their confidence intervals (e.g. \code{exp} for logit or Poisson regression). The default is \code{identity} (i.e. no transformation).
 #' @param ylabels character vector containing the labels for the (linear hypothesis) estimates to be plotted on the y-axis.
 #' @param yticks.at numeric vector containing the y-coordinates (from 0 to 1) to draw the tick marks for the different estimates and their corresponding confidence intervals.
@@ -218,8 +221,9 @@ confint.neLhtBoot <- function (object, parm, level = 0.95, type = "norm", ...)
 confint.neLht <- function (object, parm, level = 0.95, calpha = univariate_calpha(), ...) 
 {
   class(object) <- c("glht", class(object))
-  ci <- confint(object, parm, level, calpha, ...)$confint[, c("lwr", "upr")]
+  ci <- confint(object, level, calpha, ...)$confint[, c("lwr", "upr")]
   dimnames(ci)[[2]] <- paste0(100 * level, c("% LCL", "% UCL"))
+  ci <- ci[parm, ]
   attributes(ci) <- c(attributes(ci), list(level = level, coef = coef(object)[parm], calpha = calpha))
   class(ci) <- c("neLhtCI", class(ci))
   return(ci)

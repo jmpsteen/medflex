@@ -24,7 +24,9 @@ neLht(model, ...)
 \item{...}{additional arguments (passed to \code{\link[multcomp]{glht}}).}
 }
 \value{
-An object of class \code{c("neLhtBoot", "neLht", "glht")} (see \code{\link[multcomp]{glht}}). \code{neEffdecomp} returns an object that additionally inherits from class \code{"neEffdecomp"}.
+An object of class \code{c("neLht", "glht")} (see \code{\link[multcomp]{glht}}).
+If the bootstrap is used for obtaining standard errors when fitting the \code{\link{neModel}} object, the returned object additionally inherits from class \code{"neLhtBoot"}.
+\code{neEffdecomp} returns an object that additionally inherits from class \code{"neEffdecomp"}.
 
 See \code{\link{neLht-methods}} for methods for \code{neLht} objects (and \code{\link[=coef.glht]{glht-methods}} for additional methods for \code{glht} objects).
 }
@@ -86,12 +88,12 @@ neEffdecomp(neMod, xRef = c("M", "H"))
 
 
 ## changing reference levels for continuous exposures
-impData <- neImpute(UPB ~ poly(att, 2, raw = TRUE) * negaff + gender + educ + age,
+impData <- neImpute(UPB ~ (att + I(att^2)) * negaff + gender + educ + age,
                     family = binomial, data = UPBdata)
-\donttest{neMod <- neModel(UPB ~ poly(att0, 2, raw = TRUE) * poly(att1, 2, raw = TRUE) + gender + educ + age,
-                 family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ poly(att0, 2, raw = TRUE) * poly(att1, 2, raw = TRUE) + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
+\donttest{neMod <- neModel(UPB ~ (att0 + I(att0^2)) * (att1 + I(att1^2)) + gender + educ + age,
+                 family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ (att0 + I(att0^2)) * (att1 + I(att1^2)) + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
 neEffdecomp(neMod)
-neEffdecomp(neMod, xRef = c(2, 1))
+neEffdecomp(neMod, xRef = c(-1, 0))
 
 ## changing covariate levels when allowing for modification
 ## of the indirect effect by baseline covariates
@@ -101,8 +103,8 @@ impData <- neImpute(UPB ~ (att + negaff + gender + educ + age)^2,
                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age + att1:gender + att1:educ + att1:age, family = binomial, expData = impData, nBoot = 2)}
 neEffdecomp(neMod)
 neEffdecomp(neMod, covLev = c("F", "L", 0)) # default covariate levels
-neEffdecomp(neMod, covLev = c("F", "M", mean(UPBdata$age)))
-neEffdecomp(neMod, covLev = c(age = mean(UPBdata$age), educ = "M", gender = "F"))
+neEffdecomp(neMod, covLev = c("F", "M", 40))
+neEffdecomp(neMod, covLev = c(age = 40, educ = "M", gender = "F"))
 # yields identical results
 }
 \seealso{

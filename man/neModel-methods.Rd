@@ -25,7 +25,7 @@
 \arguments{
 \item{object}{a fitted natural effect model object.}
 
-\item{...}{additional arguments (see \code{\link[boot]{boot.ci}} for \code{confint} or \code{\link[stats]{summary.glm}} for \code{summary}).}
+\item{...}{additional arguments.}
 
 \item{parm}{a specification of which parameters are to be given
     confidence intervals, either a vector of numbers or a vector of
@@ -39,13 +39,16 @@
 Extractor functions, confidence intervals and statistical tests for natural effect models.
 }
 \details{
-\code{confint} yields bootstrap confidence intervals. These confidence intervals are internally called via the \code{\link[boot]{boot.ci}} function from the \pkg{boot} package.
+\code{confint} yields bootstrap confidence intervals or confidence intervals based on the sandwich estimator (depending on the type of standard errors requested when fitting the \code{\link{neModel}} object).
+Bootstrap confidence intervals are internally called via the \code{\link[boot]{boot.ci}} function from the \pkg{boot} package.
+Confidence intervals based on the sandwich estimator are internally called via \code{\link[stats]{confint.default}}.
 The default confidence level specified in \code{level} (which corresponds to the \code{conf} argument in \code{\link[boot]{boot.ci}}) is 0.95
 and the default type of bootstrap confidence interval, \code{"norm"}, is based on the normal approximation (for more details see \code{\link[boot]{boot.ci}}).
 
 A summary table with large sample tests, similar to that for \code{\link[stats]{glm}} output, can be obtained using \code{summary}.
 
-\code{vcov} returns the variance covariance matrix calculated from the bootstrap samples stored in\cr \code{object$bootRes} (see \code{\link{neModel}}).
+\code{vcov} returns either the bootstrap variance-covariance matrix (calculated from the bootstrap samples stored in\cr \code{object$bootRes}; see \code{\link{neModel}})
+or the robust variance-covariance matrix (which is a diagonal block matrix of the original sandwich covariance matrix).
 
 \code{weights} returns a vector containing the regression weights used to fit the natural effect model.
 These weights can be based on
@@ -55,9 +58,9 @@ These weights can be based on
 }
 }
 \note{
-\emph{Z}-values in the summary table are simply calculated by dividing the parameter estimate by its corresponding bootstrap standard error.
-Corresponding \emph{p}-values in the summary table are only indicative, since the null distribution for each statistic is assumed to be approximately standard normal.
-Therefore, where possible, it is recommended to focus mainly on bootstrap confidence intervals for inference, rather than the provided \emph{p}-values.
+\emph{Z}-values in the summary table are calculated by dividing the parameter estimate by its corresponding bootstrap standard error.
+Corresponding \emph{p}-values in the summary table are indicative, since the null distribution for each statistic is assumed to be approximately standard normal.
+Therefore, whenever possible, it is recommended to focus mainly on bootstrap confidence intervals for inference, rather than the provided \emph{p}-values.
 }
 \examples{
 data(UPBdata)

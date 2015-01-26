@@ -34,8 +34,9 @@
 Obtain confidence intervals and statistical tests for linear hypotheses in natural effect models.
 }
 \details{
-\code{confint} yields bootstrap confidence intervals. These confidence intervals are internally called via the \code{\link[boot]{boot.ci}} function from the \pkg{boot} package
-(and not via the corresponding \code{\link[multcomp]{confint.glht}} function from the \pkg{multcomp} package!).
+\code{confint} yields bootstrap confidence intervals  or confidence intervals based on the sandwich estimator (depending on the type of standard errors requested when fitting the \code{\link{neModel}} object).
+Bootstrap confidence intervals are internally called via the \code{\link[boot]{boot.ci}} function from the \pkg{boot} package.
+Confidence intervals based on the sandwich estimator are internally called via the corresponding \code{\link[multcomp]{confint.glht}} function from the \pkg{multcomp} package.
 The default confidence level specified in \code{level} (which corresponds to the \code{conf} argument in \code{\link[boot]{boot.ci}}) is 0.95
 and the default type of bootstrap confidence interval, \code{"norm"}, is based on the normal approximation (for more details see \code{\link[boot]{boot.ci}}).
 
@@ -53,7 +54,7 @@ See \code{\link[=coef.glht]{glht-methods}} for additional methods for \code{glht
 \note{
 \emph{Z}-values in the summary table are simply calculated by dividing the parameter estimate by its corresponding bootstrap standard error.
 Corresponding \emph{p}-values in the summary table are only indicative, since the null distribution for each statistic is assumed to be approximately standard normal.
-Therefore, where possible, it is recommended to focus mainly on bootstrap confidence intervals for inference, rather than the provided \emph{p}-values.
+Therefore, whenever possible, it is recommended to focus mainly on bootstrap confidence intervals for inference, rather than the provided \emph{p}-values.
 }
 \examples{
 data(UPBdata)

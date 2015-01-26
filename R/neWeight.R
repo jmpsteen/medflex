@@ -42,6 +42,19 @@ neWeight <- function (object, ...)
 #'  \item baseline covariates \code{C}: All remaining predictor variables are automatically coded as baseline covariates.
 #' }
 #'
+#' It is important to adhere to this prespecified order to enable \code{neWeight} to create valid pointers to these different types of predictor variables.
+#' This requirement extends to the use of operators different than the \code{+} operator, such as the \code{:} and \code{*} operators (when e.g. adding interaction terms). 
+#' For instance, the formula specifications \code{M ~ X * C1 + C2}, \code{M ~ X + C1 + X:C1 + C2} and \code{Y ~ X + X:C1 + C1 + C2} will create identical pointers to the different types of variables,
+#' as the order of the unique predictor variables is identical in all three specifications. 
+#' 
+#' Furthermore, categorical exposures that are not coded as factors in the original dataset, should be specified as factors in the formula, 
+#' using the \code{\link[base]{factor}} function, e.g. \code{M ~ factor(X) + C1 + C2}. 
+#' Quadratic, cubic or other polynomial terms can be included as well, by making use of the \code{\link[base]{I}} function or by using the \code{\link[stats]{poly}} function.
+#' For instance, \code{M ~ X + I(X^2) + C1 + C2} and \code{M ~ poly(X, 2, raw = TRUE) + C1 + C2} are equivalent and result in identical pointers to the different types of variables.
+# We do not recommend the use of orthogonal polynomials (i.e. using the default argument specification \code{raw = FALSE} in \code{poly}).
+#' 
+#' The command \code{terms(object, "vartype")} (with \code{object} replaced by the name of the resulting expanded dataset) can be used to check whether valid pointers have been created.
+#'
 #' In contrast to imputation models with categorical exposures, additional arguments need to be specified if the exposure is continuous.
 #' All of these additional arguments are related to the sampling procedure for the exposure.
 #'
@@ -249,6 +262,19 @@ neWeight.default <- function (object, formula, data, nRep = 5, xSampling = c("qu
 #'  \item exposure \code{X}: The first predictor is coded as exposure or treatment.
 #'  \item baseline covariates \code{C}: All remaining predictor variables are automatically coded as baseline covariates.
 #' }
+#'
+#' It is important to adhere to this prespecified order to enable \code{neWeight} to create valid pointers to these different types of predictor variables.
+#' This requirement extends to the use of operators different than the \code{+} operator, such as the \code{:} and \code{*} operators (when e.g. adding interaction terms). 
+#' For instance, the formula specifications \code{M ~ X * C1 + C2}, \code{M ~ X + C1 + X:C1 + C2} and \code{Y ~ X + X:C1 + C1 + C2} will create identical pointers to the different types of variables,
+#' as the order of the unique predictor variables is identical in all three specifications. 
+#' 
+#' Furthermore, categorical exposures that are not coded as factors in the original dataset, should be specified as factors in the formula, 
+#' using the \code{\link[base]{factor}} function, e.g. \code{M ~ factor(X) + C1 + C2}. 
+#' Quadratic, cubic or other polynomial terms can be included as well, by making use of the \code{\link[base]{I}} function or by using the \code{\link[stats]{poly}} function.
+#' For instance, \code{M ~ X + I(X^2) + C1 + C2} and \code{M ~ poly(X, 2, raw = TRUE) + C1 + C2} are equivalent and result in identical pointers to the different types of variables.
+# We do not recommend the use of orthogonal polynomials (i.e. using the default argument specification \code{raw = FALSE} in \code{poly}).
+#' 
+#' The command \code{terms(object, "vartype")} (with \code{object} replaced by the name of the resulting expanded dataset) can be used to check whether valid pointers have been created.
 #'
 #' The type of mediator model can be defined by specifying an appropriate model-fitting function via the \code{FUN} argument (its default is \code{\link[stats]{glm}}).
 #' This method can only be used with model-fitting functions that require a \code{formula} argument.

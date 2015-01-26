@@ -11,7 +11,7 @@
 
 \item{level}{the confidence level required.}
 
-\item{ci.type}{the type of bootstrap intervals required. The default \code{"norm"} returns normal approximation bootstrap confidence intervals. Currently, only \code{"norm"}, \code{"basic"} and \code{"perc"} are supported (see \code{\link[boot]{boot.ci}}).}
+\item{ci.type}{(only for bootstrap) the type of bootstrap intervals required (see \code{type} argument in \code{\link[medflex]{neModel-methods}}).}
 
 \item{transf}{transformation function to be applied internally on the (linear hypothesis) estimates and their confidence intervals (e.g. \code{exp} for logit or Poisson regression). The default is \code{identity} (i.e. no transformation).}
 
@@ -25,7 +25,7 @@
 Obtain effect decomposition confidence interval plots for natural effect models.
 }
 \details{
-This function yields confidence interval plots for the natural effect parameters of interest.
+This function yields confidence interval plots for the natural effect components.
 These causal parameter estimates are first internally extracted from the \code{neModel} object by applying\cr\code{\link{neEffdecomp}}.
 }
 \examples{

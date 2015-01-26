@@ -49,6 +49,19 @@ neImpute <- function (object, ...)
 #: if one wishes to estimate path-specific effects wrt multiple mediators (including exposure-induced confounders) in the natural effect model (\code{joint = FALSE}), one has to make sure to enter the mediators in the appropriate chronological order.
 #'  \item baseline covariates \code{C}: All remaining predictor variables are automatically coded as baseline covariates.
 #' }
+#' 
+#' It is important to adhere to this prespecified order to enable \code{neImpute} to create valid pointers to these different types of predictor variables.
+#' This requirement extends to the use of operators different than the \code{+} operator, such as the \code{:} and \code{*} operators (when e.g. adding interaction terms). 
+#' For instance, the formula specifications \code{Y ~ X * M + C1 + C2}, \code{Y ~ X + M + X:M + C1 + C2} and \code{Y ~ X + X:M + M + C1 + C2} will create identical pointers to the different types of variables,
+#' as the order of the unique predictor variables is identical in all three specifications. 
+#' 
+#' Furthermore, categorical exposures that are not coded as factors in the original dataset, should be specified as factors in the formula, 
+#' using the \code{\link[base]{factor}} function, e.g. \code{Y ~ factor(X) + M + C1 + C2}. 
+#' Quadratic, cubic or other polynomial terms can be included as well, by making use of the \code{\link[base]{I}} function or by using the \code{\link[stats]{poly}} function.
+#' For instance, \code{Y ~ X + I(X^2) + M + C1 + C2} and \code{Y ~ poly(X, 2, raw = TRUE) + M + C1 + C2} are equivalent and result in identical pointers to the different types of variables.
+# We do not recommend the use of orthogonal polynomials (i.e. using the default argument specification \code{raw = FALSE} in \code{poly}).
+#' 
+#' The command \code{terms(object, "vartype")} (with \code{object} replaced by the name of the resulting expanded dataset) can be used to check whether valid pointers have been created.
 #'
 #' If multiple mediators are specified (\code{nMed > 1}), the natural indirect effect parameter in the natural effect model captures the joint mediated effect. That is, the effect of the exposure on the outcome via these mediators considered jointly. 
 #' The remaining effect of the exposure on the outcome (not mediated through the specified mediators) is then captured by the natural indirect effect parameter.
@@ -254,6 +267,19 @@ neImpute.default <- function (object, formula, data, nMed = 1, nRep = 5, xSampli
 #'  \item mediator(s) \code{M}: The second predictor is coded as mediator. In case of multiple mediators (\code{nMed > 1}), then predictors \code{2:(nMed + 1)} are coded as mediators.
 #'  \item baseline covariates \code{C}: All remaining predictor variables are automatically coded as baseline covariates.
 #' }
+#'
+#' It is important to adhere to this prespecified order to enable \code{neImpute} to create valid pointers to these different types of predictor variables.
+#' This requirement extends to the use of operators different than the \code{+} operator, such as the \code{:} and \code{*} operators (when e.g. adding interaction terms). 
+#' For instance, the formula specifications \code{Y ~ X * M + C1 + C2}, \code{Y ~ X + M + X:M + C1 + C2} and \code{Y ~ X + X:M + M + C1 + C2} will create identical pointers to the different types of variables,
+#' as the order of the unique predictor variables is identical in all three specifications. 
+#' 
+#' Furthermore, categorical exposures that are not coded as factors in the original dataset, should be specified as factors in the formula, 
+#' using the \code{\link[base]{factor}} function, e.g. \code{Y ~ factor(X) + M + C1 + C2}. 
+#' Quadratic, cubic or other polynomial terms can be included as well, by making use of the \code{\link[base]{I}} function or by using the \code{\link[stats]{poly}} function.
+#' For instance, \code{Y ~ X + I(X^2) + M + C1 + C2} and \code{Y ~ poly(X, 2, raw = TRUE) + M + C1 + C2} are equivalent and result in identical pointers to the different types of variables.
+# We do not recommend the use of orthogonal polynomials (i.e. using the default argument specification \code{raw = FALSE} in \code{poly}).
+#' 
+#' The command \code{terms(object, "vartype")} (with \code{object} replaced by the name of the resulting expanded dataset) can be used to check whether valid pointers have been created.
 #'
 #' If multiple mediators are specified (\code{nMed > 1}), the natural indirect effect parameter in the natural effect model captures the joint mediated effect. That is, the effect of the exposure on the outcome via these mediators considered jointly. 
 #' The remaining effect of the exposure on the outcome (not mediated through the specified mediators) is then captured by the natural indirect effect parameter.

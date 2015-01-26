@@ -27,7 +27,7 @@
 
 \item{...}{additional arguments.}
 
-\item{ci.type}{the type of bootstrap intervals required. The default \code{"norm"} returns normal approximation bootstrap confidence intervals. Currently, only \code{"norm"}, \code{"basic"} and \code{"perc"} are supported (see \code{\link[boot]{boot.ci}}).}
+\item{ci.type}{the type of bootstrap intervals required (see \code{type} argument in \code{\link[medflex]{neModel-methods}}).}
 }
 \description{
 Confidence interval plots for linear hypotheses in natural effect models.
