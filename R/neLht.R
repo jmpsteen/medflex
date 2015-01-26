@@ -221,7 +221,7 @@ confint.neLhtBoot <- function (object, parm, level = 0.95, type = "norm", ...)
 confint.neLht <- function (object, parm, level = 0.95, calpha = univariate_calpha(), ...) 
 {
   class(object) <- c("glht", class(object))
-  ci <- confint(object, level, calpha, ...)$confint[, c("lwr", "upr")]
+  ci <- confint(object, level = level, calpha = calpha, ...)$confint[, c("lwr", "upr")]
   dimnames(ci)[[2]] <- paste0(100 * level, c("% LCL", "% UCL"))
   ci <- ci[parm, ]
   attributes(ci) <- c(attributes(ci), list(level = level, coef = coef(object)[parm], calpha = calpha))
