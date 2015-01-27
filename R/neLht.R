@@ -471,7 +471,7 @@ print.summary.neLht <- function (x, digits = max(3, getOption("digits") - 3), ..
           if (!is.null(attr(x, "covLev"))) cat("covariate levels:", paste(colnames(attr(x, "covLev")), attr(x, "covLev"), sep = " = ", collapse = ", "), "\n---\n") else cat("---\n")
         }
         else {
-          cat("Linear hypotheses for natural effect models\n", catSE)
+          cat("Linear hypotheses for natural effect models\n", catSE, sep = "")
         }
         if (!identical(x$rhs, rep(0, length(x$rhs)))) 
             dimnames(x$coef.table)[[1]] <- paste(dimnames(x$coef.table)[[1]], 
