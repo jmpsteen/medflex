@@ -34,7 +34,7 @@
 #' 
 #' @name neLht
 #' @note \code{neEffdecomp} is internally called by \code{\link{plot.neModel}} to create confidence interval plots for \code{neModel} objects.
-#' @seealso \code{\link{confint}}, \code{\link{plot.neLht}}, \code{\link{neLht-methods}}, \code{\link[multcomp]{glht}}, \code{\link[=coef.glht]{glht-methods}}, \code{\link{neModel}}, \code{\link{plot.neModel}}, \code{\link{summary}}
+#' @seealso \code{\link{plot.neLht}}, \code{\link{neLht-methods}}, \code{\link[multcomp]{glht}}, \code{\link[=coef.glht]{glht-methods}}, \code{\link{neModel}}, \code{\link{plot.neModel}}, \code{\link{summary}}
 #' @examples
 #' data(UPBdata)
 #' 
@@ -90,7 +90,7 @@ NULL
 #'
 #' @description Obtain confidence intervals and statistical tests for linear hypotheses in natural effect models.
 #' @param object an object of class \code{neLht}.
-#' @param type the type of bootstrap intervals required. The default \code{"norm"} returns normal approximation bootstrap confidence intervals. Currently, only \code{"norm"}, \code{"basic"} and \code{"perc"} are supported (see \code{\link[boot]{boot.ci}}).
+#' @param type the type of bootstrap intervals required. The default \code{"norm"} returns normal approximation bootstrap confidence intervals. Currently, \code{"norm"}, \code{"basic"}, \code{"perc"} and \code{"bca"} are supported (see \code{\link[boot]{boot.ci}}).
 #' @param calpha a function computing the critical value. The default \code{univariate_calpha()} returns unadjusted confidence intervals, whereas \code{adjusted_calpha()} returns adjusted confidence intervals.
 #' @param test a function for computing p-values. The default \code{univariate()} does not apply a multiple testing correction. The function \code{adjusted()} allows to correct for multiple testing (see \code{\link[multcomp]{summary.glht}} and \code{\link[multcomp]{adjusted}}) and \code{Chisquare()} allows to test global linear hypotheses.
 #' @param ... additional arguments.
@@ -101,7 +101,8 @@ NULL
 #' Bootstrap confidence intervals are internally called via the \code{\link[boot]{boot.ci}} function from the \pkg{boot} package.
 #' Confidence intervals based on the sandwich estimator are internally called via the corresponding \code{\link[multcomp]{confint.glht}} function from the \pkg{multcomp} package.
 #' The default confidence level specified in \code{level} (which corresponds to the \code{conf} argument in \code{\link[boot]{boot.ci}}) is 0.95
-#' and the default type of bootstrap confidence interval, \code{"norm"}, is based on the normal approximation (for more details see \code{\link[boot]{boot.ci}}).
+#' and the default type of bootstrap confidence interval, \code{"norm"}, is based on the normal approximation.
+#' Bias-corrected and accelerated (\code{"bca"}) bootstrap confidence intervals require a sufficiently large number of bootstrap replicates (for more details see \code{\link[boot]{boot.ci}}).
 #'
 #' A summary table with large sample tests, similar to that for \code{\link[multcomp]{glht}}, can be obtained using \code{summary}.
 #' 
@@ -114,7 +115,7 @@ NULL
 #'
 #' See \code{\link[=coef.glht]{glht-methods}} for additional methods for \code{glht} objects.
 #'
-#' @note \emph{Z}-values in the summary table are simply calculated by dividing the parameter estimate by its corresponding bootstrap standard error. 
+#' @note For the bootstrap, \emph{z}-values in the summary table are simply calculated by dividing the parameter estimate by its corresponding bootstrap standard error. 
 #' Corresponding \emph{p}-values in the summary table are only indicative, since the null distribution for each statistic is assumed to be approximately standard normal.
 #' Therefore, whenever possible, it is recommended to focus mainly on bootstrap confidence intervals for inference, rather than the provided \emph{p}-values.
 #' @seealso \code{\link{neLht}}, \code{\link{plot.neLht}}, \code{\link[multcomp]{glht}}, \code{\link[=coef.glht]{glht-methods}}
@@ -345,7 +346,7 @@ plot.neEffdecomp <- function (x, level = 0.95, transf = identity,
             args$yticks.at <- c(0, 0.15, 0.5, 0.65, 1)
         else if (missing(yticks.at)) 
             args$yticks.at <- NULL
-    args[[1]] <- substitute(plot.neLht)
+    args[[1]] <- if (inherits(x, "neLhtBoot")) substitute(plot.neLhtBoot) else substitute(plot.neLht)
     eval(as.call(args))
 }
 

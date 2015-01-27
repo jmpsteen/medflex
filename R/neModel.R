@@ -11,7 +11,8 @@
 #' Bootstrap confidence intervals are internally called via the \code{\link[boot]{boot.ci}} function from the \pkg{boot} package.
 #' Confidence intervals based on the sandwich estimator are internally called via \code{\link[stats]{confint.default}}.
 #' The default confidence level specified in \code{level} (which corresponds to the \code{conf} argument in \code{\link[boot]{boot.ci}}) is 0.95
-#' and the default type of bootstrap confidence interval, \code{"norm"}, is based on the normal approximation (for more details see \code{\link[boot]{boot.ci}}).
+#' and the default type of bootstrap confidence interval, \code{"norm"}, is based on the normal approximation.
+#' Bias-corrected and accelerated (\code{"bca"}) bootstrap confidence intervals require a sufficiently large number of bootstrap replicates (for more details see \code{\link[boot]{boot.ci}}).
 #'
 #' A summary table with large sample tests, similar to that for \code{\link[stats]{glm}} output, can be obtained using \code{summary}.
 #'
@@ -26,10 +27,9 @@
 #' }
 #'
 #' @name neModel-methods
-#' @note \emph{Z}-values in the summary table are calculated by dividing the parameter estimate by its corresponding bootstrap standard error. 
+#' @note For the bootstrap, \emph{z}-values in the summary table are calculated by dividing the parameter estimate by its corresponding bootstrap standard error. 
 #' Corresponding \emph{p}-values in the summary table are indicative, since the null distribution for each statistic is assumed to be approximately standard normal.
 #' Therefore, whenever possible, it is recommended to focus mainly on bootstrap confidence intervals for inference, rather than the provided \emph{p}-values.
-# AANPASSEN? => NIET TE STERK WANNEER SANDWICH ESTIMATOR GEBRUIKT WORDT?
 #' @seealso \code{\link{neModel}}, \code{\link{plot.neModel}}, \code{\link{weights}}
 #' @examples
 #' data(UPBdata)
@@ -58,6 +58,29 @@
 #' 
 #' ## summary table
 #' summary(neMod)
+NULL
+
+#' Confidence interval plots for natural effect components
+#'
+#' @description Obtain effect decomposition confidence interval plots for natural effect models.
+#' @param x a fitted natural effect model object.
+#' @inheritParams plot.neLht
+#' @inheritParams neEffdecomp
+#' @details This function yields confidence interval plots for the natural effect components.
+#' These causal parameter estimates are first internally extracted from the \code{neModel} object by applying the effect decomposition function \code{\link{neEffdecomp}(x, xRef, covLev)}.
+#' @name plot.neModel
+#' @examples
+#' data(UPBdata)
+#' 
+#' impData <- neImpute(UPB ~ att * negaff + educ + gender + age, 
+#'                     family = binomial, data = UPBdata)
+#' \donttest{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, 
+#'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, family = binomial, expData = impData, nBoot = 2)}
+#'
+#' plot(neMod)
+#' plot(neMod, transf = exp, 
+#'      ylabels = c("PDE", "TDE", "PIE", "TIE", "TE"))
+#' plot(neMod, level = 0.9, xRef = c(-1, 0), ci.type = "basic")
 NULL
 
 #' @rdname neModel-methods
@@ -428,34 +451,40 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
     return(neModel)
 }
 
-#' Confidence interval plots for natural effect estimates
-#'
-#' @description Obtain effect decomposition confidence interval plots for natural effect models.
-#' @param x a fitted natural effect model object.
-#' @param ci.type (only for bootstrap) the type of bootstrap intervals required (see \code{type} argument in \code{\link[medflex]{neModel-methods}}).
-#' @inheritParams plot.neLht
-#' @details This function yields confidence interval plots for the natural effect components.
-#' These causal parameter estimates are first internally extracted from the \code{neModel} object by applying\cr\code{\link{neEffdecomp}}.
-#'
-#' @examples
-#' data(UPBdata)
-#' 
-#' impData <- neImpute(UPB ~ att * negaff + educ + gender + age, 
-#'                     family = binomial, data = UPBdata)
-#' \donttest{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, 
-#'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, family = binomial, expData = impData, nBoot = 2)}
-#'
-#' plot(neMod)
-#' plot(neMod, transf = exp, 
-#'      ylabels = c("PDE", "TDE", "PIE", "TIE", "TE"))
+#' @rdname plot.neModel
 #' @export
-plot.neModel <- function (x, level = 0.95, ci.type = "norm", transf = identity, 
-    ylabels, yticks.at, ...) 
+plot.neModel <- function (x, xRef, covLev, level = 0.95, 
+    transf = identity, ylabels, yticks.at, ...) 
 {
     args <- as.list(match.call())
     args[[1]] <- substitute(plot)
-    args$x <- substitute(neEffdecomp(x))
+    args$x <- substitute(neEffdecomp(x, xRef = xRef, covLev = covLev))
+    effdecomp <- eval(args$x)
+    args[c("xRef", "covLev")] <- NULL
     eval(as.call(args))
+    effdecompMessage <- if (substitute(transf) == "identity") "Effect decomposition on the scale of the linear predictor\nwith " else paste0("Effect decomposition on ", substitute(transf), "(scale of the linear predictor)\nwith ")
+    covMessage <- if (!is.null(attr(effdecomp, "covLev"))) paste("and covariate levels:", paste(colnames(attr(effdecomp, "covLev")), attr(effdecomp, "covLev"), sep = " = ", collapse = ", "), "\n")
+    message(effdecompMessage, 
+            paste0("x* = ", attr(effdecomp, "xRef")[1], ", x = ", attr(effdecomp, "xRef")[2]), "\n",
+            covMessage)   
+}
+
+#' @rdname plot.neModel
+#' @export
+plot.neModelBoot <- function (x, xRef, covLev, level = 0.95, 
+    ci.type = "norm", transf = identity, ylabels, yticks.at, ...) 
+{
+    args <- as.list(match.call())
+    args[[1]] <- substitute(plot)
+    args$x <- substitute(neEffdecomp(x, xRef = xRef, covLev = covLev))
+    effdecomp <- eval(args$x)
+    args[c("xRef", "covLev")] <- NULL
+    eval(as.call(args))
+    effdecompMessage <- if (substitute(transf) == "identity") "Effect decomposition on the scale of the linear predictor\nwith " else paste0("Effect decomposition on ", substitute(transf), "(scale of the linear predictor)\nwith ")
+    covMessage <- if (!is.null(attr(effdecomp, "covLev"))) paste("and covariate levels:", paste(colnames(attr(effdecomp, "covLev")), attr(effdecomp, "covLev"), sep = " = ", collapse = ", "), "\n")
+    message(effdecompMessage, 
+            paste0("x* = ", attr(effdecomp, "xRef")[1], ", x = ", attr(effdecomp, "xRef")[2]), "\n",
+            covMessage)
 }
 
 #' @method print neBootCI

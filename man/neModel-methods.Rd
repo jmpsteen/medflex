@@ -33,7 +33,7 @@
 
 \item{level}{the confidence level required.}
 
-\item{type}{the type of bootstrap intervals required. The default \code{"norm"} returns normal approximation bootstrap confidence intervals. Currently, only \code{"norm"}, \code{"basic"} and \code{"perc"} are supported (see \code{\link[boot]{boot.ci}}).}
+\item{type}{the type of bootstrap intervals required. The default \code{"norm"} returns normal approximation bootstrap confidence intervals. Currently, \code{"norm"}, \code{"basic"}, \code{"perc"} and \code{"bca"} are supported (see \code{\link[boot]{boot.ci}}).}
 }
 \description{
 Extractor functions, confidence intervals and statistical tests for natural effect models.
@@ -43,7 +43,8 @@ Extractor functions, confidence intervals and statistical tests for natural effe
 Bootstrap confidence intervals are internally called via the \code{\link[boot]{boot.ci}} function from the \pkg{boot} package.
 Confidence intervals based on the sandwich estimator are internally called via \code{\link[stats]{confint.default}}.
 The default confidence level specified in \code{level} (which corresponds to the \code{conf} argument in \code{\link[boot]{boot.ci}}) is 0.95
-and the default type of bootstrap confidence interval, \code{"norm"}, is based on the normal approximation (for more details see \code{\link[boot]{boot.ci}}).
+and the default type of bootstrap confidence interval, \code{"norm"}, is based on the normal approximation.
+Bias-corrected and accelerated (\code{"bca"}) bootstrap confidence intervals require a sufficiently large number of bootstrap replicates (for more details see \code{\link[boot]{boot.ci}}).
 
 A summary table with large sample tests, similar to that for \code{\link[stats]{glm}} output, can be obtained using \code{summary}.
 
@@ -58,7 +59,7 @@ These weights can be based on
 }
 }
 \note{
-\emph{Z}-values in the summary table are calculated by dividing the parameter estimate by its corresponding bootstrap standard error.
+For the bootstrap, \emph{z}-values in the summary table are calculated by dividing the parameter estimate by its corresponding bootstrap standard error.
 Corresponding \emph{p}-values in the summary table are indicative, since the null distribution for each statistic is assumed to be approximately standard normal.
 Therefore, whenever possible, it is recommended to focus mainly on bootstrap confidence intervals for inference, rather than the provided \emph{p}-values.
 }
