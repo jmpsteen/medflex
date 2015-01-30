@@ -26,11 +26,12 @@
 #' If one wishes to evaluate natural effect components at different reference levels (e.g. if the natural effect model includes mediated interaction, quadratic or polynomial terms for the exposure; see examples), 
 #' these can be specified as a vector of the form \code{c(x*,x)} via the \code{xRef} argument.
 #' 
-#' For natural effect models encoding effect modification by baseline covariates (i.e. moderated mediation), covariate levels at which natural effect components are evaluated can also be specified.
+#' If applicable, covariate levels at which natural effect components are evaluated can also be specified. This is particularly useful for natural effect models encoding effect modification by baseline covariates (e.g. moderated mediation).
 #' By default, these levels are set to 0 for continuous covariates and to the reference level for categorical covariates coded as factors. 
-#' These covariate levels can be changed via the \code{covLev} argument, which requires a vector including valid covariate levels for each of the covariates that are specified in the natural effect model (also those for which no effect modification is postulated).
-#' If corresponding covariate levels are specified in the same order as covariates are specified in the natural effect model, the names of the covariates do not need to be included in the vector.
-#' If covariate names are specified in the vector, the order of covariate (levels) is of no importance (see example).
+#' Different covariate levels can be specified via the \code{covLev} argument, which requires a vector including valid levels for covariates that are specified in the natural effect model (or a subset of covariates that are specified as modifiers of either the natural direct or indirect effect or both).
+#' Levels need to be preceded by the name of the corresponding covariate, e.g., \code{covLev = c(gender = "M", age = 30)}. Covariates for which the levels are left unspecified are set to their default levels (see examples). 
+#' The \code{\link{print}} and \code{\link[=summary.neLht]{summary}} functions for \code{neEffdecomp} objects return the covariate levels at which natural effect components are evaluated. 
+#' No specific levels are returned for covariates that are not specified as modifier since effect decomposition is independent of the level of these covariates (see examples). 
 #' 
 #' @name neLht
 #' @note \code{neEffdecomp} is internally called by \code{\link{plot.neModel}} to create confidence interval plots for \code{neModel} objects.
@@ -75,13 +76,17 @@
 #' ## of the indirect effect by baseline covariates
 #' impData <- neImpute(UPB ~ (att + negaff + gender + educ + age)^2,
 #'                     family = binomial, data = UPBdata)
-#' \donttest{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age + att1:gender + att1:educ + att1:age,
-#'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age + att1:gender + att1:educ + att1:age, family = binomial, expData = impData, nBoot = 2)}
+#' \donttest{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age + att1:gender + att1:age,
+#'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age + att1:gender + att1:age, family = binomial, expData = impData, nBoot = 2)}
 #' neEffdecomp(neMod)
-#' neEffdecomp(neMod, covLev = c("F", "L", 0)) # default covariate levels
-#' neEffdecomp(neMod, covLev = c("F", "M", 40))
-#' neEffdecomp(neMod, covLev = c(age = 40, educ = "M", gender = "F")) 
-#' # yields identical results
+#' neEffdecomp(neMod, covLev = c(gender = "F", age = 0)) # default covariate levels
+#' neEffdecomp(neMod, covLev = c(gender = "M", age = 40))
+#' neEffdecomp(neMod, covLev = c(gender = "M", age = 40, educ = "L"))
+#' neEffdecomp(neMod, covLev = c(gender = "M", age = 40, educ = "M"))
+#' neEffdecomp(neMod, covLev = c(gender = "M", age = 40, educ = "H"))
+#' # effect decomposition is independent of education level
+#' neEffdecomp(neMod, covLev = c(gender = "M")) 
+#' # age is set to its default level when left unspecified
 #' 
 #' @export
 NULL
@@ -241,81 +246,90 @@ neEffdecomp <- function (model, xRef, covLev, ...)
 #' @export
 neEffdecomp.neModel <- function (model, xRef, covLev, ...) 
 {
-  xFact <- is.factor(model$neModelFit$data[, attr(terms(model), "vartype")$Xexp[[1]]])
-  if (xFact) xRefCheck <- levels(model$neModelFit$data[, attr(terms(model), "vartype")$Xexp[[1]]])
-  if (missing(xRef)) {
-    xRef <- if (xFact) xRefCheck[1:2] else c(0, 1)
-  } else {
-    if (xFact && !all(xRef %in% xRefCheck)) {
-      warning(gettextf("Invalid reference levels! Default reference levels %s were used instead.", 
-                       paste0("c(", paste(paste0("'", xRefCheck, "'"), collapse = ", "), ")")))
-      xRef <- xRefCheck[1:2]
+    xFact <- is.factor(model$neModelFit$data[, attr(terms(model), "vartype")$Xexp[[1]]])
+    if (xFact) xRefCheck <- levels(model$neModelFit$data[, attr(terms(model), "vartype")$Xexp[[1]]])
+    if (missing(xRef)) {
+      xRef <- if (xFact) xRefCheck[1:2] else c(0, 1)
+    } else {
+      if (xFact && !all(xRef %in% xRefCheck)) {
+        warning(gettextf("Invalid reference levels! Default reference levels %s were used instead.", 
+                         paste0("c(", paste(paste0("'", xRefCheck, "'"), collapse = ", "), ")")))
+        xRef <- xRefCheck[1:2]
+      }
     }
-  }
-  calcContr <- function(x, formula, covDat) {
-    if (xFact) x <- factor(x, levels = xRefCheck)
-    dat1 <- if (nrow(covDat)) data.frame(1, x[1], x[2], covDat) else data.frame(1, x[1], x[2])
-    names(dat1) <- all.vars(formula)
-    modmat1 <- model.matrix(formula, data = dat1)
-    dat2 <- if (nrow(covDat)) data.frame(1, x[3], x[4], covDat) else data.frame(1, x[3], x[4])
-    names(dat2) <- all.vars(formula)
-    modmat2 <- model.matrix(formula, data = dat2)
-    return(t(modmat1 - modmat2))
-  }
-  list <- list(xRef[c(2, 1, 1, 1)],
-               xRef[c(2, 2, 1, 2)],
-               xRef[c(1, 2, 1, 1)],
-               xRef[c(2, 2, 2, 1)],
-               xRef[c(2, 2, 1, 1)])
-  form <- model$neModelFit$formula
-  vartype <- attr(terms(model), "vartype")
-  if (is.na(vartype$Y)) vartype$Y <- as.character(form[[2]])
-  cov <- all.vars(form)[!all.vars(form) %in% unlist(vartype[c("Y", "Xexp")])]
-  if (!missing(covLev) & !length(cov)) warning("As the natural effect model does not encode covariate effects, specified covariate levels are not taken into account.")
-  covClass <- sapply(data.frame(model$neModelFit$data[, cov]), class)
-  if (!missing(covLev)) {
-    covLev <- if (is.null(names(covLev))) covLev else covLev[cov]
-    if (sum(is.na(covLev))) stop("Invalid covariate level specification! Please check whether (valid) levels are specified for all covariates and whether covariate names are entered correctly.")
-  }
-  covMat <- cbind(if (!missing(covLev)) covLev, cov, covClass)
-  covList <- split(covMat, 1:nrow(covMat))
-  if (!missing(covLev)) {
+    calcContr <- function(x, formula, covDat) {
+      if (xFact) x <- factor(x, levels = xRefCheck)
+      dat1 <- if (nrow(covDat)) data.frame(1, x[1], x[2], covDat) else data.frame(1, x[1], x[2])
+      names(dat1) <- all.vars(formula)
+      modmat1 <- model.matrix(formula, data = dat1)
+      dat2 <- if (nrow(covDat)) data.frame(1, x[3], x[4], covDat) else data.frame(1, x[3], x[4])
+      names(dat2) <- all.vars(formula)
+      modmat2 <- model.matrix(formula, data = dat2)
+      return(t(modmat1 - modmat2))
+    }
+    list <- list(xRef[c(2, 1, 1, 1)],
+                 xRef[c(2, 2, 1, 2)],
+                 xRef[c(1, 2, 1, 1)],
+                 xRef[c(2, 2, 2, 1)],
+                 xRef[c(2, 2, 1, 1)])
+    form <- model$neModelFit$formula
+    vartype <- attr(terms(model), "vartype")
+    if (is.na(vartype$Y)) vartype$Y <- as.character(form[[2]])
+    cov <- all.vars(form)[!all.vars(form) %in% unlist(vartype[c("Y", "Xexp")])]
+    if (!missing(covLev) & !length(cov)) warning("As the natural effect model does not encode covariate effects, specified covariate levels are not taken into account.")
+    tmp <- attr(terms(form), "factors")[cov, which(attr(terms(form), "order") > 1)]
+    covModifier <- if (!is.null(tmp)) names(which(rowSums(as.matrix(tmp)) > 0)) else NULL
+    covClass <- sapply(data.frame(model$neModelFit$data[, cov]), class)
+    if (missing(covLev)) {
+      covLev <- rep(NA, length(cov))
+      names(covLev) <- cov
+    }
+    if (is.null(names(covLev))) {
+      warning("Please provide names for the covariates! The specified covariate levels were discarded and default levels were used instead.")
+    } 
+    else {
+      if (!all(names(covLev) %in% cov)) warning("For some covariate levels, the corresponding covariate name was either not provided or invalid. These levels were discarded and default levels were used instead.")
+    }
+    covLev <- covLev[cov]
+    covMat <- cbind(covLev, cov, covClass)
+    covList <- split(covMat, 1:nrow(covMat))
+    lapply(covList, function(x) {
+      switch(x[3],
+             "factor" = {if (all(!is.na(x[1]), !x[1] %in% levels(model$neModelFit$data[, x[2]])))  
+                         warning(gettextf("Invalid covariate levels for %s! Default levels for this covariate were used instead.", x[2]))},
+             "numeric" = {if (all(!is.na(x[1]), is.na(suppressWarnings(as.numeric(x[1])))))
+                          warning(gettextf("Invalid covariate levels for %s! Default levels for this covariate were used instead.", x[2]))},
+             "integer" = {if (all(!is.na(x[1]), is.na(suppressWarnings(as.numeric(x[1])))))
+                          warning(gettextf("Invalid covariate levels for %s! Default levels for this covariate were used instead.", x[2]))})
+    })
     covDat <- as.data.frame(lapply(covList, function(x) {
       switch(x[3],
-             "factor" = {factor(x[1], levels = levels(model$neModelFit$data[, x[2]]))},
-             "numeric" = {as.numeric(x[1])},
-             "integer" = {as.numeric(x[1])})
+             "factor" = {factor(if (all(!is.na(x[1]), x[1] %in% levels(model$neModelFit$data[, x[2]]))) x[1] else levels(model$neModelFit$data[, x[2]])[1], 
+                                levels = levels(model$neModelFit$data[, x[2]]))},
+             "numeric" = {if (all(!is.na(x[1]), !is.na(as.numeric(x[1])))) as.numeric(x[1]) else 0},
+             "integer" = {if (all(!is.na(x[1]), !is.na(as.numeric(x[1])))) as.numeric(x[1]) else 0})
     }))
-  }
-  else {
-    covDat <- as.data.frame(lapply(covList, function(x) {
-      switch(x[2],
-             "factor" = {factor(levels(model$neModelFit$data[, x[[1]]])[1], levels = levels(model$neModelFit$data[, x[1]]))},
-             "numeric" = {0},
-             "integer" = {0})
-    }))
-  }
-  if (nrow(covDat)) {
-    covLev <- as.matrix(covDat)
-    colnames(covLev) <- cov
-  }
-  else {
-    covLev <- NULL
-  }
-  K2 <- t(data.frame(lapply(list, calcContr, form, covDat)))
-  K2 <- unique(K2)
-  rownames <- if (nrow(K2) == 3) {
-    c("natural direct effect", "natural indirect effect", "total effect")
-  } else {
-    c("pure direct effect", "total direct effect", "pure indirect effect", "total indirect effect", "total effect")
-  }
-  K <- matrix(0, nrow = nrow(K2), ncol = length(coef(model)), dimnames = list(rownames, names(coef(model))))
-  K[, colnames(K2)] <- K2
-  colnames(K) <- NULL
-  effdecomp <- neLht(model, linfct = K)
-  class(effdecomp) <- c("neEffdecomp", class(effdecomp))
-  attributes(effdecomp) <- c(attributes(effdecomp), list(xRef = xRef, covLev = covLev))
-  return(effdecomp)
+    if (nrow(covDat)) {
+      covLev <- as.matrix(covDat)
+      colnames(covLev) <- cov
+    }
+    else {
+      covLev <- NULL
+    }
+    K2 <- t(data.frame(lapply(list, calcContr, form, covDat)))
+    K2 <- unique(K2)
+    rownames <- if (nrow(K2) == 3) {
+      c("natural direct effect", "natural indirect effect", "total effect")
+    } else {
+      c("pure direct effect", "total direct effect", "pure indirect effect", "total indirect effect", "total effect")
+    }
+    K <- matrix(0, nrow = nrow(K2), ncol = length(coef(model)), dimnames = list(rownames, names(coef(model))))
+    K[, colnames(K2)] <- K2
+    colnames(K) <- NULL
+    effdecomp <- neLht(model, linfct = K)
+    class(effdecomp) <- c("neEffdecomp", class(effdecomp))
+    attributes(effdecomp) <- c(attributes(effdecomp), list(xRef = xRef, covLev = covLev, covModifier = covModifier))
+    return(effdecomp)
 }
 
 #' @rdname neLht
@@ -437,8 +451,11 @@ print.neLht <- function (x, digits = max(3, getOption("digits") - 3), ...)
 {
     if (inherits(x, "neEffdecomp")) {
       cat("Effect decomposition on the scale of the linear predictor\n---\n")
-      cat(paste0("x* = ", attr(x, "xRef")[1], ", x = ", attr(x, "xRef")[2]), "\n")
-      if (!is.null(attr(x, "covLev"))) cat("covariate levels:", paste(colnames(attr(x, "covLev")), attr(x, "covLev"), sep = " = ", collapse = ", "), "\n---\n") else cat("---\n")
+      covModifier <- dimnames(attr(x, "covLev"))[[2]] %in% attr(x, "covModifier")
+      sep <- if (all(covModifier) | !any(covModifier)) "" else ", "
+      if (!is.null(attr(x, "covLev"))) cat("conditional on:", paste(paste(dimnames(attr(x, "covLev")[, covModifier, drop = FALSE])[[2]], attr(x, "covLev")[, covModifier, drop = FALSE], sep = " = ", collapse = ", "), 
+                                                                    paste(dimnames(attr(x, "covLev")[, !covModifier, drop = FALSE])[[2]], collapse = ", "), sep = sep), "\n") 
+      cat(paste0("with x* = ", attr(x, "xRef")[1], ", x = ", attr(x, "xRef")[2]), "\n---\n")
     }
     else cat("Linear hypotheses for natural effect models\n---\n")
     coef <- as.matrix(coef(x))
@@ -467,8 +484,11 @@ print.summary.neLht <- function (x, digits = max(3, getOption("digits") - 3), ..
     if (inherits(x$test, "mtest")) {
         if (inherits(x, "summary.neEffdecomp")) {
           cat("Effect decomposition on the scale of the linear predictor\n", catSE, sep = "")
-          cat(paste0("x* = ", attr(x, "xRef")[1], ", x = ", attr(x, "xRef")[2]), "\n")
-          if (!is.null(attr(x, "covLev"))) cat("covariate levels:", paste(colnames(attr(x, "covLev")), attr(x, "covLev"), sep = " = ", collapse = ", "), "\n---\n") else cat("---\n")
+          covModifier <- dimnames(attr(x, "covLev"))[[2]] %in% attr(x, "covModifier")
+          sep <- if (all(covModifier) | !any(covModifier)) "" else ", "
+          if (!is.null(attr(x, "covLev"))) cat("conditional on:", paste(paste(dimnames(attr(x, "covLev")[, covModifier, drop = FALSE])[[2]], attr(x, "covLev")[, covModifier, drop = FALSE], sep = " = ", collapse = ", "), 
+                                                                        paste(dimnames(attr(x, "covLev")[, !covModifier, drop = FALSE])[[2]], collapse = ", "), sep = sep), "\n") 
+          cat(paste0("with x* = ", attr(x, "xRef")[1], ", x = ", attr(x, "xRef")[2]), "\n---\n")  
         }
         else {
           cat("Linear hypotheses for natural effect models\n", catSE, sep = "")

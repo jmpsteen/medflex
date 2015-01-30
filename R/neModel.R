@@ -462,11 +462,13 @@ plot.neModel <- function (x, xRef, covLev, level = 0.95,
     effdecomp <- eval(args$x)
     args[c("xRef", "covLev")] <- NULL
     eval(as.call(args))
-    effdecompMessage <- if (substitute(transf) == "identity") "Effect decomposition on the scale of the linear predictor\nwith " else paste0("Effect decomposition on ", substitute(transf), "(scale of the linear predictor)\nwith ")
-    covMessage <- if (!is.null(attr(effdecomp, "covLev"))) paste("and covariate levels:", paste(colnames(attr(effdecomp, "covLev")), attr(effdecomp, "covLev"), sep = " = ", collapse = ", "), "\n")
-    message(effdecompMessage, 
-            paste0("x* = ", attr(effdecomp, "xRef")[1], ", x = ", attr(effdecomp, "xRef")[2]), "\n",
-            covMessage)   
+    effdecompMessage <- if (substitute(transf) == "identity") "Effect decomposition on the scale of the linear predictor\n" else paste0("Effect decomposition on ", substitute(transf), "(scale of the linear predictor)\n")
+    covModifier <- dimnames(attr(effdecomp, "covLev"))[[2]] %in% attr(effdecomp, "covModifier")
+    sep <- if (all(covModifier) | !any(covModifier)) "" else ", "
+    covMessage <- if (!is.null(attr(effdecomp, "covLev"))) paste("conditional on:", paste(paste(dimnames(attr(effdecomp, "covLev")[, covModifier, drop = FALSE])[[2]], attr(effdecomp, "covLev")[, covModifier, drop = FALSE], sep = " = ", collapse = ", "), 
+                                                                                          paste(dimnames(attr(effdecomp, "covLev")[, !covModifier, drop = FALSE])[[2]], collapse = ", "), sep = sep), "\n") 
+    message(effdecompMessage, covMessage,
+            paste0("with x* = ", attr(effdecomp, "xRef")[1], ", x = ", attr(effdecomp, "xRef")[2]), "\n")   
 }
 
 #' @rdname plot.neModel
@@ -480,11 +482,13 @@ plot.neModelBoot <- function (x, xRef, covLev, level = 0.95,
     effdecomp <- eval(args$x)
     args[c("xRef", "covLev")] <- NULL
     eval(as.call(args))
-    effdecompMessage <- if (substitute(transf) == "identity") "Effect decomposition on the scale of the linear predictor\nwith " else paste0("Effect decomposition on ", substitute(transf), "(scale of the linear predictor)\nwith ")
-    covMessage <- if (!is.null(attr(effdecomp, "covLev"))) paste("and covariate levels:", paste(colnames(attr(effdecomp, "covLev")), attr(effdecomp, "covLev"), sep = " = ", collapse = ", "), "\n")
-    message(effdecompMessage, 
-            paste0("x* = ", attr(effdecomp, "xRef")[1], ", x = ", attr(effdecomp, "xRef")[2]), "\n",
-            covMessage)
+    effdecompMessage <- if (substitute(transf) == "identity") "Effect decomposition on the scale of the linear predictor\n" else paste0("Effect decomposition on ", substitute(transf), "(scale of the linear predictor)\n")
+    covModifier <- dimnames(attr(effdecomp, "covLev"))[[2]] %in% attr(effdecomp, "covModifier")
+    sep <- if (all(covModifier) | !any(covModifier)) "" else ", "
+    covMessage <- if (!is.null(attr(effdecomp, "covLev"))) paste("conditional on:", paste(paste(dimnames(attr(effdecomp, "covLev")[, covModifier, drop = FALSE])[[2]], attr(effdecomp, "covLev")[, covModifier, drop = FALSE], sep = " = ", collapse = ", "), 
+                                                                                          paste(dimnames(attr(effdecomp, "covLev")[, !covModifier, drop = FALSE])[[2]], collapse = ", "), sep = sep), "\n") 
+    message(effdecompMessage, covMessage,
+            paste0("with x* = ", attr(effdecomp, "xRef")[1], ", x = ", attr(effdecomp, "xRef")[2]), "\n") 
 }
 
 #' @method print neBootCI

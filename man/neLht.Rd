@@ -50,11 +50,12 @@ For multicategorical exposures, default levels are the reference level of the fa
 If one wishes to evaluate natural effect components at different reference levels (e.g. if the natural effect model includes mediated interaction, quadratic or polynomial terms for the exposure; see examples),
 these can be specified as a vector of the form \code{c(x*,x)} via the \code{xRef} argument.
 
-For natural effect models encoding effect modification by baseline covariates (i.e. moderated mediation), covariate levels at which natural effect components are evaluated can also be specified.
+If applicable, covariate levels at which natural effect components are evaluated can also be specified. This is particularly useful for natural effect models encoding effect modification by baseline covariates (e.g. moderated mediation).
 By default, these levels are set to 0 for continuous covariates and to the reference level for categorical covariates coded as factors.
-These covariate levels can be changed via the \code{covLev} argument, which requires a vector including valid covariate levels for each of the covariates that are specified in the natural effect model (also those for which no effect modification is postulated).
-If corresponding covariate levels are specified in the same order as covariates are specified in the natural effect model, the names of the covariates do not need to be included in the vector.
-If covariate names are specified in the vector, the order of covariate (levels) is of no importance (see example).
+Different covariate levels can be specified via the \code{covLev} argument, which requires a vector including valid levels for covariates that are specified in the natural effect model (or a subset of covariates that are specified as modifiers of either the natural direct or indirect effect or both).
+Levels need to be preceded by the name of the corresponding covariate, e.g., \code{covLev = c(gender = "M", age = 30)}. Covariates for which the levels are left unspecified are set to their default levels (see examples).
+The \code{\link{print}} and \code{\link[=summary.neLht]{summary}} functions for \code{neEffdecomp} objects return the covariate levels at which natural effect components are evaluated.
+No specific levels are returned for covariates that are not specified as modifier since effect decomposition is independent of the level of these covariates (see examples).
 }
 \note{
 \code{neEffdecomp} is internally called by \code{\link{plot.neModel}} to create confidence interval plots for \code{neModel} objects.
@@ -99,13 +100,17 @@ neEffdecomp(neMod, xRef = c(-1, 0))
 ## of the indirect effect by baseline covariates
 impData <- neImpute(UPB ~ (att + negaff + gender + educ + age)^2,
                     family = binomial, data = UPBdata)
-\donttest{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age + att1:gender + att1:educ + att1:age,
-                 family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age + att1:gender + att1:educ + att1:age, family = binomial, expData = impData, nBoot = 2)}
+\donttest{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age + att1:gender + att1:age,
+                 family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age + att1:gender + att1:age, family = binomial, expData = impData, nBoot = 2)}
 neEffdecomp(neMod)
-neEffdecomp(neMod, covLev = c("F", "L", 0)) # default covariate levels
-neEffdecomp(neMod, covLev = c("F", "M", 40))
-neEffdecomp(neMod, covLev = c(age = 40, educ = "M", gender = "F"))
-# yields identical results
+neEffdecomp(neMod, covLev = c(gender = "F", age = 0)) # default covariate levels
+neEffdecomp(neMod, covLev = c(gender = "M", age = 40))
+neEffdecomp(neMod, covLev = c(gender = "M", age = 40, educ = "L"))
+neEffdecomp(neMod, covLev = c(gender = "M", age = 40, educ = "M"))
+neEffdecomp(neMod, covLev = c(gender = "M", age = 40, educ = "H"))
+# effect decomposition is independent of education level
+neEffdecomp(neMod, covLev = c(gender = "M"))
+# age is set to its default level when left unspecified
 }
 \seealso{
 \code{\link{plot.neLht}}, \code{\link{neLht-methods}}, \code{\link[multcomp]{glht}}, \code{\link[=coef.glht]{glht-methods}}, \code{\link{neModel}}, \code{\link{plot.neModel}}, \code{\link{summary}}
