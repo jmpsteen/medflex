@@ -277,7 +277,7 @@ neEffdecomp.neModel <- function (model, xRef, covLev, ...)
     if (is.na(vartype$Y)) vartype$Y <- as.character(form[[2]])
     cov <- all.vars(form)[!all.vars(form) %in% unlist(vartype[c("Y", "Xexp")])]
     if (!missing(covLev) & !length(cov)) warning("As the natural effect model does not encode covariate effects, specified covariate levels are not taken into account.")
-    tmp <- attr(terms(form), "factors")[cov, which(attr(terms(form), "order") > 1)]
+    tmp <- attr(terms(form), "factors")[cov, which(attr(terms(form), "order") > 1), drop = FALSE]
     covModifier <- if (!is.null(tmp)) names(which(rowSums(as.matrix(tmp)) > 0)) else NULL
     covClass <- sapply(data.frame(model$neModelFit$data[, cov]), class)
     if (missing(covLev)) {
@@ -428,7 +428,7 @@ plot.neLhtCI <- function (x, transf = identity, ylabels, yticks.at, main, xlab =
     if (missing(ylim)) 
         ylim <- c(0.5, nrow(ci) + 0.5)
     if (missing(main)) 
-        main <- paste0(100 * attr(x, "level"), "% bootstrap CIs")
+        main <- paste0(100 * attr(x, "level"), if (inherits(x, "neBootCI")) "% bootstrap CIs" else "% sandwich CIs")
     plot(c(ci[, 1], ci[, 2]), rep.int(yvals, 2), type = "n", 
         main = main, axes = FALSE, xlab = xlab, ylab = ylab, 
         xlim = xlim, ylim = ylim, ...)

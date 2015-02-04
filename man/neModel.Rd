@@ -82,7 +82,7 @@ The function \code{\link[parallel]{detectCores}} from the \pkg{parallel} package
 \section{Robust standard errors}{
 
 Robust variance-covariance matrices for the model parameters, based on the sandwich estimator, are calculated using core functions from the \pkg{sandwich} package.
-Additional details and derivations for the sandwich estimator for natural effect models can be found in the vignette sandwich_estimator.pdf
+Additional details and derivations for the sandwich estimator for natural effect models can be found in the corresponding vignette that can be obtained by the command \code{vignette("sandwich", package = "medflex")}.
 }
 \examples{
 data(UPBdata)

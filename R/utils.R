@@ -67,15 +67,14 @@ neModelEst <- function (formula, family, expData, xFit, ...)
         vartype <- attr(attr(expData, "terms"), "vartype")
         if (!identical(vartype[names(vartypeCheck)], vartypeCheck)) 
             stop("Exposure or covariates of propensity score model and mediator model don't match!")
-        ###
         family <- if (is.null(extrCall(xFit)$family)) 
-          formals(eval(extrCall(xFit)[[1]]))$family
+            formals(eval(extrCall(xFit)[[1]]))$family
         else extrCall(xFit)$family
         family <- c("gaussian", "binomial", "poisson", "multinomial")[mapply(function(x, 
             y) grepl(y, x), as.character(family), c("gaussian", "binomial", 
             "poisson", "multinomial"))]
         dispersion <- if (inherits(xFit, "vglm")) 
-          xFit@misc$dispersion
+            xFit@misc$dispersion
         else summary(xFit)$dispersion 
         dfun <- switch(family, 
                        gaussian = function(x) dnorm(x, mean = predict(xFit, newdata = expData, type = "response"), sd = sqrt(dispersion)), 
@@ -88,7 +87,7 @@ neModelEst <- function (formula, family, expData, xFit, ...)
           dfun(expData[, vartype$Xexp[1]])
         else if (inherits(expData, "impData")) 
           dfun(expData[, vartype$Xexp[2]])
-        args$weights <- eval(args$weights)/denominator
+        args$weights <- eval(args$weights) / denominator
     }
     args$data <- args$expData
     args$expData <- args$xFit <- NULL

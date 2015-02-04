@@ -186,7 +186,7 @@ model.matrix.neModel <- function (object, ...)
 #'
 #' @section Robust standard errors:
 #' Robust variance-covariance matrices for the model parameters, based on the sandwich estimator, are calculated using core functions from the \pkg{sandwich} package.
-#' Additional details and derivations for the sandwich estimator for natural effect models can be found in the vignette sandwich_estimator.pdf
+#' Additional details and derivations for the sandwich estimator for natural effect models can be found in the corresponding vignette that can be obtained by the command \code{vignette("sandwich", package = "medflex")}.
 #'
 #' @note It is important to note that the original mediator(s) should not be specified in the \code{formula} argument, as the natural indirect effect in natural effect models
 #' should be captured solely by parameter(s) corresponding to the auxiliary hypothetical variable \emph{x*} in the expanded dataset (see \code{\link{expData}}).
@@ -328,7 +328,7 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
                  call1$X[[2]] <- call1$Y[[2]] <- substitute(bootData)
                else call1$data <- substitute(bootData)
                bootExpFit <- eval(as.call(call1))
-               nRep <- nrow(expData)/nrow(data)
+               nRep <- nrow(expData) / nrow(data)
                indExp <- as.vector(sapply(ind, function(x) (x * nRep - 
                                                               (nRep - 1)):(x * nRep)))
                bootExpData <- expData[indExp, ]
