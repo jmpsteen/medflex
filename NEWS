@@ -1,0 +1,10 @@
+Changes in Version 0.5-0
+
+  o Robust standard errors based on the sandwich estimator as alternative for bootstrap SEs (option 'se = "robust"' in neModel function)
+  o Advanced options for effect decomposition (neEffdecomp function now allows to specify reference exposure levels and covariate levels via 'xRef' and 'covLev' arguments, respectively)
+  o Additional option to weight for multicategorical variables (either via inverse-probability-of-treatment weighting for multivariate exposures or via ratio-of-mediator-probability weighting for multivariate mediators) using 'vglm' from the 'VGAM' package as model fitting function
+  o Vignettes with more details added
+  o Ratio-of-mediator-probability weights can be extracted from the expanded dataset object via 'weights' function
+  o Minor changes to UPBdata (different versions of variables + variable 'initiator' added)
+  o Bugs in neEffdecomp fixed: error returned if imputation model did not contain covariates, 'ci.type' argument can now be specified
+  o Bug in Anova() applied to neModel object fixed

@@ -1,4 +1,4 @@
-%\VignetteIndexEntry{sandwich}
+%\VignetteIndexEntry{Sandwich estimator derivations for natural effect model parameters}
 
 \documentclass[]{article}
 
