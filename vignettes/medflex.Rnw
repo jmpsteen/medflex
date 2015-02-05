@@ -93,6 +93,7 @@ Mediation analysis is routinely adopted by researchers from a wide range of appl
 \begin{document}
 %\SweaveOpts{concordance=TRUE}
 \SweaveOpts{concordance=FALSE}
+
 \setkeys{Gin}{width=1\textwidth}
 
 %% include your article here, just as usual
@@ -148,7 +149,7 @@ an expression which depends on exposure and covariate levels in a complicated wa
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.7\textwidth]{ill}
+\includegraphics[width=0.7\textwidth]{ill.pdf}
 \caption{Estimated (total) natural indirect effect odds ratios corresponding to a one-unit change in anxious attachment level as a function of different reference levels for anxious attachment level $x$ (as obtained through direct application of the mediation formula). These are conditional estimates for 43-year-old men (solid curve) and women (dashed curve) with intermediate education levels.}\label{ill}
 \end{figure}
 
@@ -248,7 +249,7 @@ $i$ & $X_i$ & $x$ & $x^*$ & $Y_i(x,M_i(x^*))$\\
 
 \begin{figure}[hb]
   \centering
-  \includegraphics[width=6cm]{workflow}
+  \includegraphics[width=6cm]{workflow.pdf}
   \caption{Workflow of the \pkg{medflex} package.}
   \label{fig:workflow}
 \end{figure}

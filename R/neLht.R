@@ -276,10 +276,19 @@ neEffdecomp.neModel <- function (model, xRef, covLev, ...)
     vartype <- attr(terms(model), "vartype")
     if (is.na(vartype$Y)) vartype$Y <- as.character(form[[2]])
     cov <- all.vars(form)[!all.vars(form) %in% unlist(vartype[c("Y", "Xexp")])]
+    varterms <- dimnames(attr(terms(form), "factors"))[[1]]
+    covTerms <- varterms[sapply(cov, grep, varterms)]
+    if (identical(cov, covTerms)) {
+        dat <- substitute(model$neModelFit$data)
+    } 
+    else {
+        modframe <- model.frame(model$neModelFit, data = model$neModelFit$data)
+        dat <- substitute(modframe)
+    }
     if (!missing(covLev) & !length(cov)) warning("As the natural effect model does not encode covariate effects, specified covariate levels are not taken into account.")
-    tmp <- attr(terms(form), "factors")[cov, which(attr(terms(form), "order") > 1), drop = FALSE]
-    covModifier <- if (!is.null(tmp)) names(which(rowSums(as.matrix(tmp)) > 0)) else NULL
-    covClass <- sapply(data.frame(model$neModelFit$data[, cov]), class)
+    tmp <- attr(terms(form), "factors")[covTerms, which(attr(terms(form), "order") > 1), drop = FALSE]
+    covModifier <- if (!is.null(tmp)) cov[unlist(sapply(cov, grep, names(which(rowSums(as.matrix(tmp)) > 0))))] else NULL
+    covClass <- sapply(eval(dat)[, covTerms, drop = FALSE], class)
     if (missing(covLev)) {
       covLev <- rep(NA, length(cov))
       names(covLev) <- cov
@@ -291,21 +300,21 @@ neEffdecomp.neModel <- function (model, xRef, covLev, ...)
       if (!all(names(covLev) %in% cov)) warning("For some covariate levels, the corresponding covariate name was either not provided or invalid. These levels were discarded and default levels were used instead.")
     }
     covLev <- covLev[cov]
-    covMat <- cbind(covLev, cov, covClass)
+    covMat <- cbind(covLev, cov, covClass, covTerms)
     covList <- split(covMat, 1:nrow(covMat))
     lapply(covList, function(x) {
       switch(x[3],
-             "factor" = {if (all(!is.na(x[1]), !x[1] %in% levels(model$neModelFit$data[, x[2]])))  
-                         warning(gettextf("Invalid covariate levels for %s! Default levels for this covariate were used instead.", x[2]))},
+             "factor" = {if (all(!is.na(x[1]), !x[1] %in% levels(eval(dat)[, x[4]])))  
+               warning(gettextf("Invalid covariate levels for %s! Default levels for this covariate were used instead.", x[2]))},
              "numeric" = {if (all(!is.na(x[1]), is.na(suppressWarnings(as.numeric(x[1])))))
-                          warning(gettextf("Invalid covariate levels for %s! Default levels for this covariate were used instead.", x[2]))},
+               warning(gettextf("Invalid covariate levels for %s! Default levels for this covariate were used instead.", x[2]))},
              "integer" = {if (all(!is.na(x[1]), is.na(suppressWarnings(as.numeric(x[1])))))
-                          warning(gettextf("Invalid covariate levels for %s! Default levels for this covariate were used instead.", x[2]))})
+               warning(gettextf("Invalid covariate levels for %s! Default levels for this covariate were used instead.", x[2]))})
     })
     covDat <- as.data.frame(lapply(covList, function(x) {
       switch(x[3],
-             "factor" = {factor(if (all(!is.na(x[1]), x[1] %in% levels(model$neModelFit$data[, x[2]]))) x[1] else levels(model$neModelFit$data[, x[2]])[1], 
-                                levels = levels(model$neModelFit$data[, x[2]]))},
+             "factor" = {factor(if (all(!is.na(x[1]), x[1] %in% levels(eval(dat)[, x[4]]))) x[1] else levels(eval(dat)[, x[4]])[1], 
+                                levels = levels(eval(dat)[, x[4]]))},
              "numeric" = {if (all(!is.na(x[1]), !is.na(as.numeric(x[1])))) as.numeric(x[1]) else 0},
              "integer" = {if (all(!is.na(x[1]), !is.na(as.numeric(x[1])))) as.numeric(x[1]) else 0})
     }))
