@@ -62,18 +62,17 @@ data(UPBdata)
 
 impData <- neImpute(UPB ~ att * negaff + gender + educ + age,
                     family = binomial, data = UPBdata)
-\donttest{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age,
-                 family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
+neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age,
+                 family = binomial, expData = impData, se = "robust")
 
 lht <- neLht(neMod, linfct = c("att0 = 0", "att0 + att0:att1 = 0",
                                "att1 = 0", "att1 + att0:att1 = 0",
                                "att0 + att1 + att0:att1 = 0"))
 
-## obtain bootstrap confidence intervals
+## obtain confidence intervals
 confint(lht)
 confint(lht, parm = c("att0", "att0 + att0:att1"))
-confint(lht, parm = 1:2)
-confint(lht, type = "perc", level = 0.90)
+confint(lht, parm = 1:2, level = 0.90)
 
 ## summary table
 summary(lht)

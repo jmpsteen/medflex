@@ -23,7 +23,7 @@
 
 \subsubsection*{Models}
 natural effect model $\mu_1(X,x^*,C;\beta)$:
-\begin{flushright} e.g., $g\big[\textrm{E}\{Y(X,M(x^*))\vert C\}\big] = \beta_0 + \beta_1 X + \beta_2 x^* + \beta_3 C$\end{flushright}\\[1em]
+\begin{flushright} e.g., $g\big[\textrm{E}\{Y(X,M(x^*))\vert C\}\big] = \beta_0 + \beta_1 X + \beta_2 x^* + \beta_3 C$\end{flushright}
 working model $\mu_2(X,C;\theta)$:
 \begin{flushright} e.g., $g\big[\textrm{E}(M\vert X,C)\big] = \theta_0 + \theta_1 X + \theta_2 C$\end{flushright}
 
@@ -64,9 +64,9 @@ Let $\zeta = (\beta, \theta)$ and $\tilde U = (U_1, U_2)$. The sandwich estimato
 \subsubsection*{Models}
 
 natural effect model $\mu_1(X,x^*;\beta)$:
-\begin{flushright} e.g., $g\big[\textrm{E}\{Y(X,M(x^*))\}\big] = \beta_0 + \beta_1 X + \beta_2 x^*$\end{flushright}\\[1em]
+\begin{flushright} e.g., $g\big[\textrm{E}\{Y(X,M(x^*))\}\big] = \beta_0 + \beta_1 X + \beta_2 x^*$\end{flushright}
 working model $\mu_2(X,C;\theta)$:
-\begin{flushright} e.g., $g\big[\textrm{E}(M\vert X,C)\big] = \theta_0 + \theta_1 X + \theta_2 C$\end{flushright}\\[1em]
+\begin{flushright} e.g., $g\big[\textrm{E}(M\vert X,C)\big] = \theta_0 + \theta_1 X + \theta_2 C$\end{flushright}
 working model $\mu_3(C;\tau)$:
 \begin{flushright} e.g., $g\big[\textrm{E}(X\vert C)\big] = \tau_0 + \tau_1 C$ \end{flushright}
 
@@ -114,7 +114,7 @@ Let $\zeta = (\beta, \theta, \tau)$ and $\tilde U = (U_1, U_2, U_3)$. The sandwi
 \subsubsection*{Models}
 
 natural effect model $\mu_1(x,X,C;\beta)$:
-\begin{flushright} e.g., $g\big[\textrm{E}\{Y(x,M(X))\vert C\}\big] = \beta_0 + \beta_1 x + \beta_2 X + \beta_3 C$ \end{flushright}\\[1em]
+\begin{flushright} e.g., $g\big[\textrm{E}\{Y(x,M(X))\vert C\}\big] = \beta_0 + \beta_1 x + \beta_2 X + \beta_3 C$ \end{flushright}
 working model $\mu_2(X,M,C;\gamma)$:
 \begin{flushright} e.g., $g\big[\textrm{E}(Y\vert X,M,C)\big] = \gamma_0 + \gamma_1 X + \gamma_2 M + \gamma_3 C$ \end{flushright}
 
@@ -157,9 +157,9 @@ Let $\zeta = (\beta, \gamma)$ and $\tilde U = (U_1, U_2)$. The sandwich estimato
 \subsubsection*{Models}
 
 natural effect model $\mu_1(x,X;\beta)$:
-\begin{flushright} e.g., $g\big[\textrm{E}\{Y(x,M(X))\}\big] = \beta_0 + \beta_1 x + \beta_2 X$ \end{flushright}\\[1em]
+\begin{flushright} e.g., $g\big[\textrm{E}\{Y(x,M(X))\}\big] = \beta_0 + \beta_1 x + \beta_2 X$ \end{flushright}
 working model $\mu_2(X,M,C;\gamma)$:
-\begin{flushright} e.g., $g\big[\textrm{E}(Y\vert X,M,C)\big] = \gamma_0 + \gamma_1 X + \gamma_2 M + \gamma_3 C$ \end{flushright}\\[1em]
+\begin{flushright} e.g., $g\big[\textrm{E}(Y\vert X,M,C)\big] = \gamma_0 + \gamma_1 X + \gamma_2 M + \gamma_3 C$ \end{flushright}
 working model $\mu_3(C;\tau)$:
 \begin{flushright} e.g., $g\big[\textrm{E}(X\vert C)\big] = \tau_0 + \tau_1 C$ \end{flushright}
 

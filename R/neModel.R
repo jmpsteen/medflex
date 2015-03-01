@@ -38,8 +38,8 @@
 #                     family = binomial, data = UPBdata)
 #' weightData <- neWeight(negaff ~ att + educ + gender + age,
 #'                        data = UPBdata)
-#' \donttest{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, 
-#'                  family = binomial, expData = weightData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, family = binomial, expData = weightData, nBoot = 2)}
+#' neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, 
+#'                  family = binomial, expData = weightData, se = "robust")
 #' 
 #' ## extract coefficients
 #' coef(neMod)
@@ -74,13 +74,13 @@ NULL
 #' 
 #' impData <- neImpute(UPB ~ att * negaff + educ + gender + age, 
 #'                     family = binomial, data = UPBdata)
-#' \donttest{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, 
-#'                  family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, family = binomial, expData = impData, nBoot = 2)}
+#' neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, 
+#'                  family = binomial, expData = impData, se = "robust")
 #'
 #' plot(neMod)
 #' plot(neMod, transf = exp, 
 #'      ylabels = c("PDE", "TDE", "PIE", "TIE", "TE"))
-#' plot(neMod, level = 0.9, xRef = c(-1, 0), ci.type = "basic")
+#' plot(neMod, level = 0.9, xRef = c(-1, 0))
 NULL
 
 #' @rdname neModel-methods
@@ -164,7 +164,7 @@ model.matrix.neModel <- function (object, ...)
 #' In this case, such a model for the exposure distribution is needed to weight by the reciprocal of the probability (density) of the exposure (i.e. inverse probability weighting) in order to adjust for confounding.
 #' Just as for ratio-of-mediator probability weighting (see paragraph below), this kind of weighting is done internally.
 #'
-#' Quadratic, cubic or other polynomial terms can be included in the \code{formula} by making use of the \code{\link[base]{I}} function or by using the \code{\link[stats]{poly}} function.
+#' Quadratic or higher-order polynomial terms can be included in the \code{formula} by making use of the \code{\link[base]{I}} function or by using the \code{\link[stats]{poly}} function.
 #' However, we do not recommend the use of orthogonal polynomials (i.e. using the default argument specification \code{raw = FALSE} in \code{poly}), as these are not compatible with the \code{\link[medflex]{neEffdecomp}} function.
 #'
 #' In contrast to \code{\link[stats]{glm}}, the \code{expData} argument (rather than \code{data} argument) requires specification of a data frame that inherits from class \code{"\link{expData}"},
@@ -204,20 +204,24 @@ model.matrix.neModel <- function (object, ...)
 #' 
 #' ## stratum-specific natural effects
 #' # bootstrap SE
-#' \donttest{weightFit1b <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
+#' \dontrun{
+#' weightFit1b <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
 #'                        family = binomial, expData = weightData)
-#' summary(weightFit1b)}
+#' summary(weightFit1b)
+#' }
 #' # robust SE
-#' \donttest{weightFit1r <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
+#' weightFit1r <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
 #'                        family = binomial, expData = weightData, se = "robust")
-#' summary(weightFit1r)}
+#' summary(weightFit1r)
 #' 
 #' ## population-average natural effects
 #' expFit <- glm(att ~ gender + educ + age, data = UPBdata)
 #' # bootstrap SE
-#' \donttest{weightFit2b <- neModel(UPB ~ att0 * att1, family = binomial, 
-#'                        expData = weightData, xFit = expFit)}\dontshow{weightFit2b <- neModel(UPB ~ att0 * att1, family = binomial, expData = weightData, xFit = expFit, nBoot = 2)}
+#' \dontrun{
+#' weightFit2b <- neModel(UPB ~ att0 * att1, family = binomial, 
+#'                        expData = weightData, xFit = expFit)
 #' summary(weightFit2b)
+#' }
 #' # robust SE
 #' weightFit2r <- neModel(UPB ~ att0 * att1, family = binomial, 
 #'                        expData = weightData, xFit = expFit, se = "robust")
@@ -231,19 +235,23 @@ model.matrix.neModel <- function (object, ...)
 #' 
 #' ## stratum-specific natural effects
 #' # bootstrap SE
-#' \donttest{impFit1b <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
+#' \dontrun{
+#' impFit1b <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
 #'                     family = binomial, expData = impData)
-#' summary(impFit1b)}
+#' summary(impFit1b)
+#' }
 #' # robust SE
-#' \donttest{impFit1r <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
+#' impFit1r <- neModel(UPB ~ att0 * att1 + gender + educ + age, 
 #'                     family = binomial, expData = impData, se = "robust")
-#' summary(impFit1r)}
+#' summary(impFit1r)
 #' 
 #' ## population-average natural effects
 #' # bootstrap SE
-#' \donttest{impFit2b <- neModel(UPB ~ att0 * att1, family = binomial, 
-#'                     expData = impData, xFit = expFit)}\dontshow{impFit2b <- neModel(UPB ~ att0 * att1, family = binomial, expData = impData, xFit = expFit, nBoot = 2)}
+#' \dontrun{
+#' impFit2b <- neModel(UPB ~ att0 * att1, family = binomial, 
+#'                     expData = impData, xFit = expFit)
 #' summary(impFit2b)
+#' }
 #' # robust SE
 #' impFit2r <- neModel(UPB ~ att0 * att1, family = binomial, 
 #'                     expData = impData, xFit = expFit, se = "robust")

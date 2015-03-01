@@ -47,7 +47,7 @@ In total, five causal effect estimates are returned in this case.
 
 For continuous exposures, default exposure levels at which natural effect components are evaluated are \emph{x*} = 0 and \emph{x} = 1.
 For multicategorical exposures, default levels are the reference level of the factor that encodes the exposure variable and the level corresponding to its first dummy variable for \emph{x*} and \emph{x}, respectively.
-If one wishes to evaluate natural effect components at different reference levels (e.g. if the natural effect model includes mediated interaction, quadratic or polynomial terms for the exposure; see examples),
+If one wishes to evaluate natural effect components at different reference levels (e.g. if the natural effect model includes mediated interaction, quadratic or higher-order polynomial terms for the exposure; see examples),
 these can be specified as a vector of the form \code{c(x*,x)} via the \code{xRef} argument.
 
 If applicable, covariate levels at which natural effect components are evaluated can also be specified. This is particularly useful for natural effect models encoding effect modification by baseline covariates (e.g. moderated mediation).
@@ -65,8 +65,8 @@ data(UPBdata)
 
 impData <- neImpute(UPB ~ att * negaff + gender + educ + age,
                     family = binomial, data = UPBdata)
-\donttest{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age,
-                 family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
+neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age,
+                 family = binomial, expData = impData, se = "robust")
 
 lht <- neLht(neMod, linfct = c("att0 = 0", "att0 + att0:att1 = 0",
                                "att1 = 0", "att1 + att0:att1 = 0",
@@ -81,8 +81,9 @@ summary(eff)
 UPBdata$attcat <- factor(cut(UPBdata$att, 3), labels = c("L", "M", "H"))
 impData <- neImpute(UPB ~ attcat * negaff + gender + educ + age,
                     family = binomial, data = UPBdata)
-\donttest{neMod <- neModel(UPB ~ attcat0 * attcat1 + gender + educ + age,
-                 family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ attcat0 * attcat1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
+neMod <- neModel(UPB ~ attcat0 * attcat1 + gender + educ + age,
+                 family = binomial, expData = impData, se = "robust")
+
 neEffdecomp(neMod)
 neEffdecomp(neMod, xRef = c("L", "H"))
 neEffdecomp(neMod, xRef = c("M", "H"))
@@ -91,8 +92,8 @@ neEffdecomp(neMod, xRef = c("M", "H"))
 ## changing reference levels for continuous exposures
 impData <- neImpute(UPB ~ (att + I(att^2)) * negaff + gender + educ + age,
                     family = binomial, data = UPBdata)
-\donttest{neMod <- neModel(UPB ~ (att0 + I(att0^2)) * (att1 + I(att1^2)) + gender + educ + age,
-                 family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ (att0 + I(att0^2)) * (att1 + I(att1^2)) + gender + educ + age, family = binomial, expData = impData, nBoot = 2)}
+neMod <- neModel(UPB ~ (att0 + I(att0^2)) * (att1 + I(att1^2)) + gender + educ + age,
+                 family = binomial, expData = impData, se = "robust")
 neEffdecomp(neMod)
 neEffdecomp(neMod, xRef = c(-1, 0))
 
@@ -100,8 +101,8 @@ neEffdecomp(neMod, xRef = c(-1, 0))
 ## of the indirect effect by baseline covariates
 impData <- neImpute(UPB ~ (att + negaff + gender + educ + age)^2,
                     family = binomial, data = UPBdata)
-\donttest{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age + att1:gender + att1:age,
-                 family = binomial, expData = impData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age + att1:gender + att1:age, family = binomial, expData = impData, nBoot = 2)}
+neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age + att1:gender + att1:age,
+                 family = binomial, expData = impData, se = "robust")
 neEffdecomp(neMod)
 neEffdecomp(neMod, covLev = c(gender = "F", age = 0)) # default covariate levels
 neEffdecomp(neMod, covLev = c(gender = "M", age = 40))

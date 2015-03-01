@@ -1,5 +1,5 @@
 %\VignetteIndexEntry{Flexible mediation analysis in R using natural effect models}
-
+\RequirePackage[table]{xcolor}
 \documentclass[nojss]{jss}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -7,7 +7,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage[utf8]{inputenc}
-\usepackage{amsmath, booktabs, colortbl, nccmath, pifont, tkz-berge}
+\usepackage{amsmath, booktabs, nccmath, pifont, tkz-berge}
 
 \defcitealias{iposurl}{IPOS}
 \newcommand{\cip}{\mbox{$\perp\!\!\!\perp$}}
@@ -18,6 +18,7 @@
         \hspace{-.5in}Tom Loeys \\ \hspace{-.5in}Ghent University \And
         \hspace{-.7in}Beatrijs Moerkerke \\ \hspace{-.7in}Ghent University \And
         \hspace{-.4in}Stijn Vansteelandt \\ \hspace{-.4in}Ghent University}
+
 \title{\pkg{Medflex}: an \proglang{R} package for flexible mediation analysis using natural effect models}
 
 %% for pretty printing and a nice hypersummary also set:
@@ -72,7 +73,7 @@ Mediation analysis is routinely adopted by researchers from a wide range of appl
 %\SweaveOpts{concordance=TRUE}
 \SweaveOpts{concordance=FALSE}
 
-\setkeys{Gin}{width=1\textwidth}
+%\setkeys{Gin}{width=1\textwidth}
 
 %% include your article here, just as usual
 %% Note that you should use the \pkg{}, \proglang{} and \code{} commands.
@@ -104,7 +105,7 @@ this notion does not provide an equivalent operational definition of an indirect
 
 \subsection{The mediation formula}
 The language of counterfactuals has enabled to clearly define causal effects in a more generic, non-parametric way, but has also promoted a more principled approach to estimating these effects than the one offered by the traditional SEM literature from the social sciences, which was mainly entrenched in linear analysis.
-For this purpose, the mediation formula \citep{Pearl2001,Pearl2012} plays a pivotal role. It prescribes estimating the expected value of nested counterfactuals by standardizing predictions from the outcome model corresponding to exposure level $x$ under the mediator distribution corresponding to exposure level $x^*$: $$\E\left\{Y(x,M(x^*))|C\right\} &= \sum_m \E(Y|X=x,M=m,C) \Pr(M=m|X=x^*,C).$$  This weighted sum can be calculated based on any type of statistical model and has been shown to yield closed-form expressions for the natural indirect effect that encompass the traditional difference-in-coefficients and product-of-coefficient estimators when confined to strictly linear models \citep[e.g.,][]{VanderWeele2009b, Pearl2012}. However, as soon as moving beyond linear settings, the latter estimators no longer coincide with their corresponding mediation formula expressions and no longer yield readily interpretable causal effect estimates (as formalized in the counterfactual framework).\footnote{\cite{Muthen2014} give an intuitive account for SEM practitioners explaining why the product-of-coefficient estimator fails when applied in nonlinear settings or settings involving exposure-mediator interactions. Nonetheless, the product-of-coefficients method can still be useful for testing the null hypothesis of no indirect effect \citep{VanderWeele2011a,Vansteelandt2012}.}
+For this purpose, the mediation formula \citep{Pearl2001,Pearl2012} plays a pivotal role. It prescribes estimating the expected value of nested counterfactuals by standardizing predictions from the outcome model corresponding to exposure level $x$ under the mediator distribution corresponding to exposure level $x^*$: $$\E\left\{Y(x,M(x^*))|C\right\} = \sum_m \E(Y|X=x,M=m,C) \Pr(M=m|X=x^*,C).$$  This weighted sum can be calculated based on any type of statistical model and has been shown to yield closed-form expressions for the natural indirect effect that encompass the traditional difference-in-coefficients and product-of-coefficient estimators when confined to strictly linear models \citep[e.g.,][]{VanderWeele2009b, Pearl2012}. However, as soon as moving beyond linear settings, the latter estimators no longer coincide with their corresponding mediation formula expressions and no longer yield readily interpretable causal effect estimates (as formalized in the counterfactual framework).\footnote{\cite{Muthen2014} give an intuitive account for SEM practitioners explaining why the product-of-coefficient estimator fails when applied in nonlinear settings or settings involving exposure-mediator interactions. Nonetheless, the product-of-coefficients method can still be useful for testing the null hypothesis of no indirect effect \citep{VanderWeele2011a,Vansteelandt2012}.}
 \par More recently, closed-form expressions for natural direct and indirect effects as defined on both additive and ratio scales have been derived for a limited number of nonlinear scenarios \citep{VanderWeele2009b,VanderWeele2010,Valeri2013}.
 
 \subsection{Applying the mediation formula in practice}
@@ -459,7 +460,7 @@ binary & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51}\\
 count & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51}\\
 continuous & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51}\\
 ordinal &  & \ding{51} &  & \ding{51} &  & \ding{51}\\
-nominal & \ding{51}^* & \ding{51} & \ding{51}^* & \ding{51} & \ding{51}^* & \ding{51}\\
+nominal & \ding{51}$^*$ & \ding{51} & \ding{51}$^*$ & \ding{51} & \ding{51}$^*$ & \ding{51}\\
 \bottomrule
 \end{tabular}
 \caption{Types of variables that can be dealt with in the \pkg{medflex} package. Natural effect models are currently restricted to models that can be fitted with the \code{glm} function. `*' indicates that robust standard errors are not available.

@@ -56,7 +56,7 @@ as the order of the unique predictor variables is identical in all three specifi
 
 Furthermore, categorical exposures that are not coded as factors in the original dataset, should be specified as factors in the formula,
 using the \code{\link[base]{factor}} function, e.g. \code{Y ~ factor(X) + M + C1 + C2}.
-Quadratic, cubic or other polynomial terms can be included as well, by making use of the \code{\link[base]{I}} function or by using the \code{\link[stats]{poly}} function.
+Quadratic or higher-order polynomial terms can be included as well, by making use of the \code{\link[base]{I}} function or by using the \code{\link[stats]{poly}} function.
 For instance, \code{Y ~ X + I(X^2) + M + C1 + C2} and \code{Y ~ poly(X, 2, raw = TRUE) + M + C1 + C2} are equivalent and result in identical pointers to the different types of variables.
 
 The command \code{terms(object, "vartype")} (with \code{object} replaced by the name of the resulting expanded dataset) can be used to check whether valid pointers have been created.

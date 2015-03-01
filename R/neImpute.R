@@ -57,7 +57,7 @@ neImpute <- function (object, ...)
 #' 
 #' Furthermore, categorical exposures that are not coded as factors in the original dataset, should be specified as factors in the formula, 
 #' using the \code{\link[base]{factor}} function, e.g. \code{Y ~ factor(X) + M + C1 + C2}. 
-#' Quadratic, cubic or other polynomial terms can be included as well, by making use of the \code{\link[base]{I}} function or by using the \code{\link[stats]{poly}} function.
+#' Quadratic or higher-order polynomial terms can be included as well, by making use of the \code{\link[base]{I}} function or by using the \code{\link[stats]{poly}} function.
 #' For instance, \code{Y ~ X + I(X^2) + M + C1 + C2} and \code{Y ~ poly(X, 2, raw = TRUE) + M + C1 + C2} are equivalent and result in identical pointers to the different types of variables.
 # We do not recommend the use of orthogonal polynomials (i.e. using the default argument specification \code{raw = FALSE} in \code{poly}).
 #' 
@@ -119,9 +119,9 @@ neImpute <- function (object, ...)
 #'                   data = UPBdata)
 #' head(impSL)}
 #' \dontshow{
-#' library(VGAM) 
-#' expData <- neImpute(UPB ~ factor(attbin) + negaff + gender + educ + age, family = binomialff, data = UPBdata, FUN = vglm)
-#' neMod <- neModel(UPB ~ attbin0 + attbin1 + gender + educ + age, family = binomial, expData = expData, nBoot = 2)
+#' #library(VGAM) 
+#' #expData <- neImpute(UPB ~ factor(attbin) + negaff + gender + educ + age, family = binomialff, data = UPBdata, FUN = vglm)
+#' #neMod <- neModel(UPB ~ attbin0 + attbin1 + gender + educ + age, family = binomial, expData = expData, nBoot = 2)
 #' 
 # UPBdata$att2 <- ifelse(UPBdata$attbin == "H", 1, 0)
 #' UPBdata$att2 <- UPBdata$attbin
@@ -275,7 +275,7 @@ neImpute.default <- function (object, formula, data, nMed = 1, nRep = 5, xSampli
 #' 
 #' Furthermore, categorical exposures that are not coded as factors in the original dataset, should be specified as factors in the formula, 
 #' using the \code{\link[base]{factor}} function, e.g. \code{Y ~ factor(X) + M + C1 + C2}. 
-#' Quadratic, cubic or other polynomial terms can be included as well, by making use of the \code{\link[base]{I}} function or by using the \code{\link[stats]{poly}} function.
+#' Quadratic or higher-order polynomial terms can be included as well, by making use of the \code{\link[base]{I}} function or by using the \code{\link[stats]{poly}} function.
 #' For instance, \code{Y ~ X + I(X^2) + M + C1 + C2} and \code{Y ~ poly(X, 2, raw = TRUE) + M + C1 + C2} are equivalent and result in identical pointers to the different types of variables.
 # We do not recommend the use of orthogonal polynomials (i.e. using the default argument specification \code{raw = FALSE} in \code{poly}).
 #' 

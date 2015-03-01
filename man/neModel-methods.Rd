@@ -68,8 +68,8 @@ data(UPBdata)
 
 weightData <- neWeight(negaff ~ att + educ + gender + age,
                        data = UPBdata)
-\donttest{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age,
-                 family = binomial, expData = weightData)}\dontshow{neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age, family = binomial, expData = weightData, nBoot = 2)}
+neMod <- neModel(UPB ~ att0 * att1 + educ + gender + age,
+                 family = binomial, expData = weightData, se = "robust")
 
 ## extract coefficients
 coef(neMod)

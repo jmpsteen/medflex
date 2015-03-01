@@ -1,3 +1,7 @@
+Changes in Version 0.5-1
+
+  o Error/bug when using factor() terms in neEffdecomp: fixed
+
 Changes in Version 0.5-0
 
   o Robust standard errors based on the sandwich estimator as alternative for bootstrap SEs (option 'se = "robust"' in neModel function)
