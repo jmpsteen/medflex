@@ -19,12 +19,12 @@
         \hspace{-.7in}Beatrijs Moerkerke \\ \hspace{-.7in}Ghent University \And
         \hspace{-.4in}Stijn Vansteelandt \\ \hspace{-.4in}Ghent University}
 
-\title{\pkg{Medflex}: an \proglang{R} package for flexible mediation analysis using natural effect models}
+\title{\pkg{Medflex}: An \proglang{R} Package for Flexible Mediation Analysis Using Natural Effect Models}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{Johan Steen, Tom Loeys, Beatrijs Moerkerke, Stijn Vansteelandt} %% comma-separated
-\Plaintitle{Medflex: an R package for flexible mediation analysis using natural effect models} %% without formatting
-\Shorttitle{\pkg{Medflex}: flexible mediation analysis in \proglang{R}} %% a short title (if necessary)
+\Plaintitle{Medflex: An R Package for Flexible Mediation Analysis Using Natural Effect Models} %% without formatting
+\Shorttitle{\pkg{Medflex}: Flexible Mediation Analysis in \proglang{R}} %% a short title (if necessary)
 
 %% an abstract and keywords
 \Abstract{
@@ -40,7 +40,7 @@ Mediation analysis is routinely adopted by researchers from a wide range of appl
   Faculty of Sciences\\
   Ghent University\\
   Krijgslaan 281, S9\\
-  9000 Ghent, Belgium\\
+  9000 Gent, Belgium\\
   E-mail: \email{johan.steen@ugent.be}\\
   URL: \url{http://users.ugent.be/~jsteen/}\\
   \\
@@ -49,7 +49,7 @@ Mediation analysis is routinely adopted by researchers from a wide range of appl
   Faculty of Psychology and Educational Sciences\\
   Ghent University\\
   Henri Dunantlaan 1\\
-  9000 Ghent, Belgium\\
+  9000 Gent, Belgium\\
   E-mail: \email{tom.loeys@ugent.be}\\
   \\
   Beatrijs Moerkerke\\
@@ -57,7 +57,7 @@ Mediation analysis is routinely adopted by researchers from a wide range of appl
   Faculty of Psychology and Educational Sciences\\
   Ghent University\\
   Henri Dunantlaan 1\\
-  9000 Ghent, Belgium\\
+  9000 Gent, Belgium\\
   E-mail: \email{beatrijs.moerkerke@ugent.be}\\
   \\
   Stijn Vansteelandt\\
@@ -65,7 +65,7 @@ Mediation analysis is routinely adopted by researchers from a wide range of appl
   Faculty of Sciences\\
   Ghent University\\
   Krijgslaan 281, S9\\
-  9000 Ghent, Belgium\\
+  9000 Gent, Belgium\\
   E-mail: \email{stijn.vansteelandt@ugent.be}
 }
 
@@ -80,14 +80,13 @@ Mediation analysis is routinely adopted by researchers from a wide range of appl
 
 \section[Introduction]{Introduction}
 %% Note: If there is markup in \(sub)section, then it has to be escape as above.
-Empirical studies often aim %or aim?
-at gaining insight into the underlying mechanisms by which an exposure or treatment affects an outcome of interest. Mediation analysis, as popularized in psychology and the social sciences by \cite{Judd1981a} and \cite{Baron1986}, has been widely adopted as a statistical tool to shed light on these mechanisms, by enabling the decomposition of total causal effects into an \textit{indirect} effect through a hypothesized intermediate variable or mediator and the remaining \textit{direct} effect. Although its initial formulations were restricted to the context of linear regression models, several attempts have been made to extend the application of traditional estimators for indirect effects (i.e., product-of-coefficients and difference-in-coefficients estimators) beyond linear settings \citep[e.g.,][]{MacKinnon1993, MacKinnon2007c, Hayes2010, Iacobucci2012}.
+Empirical studies often aim at gaining insight into the underlying mechanisms by which an exposure or treatment affects an outcome of interest. Mediation analysis, as popularized in psychology and the social sciences by \cite{Judd1981a} and \cite{Baron1986}, has been widely adopted as a statistical tool to shed light on these mechanisms, by enabling the decomposition of total causal effects into an \textit{indirect} effect through a hypothesized intermediate variable or mediator and the remaining \textit{direct} effect. Although its initial formulations were restricted to the context of linear regression models, several attempts have been made to extend the application of traditional estimators for indirect effects (i.e., product-of-coefficients and difference-in-coefficients estimators) beyond linear settings \citep[e.g.,][]{MacKinnon1993, MacKinnon2007c, Hayes2010, Iacobucci2012}.
 However, these extensions lack formal justification and yield effect estimates that are often difficult to interpret \citep[e.g.,][]{Pearl2012}.
 \par Recent advances from the causal inference literature \citep[e.g.,][]{Albert2008,Albert2011,Avin2005,Imai2010a,Pearl2001,Pearl2012,Greenland1992,VanderWeele2009b,VanderWeele2010} have furthered these earlier attempts and improved both inference and interpretability of causal effect estimators in nonlinear settings by building on the central notion of counterfactual or potential outcomes. This notion provides a framework that has aided in (i) formally defining direct and indirect effects (in a way that is not tied to a specific statistical model), (ii) describing the conditions required for their identification (unveiling and formalizing often implicitly made causal assumptions) and (iii) assessing the robustness of empirical findings against violations of these identification conditions (i.e., sensitivity analysis). 
-\par For instance, \cite{Imai2010b} proposed mediation analysis techniques that can be applied within a larger class of nonlinear models. They implemented these in a user-friendly \proglang{R} package, called \pkg{mediation} (\citealp{Tingley2014}; see \citealp{Hicks2011} for a version in \proglang{Stata} \citep{stata} with more limited functionality). More recently, \cite{Valeri2013} reviewed the latest developments in mediation analysis for nonlinear models, focusing on exposure-mediator interactions, and provided \proglang{SAS} \citep{sas} and \proglang{SPSS} \citep{spss} macros, enabling practitioners to easily conduct these methods using well-known commercial packages. Similarly, \cite{Emsley2013} and \cite{Muthen2014} described how direct and indirect effects as defined in the counterfactual framework can be estimated in \proglang{Stata} and via extended types of structural equation models in \proglang{Mplus} \citep{mplus}, respectively.
-\par In this paper, we introduce \pkg{medflex}, an \proglang{R} package that allows for flexible estimation of direct and indirect effects while accommodating some of the limitations of other available packages. More specifically, we make use of novel so-called \textit{natural effect models} \citep{Lange2012,Lange2013a,Loeys2013a,Vansteelandt2012}, which directly parameterize the target causal estimands on their most natural scale. This renders formal testing and interpretation more straightforward compared to other approaches as implemented in the aforementioned software applications. The \pkg{medflex} package is freely available from the Comprehensive R Archive Network (CRAN) at \url{http://CRAN.R-project.org/package=medflex} \citep{R:base}.
+\par For instance, \cite{Imai2010b} proposed mediation analysis techniques that can be applied within a larger class of nonlinear models. They implemented these in a user-friendly \proglang{R} package, called \pkg{mediation} (\citealp{R:mediation}; see \citealp{Hicks2011} for a version in \proglang{Stata} \citep{stata} with more limited functionality). More recently, \cite{Valeri2013} reviewed the latest developments in mediation analysis for nonlinear models, focusing on exposure-mediator interactions, and provided \proglang{SAS} \citep{sas} and \proglang{SPSS} \citep{spss} macros, enabling practitioners to easily conduct these methods using well-known commercial packages. Similarly, \cite{Emsley2013} and \cite{Muthen2014} described how direct and indirect effects as defined in the counterfactual framework can be estimated in \proglang{Stata} and via extended types of structural equation models in \proglang{Mplus} \citep{mplus}, respectively.
+\par In this paper, we introduce \pkg{medflex} \citep{Steen2015}, an \proglang{R} package that allows for flexible estimation of direct and indirect effects while accommodating some of the limitations of other available packages. More specifically, we make use of novel so-called \textit{natural effect models} \citep{Lange2012,Lange2013a,Loeys2013a,Vansteelandt2012}, which directly parameterize the target causal estimands on their most natural scale. This renders formal testing and interpretation more straightforward compared to other approaches as implemented in the aforementioned software applications. The \pkg{medflex} package is freely available from the Comprehensive R Archive Network (CRAN) at \url{http://CRAN.R-project.org/package=medflex} \citep{R:base}.
 \par Throughout, the functionalities of the \pkg{medflex} package will be illustrated using data from a survey study that was part of the Interdisciplinary Project for the Optimization of Separation trajectories \citepalias{iposurl}. This large-scale project involved the recruitment of individuals who divorced between March 2008 and March 2009 in four major courts in Flanders. It aimed to improve the quality of life in families during and after the divorce by translating research findings into practical guidelines for separation specialists (such as lawyers, judges, psychologists, welfare workers...) and by promoting evidence-based policy. The corresponding dataset (\code{UPBdata}) is included in the package and involves a subsample of 385 individuals who responded to a battery of questionnaires related to romantic \textit{relationship} characteristics (such as adult attachment style) and \textit{breakup} characteristics (such as breakup initiator status, experiencing negative affectivity and engaging in unwanted pursuit behaviors; UPB) \citep{Smet2012}. Respondents were asked to imagine their former partner as well as possible and to remember how they generally felt in their relationship \textit{before} the breakup when completing the attachment style questionnaire. The mediation hypothesis of interest concerned the question whether the level of emotional distress or negative affectivity experienced \textit{during} the breakup can be regarded as an intermediate mechanism (\textit{M}) through which attachment style towards the ex-partner \textit{before} the breakup (\textit{X}) exerts its influence on displaying UPBs \textit{after} the breakup (\textit{Y}) \citep{Loeys2013a}.
-\par In the next section, we briefly introduce the mediation formula \citep{Pearl2001,Pearl2012}, which is the predominant vehicle for effect decomposition within the counterfactual framework. Advantages of natural effect models over direct application of the mediation formula will also be discussed in more detail. We then explain how to fit natural effect models, focusing on two missing data techniques for fitting these models and demonstrate how these approaches can be implemented in \proglang{R} using the \pkg{medflex} package (section~\ref{nateff}). Next, we demonstrate how different types of exposure and mediator variables can be dealt with (section~\ref{types}) and how to assess effect modification of natural effects (e.g., exposure-mediator interactions and moderated mediation) (section~\ref{modmed}). Tools are provided for deriving and visualizing different causal effects estimates (section~\ref{tools}) and for estimating population-average natural effects (section~\ref{popavg}) and natural indirect effects as defined through multiple intermediate pathways jointly (section~\ref{multmed}). Finally, in section~\ref{concl}, we give some concluding remarks and list some extensions of the package which are planned to be implemented in the near future.
+\par In the next section, we briefly introduce the mediation formula \citep{Pearl2001,Pearl2012}, which is the predominant vehicle for effect decomposition within the counterfactual framework. Advantages of natural effect models over direct application of the mediation formula will also be discussed in more detail. We then explain how to fit natural effect models, focusing on two missing data techniques for fitting these models and demonstrate how these approaches can be implemented in \proglang{R} using the \pkg{medflex} package (Section~\ref{nateff}). Next, we demonstrate how different types of exposure and mediator variables can be dealt with (Section~\ref{types}) and how to assess effect modification of natural effects (e.g., exposure-mediator interactions and moderated mediation) (Section~\ref{modmed}). Tools are provided for deriving and visualizing different causal effects estimates (Section~\ref{tools}) and for estimating population-average natural effects (Section~\ref{popavg}) and natural indirect effects as defined through multiple intermediate pathways jointly (Section~\ref{multmed}). Finally, in Section~\ref{concl}, we give some concluding remarks and list some extensions of the package which are planned to be implemented in the near future.
 
 \section{The mediation formula}
 \subsection{Counterfactual outcomes and effect decomposition}
@@ -112,7 +111,7 @@ For this purpose, the mediation formula \citep{Pearl2001,Pearl2012} plays a pivo
 
 Software applications for obtaining closed-form solutions derived from the mediation formula, as well as their corresponding delta method (or bootstrap) standard errors, have been made available as \proglang{SPSS} and \proglang{SAS} macros \citep{Valeri2013} and as the \proglang{Stata} module \pkg{PARAMED} \citep{Emsley2013}. 
 More recently, \cite{Muthen2014} demonstrated how natural effect estimates can be obtained via extended types of structural equation models in \proglang{Mplus}, even in the presence of latent variables. However, such closed-form expressions can often not readily be obtained, for instance when combining a linear model for the mediator and a logistic model for the outcome.
-\par \cite{Imai2010a} addressed this issue and instead suggested a more generic approach based on Monte-Carlo integration methods, which they implemented in the \proglang{R} package \pkg{mediation} \citep{Tingley2014}. 
+\par \cite{Imai2010a} addressed this issue and instead suggested a more generic approach based on Monte-Carlo integration methods, which they implemented in the \proglang{R} package \pkg{mediation} \citep{R:mediation}.
 Whereas its lightweight version in \proglang{Stata} \citep{Hicks2011} and the \proglang{Stata} module \pkg{gformula} \citep{Daniel2011}, which adopts a similar simulation-based approach, are restricted to parametric models, this \proglang{R} package also allows to specify semi- or non-parametric models for the mediator and outcome. Despite being computationally intensive, these offer more flexibility than the applications based on a purely analytical approach. In addition, the \pkg{mediation} package offers useful extensions, such as methods for dealing with multiple mediators and treatment noncompliance, while at the same time enabling users to evaluate the robustness of their findings to potential unmeasured confounding in a widely applicable sensitivity analysis.
 
 \begin{figure}[t]
@@ -131,7 +130,7 @@ for binary mediators and outcomes, the mediation formula yields
 \Pr(Y(x,M(x^*))=1\vert C) &= \mbox{expit}\left(\beta_0 + \beta_1 x + \beta_2 + \beta_3 C\right)\mbox{expit}\left(\alpha_0 + \alpha_1 x^* + \alpha_2 C\right)\\
 &\quad + \mbox{expit}\left(\beta_0 + \beta_1 x + \beta_3 C\right)\left\{1-\mbox{expit}\left(\alpha_0 + \alpha_1 x^* + \alpha_2 C\right)\right\},      
 \end{align*}
-an expression which depends on exposure and covariate levels in a complicated way. Even though none of the postulated models include interaction terms reflecting effect modification, derived direct and indirect effects estimates will vary with different exposure or covariate levels. This is also illustrated in figure~\ref{ill}, which depicts estimates for the natural indirect effect odds ratio, as obtained by applying the mediation formula to these models fitted to our example dataset (using a dichotomized version of the mediator and baseline covariates $C$ including gender, age and education level). As pointed out before by \cite{Lange2012} and \cite{Vansteelandt2012}, these convoluted expressions render results difficult to report and hypotheses testing (e.g., testing for moderated mediation) infeasible. As a result, tests of the null hypothesis that the direct or indirect effect is independent of covariates will likely suffer from inflated type I error rates. In certain cases, this complexity can pose a major impediment to routine application of the mediation formula.
+an expression which depends on exposure and covariate levels in a complicated way. Even though none of the postulated models include interaction terms reflecting effect modification, derived direct and indirect effects estimates will vary with different exposure or covariate levels. This is also illustrated in Figure~\ref{ill}, which depicts estimates for the natural indirect effect odds ratio, as obtained by applying the mediation formula to these models fitted to our example dataset (using a dichotomized version of the mediator and baseline covariates $C$ including gender, age and education level). As pointed out before by \cite{Lange2012} and \cite{Vansteelandt2012}, these convoluted expressions render results difficult to report and hypotheses testing (e.g., testing for moderated mediation) infeasible. As a result, tests of the null hypothesis that the direct or indirect effect is independent of covariates will likely suffer from inflated type I error rates. In certain cases, this complexity can pose a major impediment to routine application of the mediation formula.
 
 \par Moreover, the \pkg{mediation} package only provides natural effect estimates on the additive scale. This may complicate estimation and inference in nonlinear outcome models, mainly when dealing with continuous exposures or covariates, because of induced nonadditivity. 
 Specifically, because the indirect effect is not encoded by a single parameter, but may take on a different value for each level of $x$, the null hypothesis of no indirect effect over the entire range of exposure levels becomes difficult to test. Similarly, although the \pkg{mediation} package enables users to test for effect modification in nonlinear models (i.e., either treatment-mediator interactions or moderated mediation), these hypothesis tests probe research questions in terms of risk differences that are tied to pre-specified exposure or covariate levels. A concern is that these levels might, at least in some applications, need to be chosen in a rather arbitrary way \citep{Loeys2013a}.
@@ -150,7 +149,7 @@ Natural effect models are conditional mean models for nested counterfactuals $Y(
 \begin{align*}
 \E \{ Y(x,M(x^*)) \vert C \} = g^{-1} \{ \beta' W(x,x^*,C) \}
 \end{align*}
-with $g(\cdot)$ a known link function (e.g., the identity or logit link), $W(x,x^*,C)$ a known vector with components that may depend on $x$, $x^*$ and $C$, and $\beta$ a vector including parameters that encode the natural effects of interest.\footnote{Although \cite{Lange2012} primarily described these models as marginal or population-average mean models, throughout this paper we will describe natural effect models as conditional or stratum-specific mean models \citep[i.e., conditional on baseline covariates, as in][]{Vansteelandt2012}. A weighting method for fitting marginal or population-average natural effect models is presented in section~\ref{popavg}.} It can, for instance, easily be inferred that in model
+with $g(\cdot)$ a known link function (e.g., the identity or logit link), $W(x,x^*,C)$ a known vector with components that may depend on $x$, $x^*$ and $C$, and $\beta$ a vector including parameters that encode the natural effects of interest.\footnote{Although \cite{Lange2012} primarily described these models as marginal or population-average mean models, throughout this paper we will describe natural effect models as conditional or stratum-specific mean models \citep[i.e., conditional on baseline covariates, as in][]{Vansteelandt2012}. A weighting method for fitting marginal or population-average natural effect models is presented in Section~\ref{popavg}.} It can, for instance, easily be inferred that in model
 \begin{align*}
 \E \{ Y(x,M(x^*)) \vert C \} = \beta_0 + \beta_1 x + \beta_2 x^* + \beta_3 C,
 \end{align*}
@@ -166,23 +165,20 @@ Before describing the two main approaches for fitting natural effect methods, we
 
 \par After loading the \pkg{medflex} package, displaying the first few rows of the example dataset \code{UPBdata} provides some insight into the data:
 <<echo=FALSE>>=
-options(prompt = "R> ", continue = "+  ", width = 80, #useFancyQuotes = "UTF-8",
-        digits = 3)
+options(prompt = "R> ", continue = "+  ", width = 76, digits = 3, useFancyQuotes = FALSE)
   listing <- function(x, options) {
     paste("\\begin{lstlisting}[basicstyle=\\ttfamily,breaklines=true]\n",
       x, "\\end{lstlisting}\n", sep = "")
   }
-  #knit_hooks$set(source=listing, output=listing)
 @
 
 <<>>=
-library(medflex)
-data(UPBdata)
+library("medflex")
+data("UPBdata")
 head(UPBdata)
 @
 
 \cite{Smet2012} and \cite{Loeys2013a} proposed emotional distress or the amount of negative affectivity experienced during the breakup as a mediating variable for the effect of attachment style towards the ex-partner before the breakup on displaying unwanted pursuit behaviors after the breakup. Figure~\ref{dag1} depicts the causal diagram that reflects this mediation hypothesis along with its aforementioned identification assumptions. 
-
 \par As direct and indirect effects are most easily understood for binary exposures, we will use a dichotomized version of anxious attachment level (\code{attbin}) for didactive purposes. Moreover, negative affectivity (\code{negaff}) has been standardized to allow for easily interpretable effect estimates. The outcome variable unwanted pursuit behavior (\code{UPB}) indicates whether (=1) or not (=0) the respondent has engaged in any unwanted pursuit behaviors. 
 \par A relatively simple natural effect model is the logistic model
 \begin{align}
@@ -242,9 +238,8 @@ $i$ & $X_i$ & $x$ & $x^*$ & $Y_i(x,M_i(x^*))$\\
 \caption{Schematic display of the expanded dataset with missing counterfactual outcomes.}\label{tab-exp2}
 \end{table}
 
-
 \par Fitting natural effect models then entails using well-established methods to deal with missingness in the outcome, which results from expanding the data. Throughout, we will describe a weighting- and an imputation-based approach, which, as outlined below, differ mainly in terms of the statistical working models on which they rely \citep{Vansteelandt2012f}.
-\par Data expansion is identical for both approaches, but subsequent algorithms for data preparation differ depending on the type of working model. In the \pkg{medflex} package, these two steps are implemented in the functions \code{neWeight} and \code{neImpute}. Both return an expanded dataset to which the natural effect model can be fitted using the central function \code{neModel} (see Figure~\ref{fig:workflow}). In the next two subsections, we explain both approaches and give example code in \proglang{R}.
+\par Data expansion is identical for both approaches, but subsequent algorithms for data preparation differ depending on the type of working model. In the \pkg{medflex} package, these two steps are implemented in the functions \code{neWeight} and \code{neImpute}. Both return an expanded dataset to which the natural effect model can be fitted using the central function \code{neModel} (see Figure~\ref{fig:workflow}). In the next two sections, we explain both approaches and give example code in \proglang{R}.
 
 \begin{figure}[hb]
   \centering
@@ -288,7 +283,7 @@ To calculate the weights, a model for the mediator needs to be fitted. For insta
 can be fitted using the \code{glm} function:
 <<>>=
 medFit <- glm(negaff ~ factor(attbin) + gender + educ + age, 
-              family = gaussian, data = UPBdata)
+  family = gaussian, data = UPBdata)
 @
 Next, this fitted object needs to be specified as the first argument in \code{neWeight}, which in turn codes the first predictor variable in the \code{formula} argument as the exposure and then expands the data along hypothetical values of this variable. It is important to note here that, for successful data expansion, categorical exposures should be explicitly coded as factors in the \code{formula} if they are not yet coded as such in the dataset.
 <<>>=
@@ -302,10 +297,10 @@ The new variables \code{attbin0} and \code{attbin1} correspond to hypothetical e
 \par To shorten code, one can instead choose to directly specify the \code{formula}, \code{family} and \code{data} arguments in \code{neWeight}. As illustrated below, this yields identical results:
 <<>>=
 expData <- neWeight(negaff ~ factor(attbin) + gender + educ + age,
-                    data = UPBdata)
+  data = UPBdata)
 head(expData, 4)
 @
-\par By default, \code{glm} is used as internal model-fitting function. However, other model-fitting functions can be specified in the \code{FUN} argument (e.g., \code{vglm} from the \pkg{VGAM} package \citep{R:VGAM}).\footnote{In the current version of the package also \code{vglm} and \code{vgam} from the \pkg{VGAM} package and \code{gam} from the \pkg{gam} package \citep{R:gam} are supported. When specifying model-fitting functions other than \code{glm} in the \code{FUN} argument, one might need to specify the \code{family} argument differently. That is, in a way that is consistent with argument specification of that specific model-fitting function.}
+\par By default, \code{glm} is used as internal model-fitting function. However, other model-fitting functions can be specified in the \code{FUN} argument \citep[e.g., \code{vglm} from the \pkg{VGAM} package;][]{R:VGAM}.\footnote{In the current version of the package also \code{vglm} and \code{vgam} from the \pkg{VGAM} package and \code{gam} from the \pkg{gam} package \citep{R:gam} are supported. When specifying model-fitting functions other than \code{glm} in the \code{FUN} argument, one might need to specify the \code{family} argument differently. That is, in a way that is consistent with argument specification of that specific model-fitting function.}
 \par Finally, the weights are stored as an attribute of the expanded dataset and can easily be retrieved using the generic \code{weights} function, e.g., for further inspection of their empirical distribution:
 <<>>=
 w <- weights(expData)
@@ -318,10 +313,10 @@ After expanding the data and calculating regression weights for each of the repl
 \begin{Schunk}
 \begin{Sinput}
 R> neMod1 <- neModel(UPB ~ attbin0 + attbin1 + gender + educ + age,
-+                    family = binomial("logit"), expData = expData)
++    family = binomial("logit"), expData = expData)
 \end{Sinput}
 \end{Schunk}
-The \code{summary} table of the resulting natural effect model object provides these bootstrap standard errors along with corresponding Wald-type \textit{z}- and \textit{p}-values.
+The \code{summary} table of the resulting natural effect model object provides these bootstrap standard errors along with corresponding Wald-type $z$~statistics and $p$~values.
 \begin{Schunk}
 \begin{Sinput}
 R> summary(neMod1)
@@ -347,21 +342,10 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 \end{Soutput}
 \end{Schunk}
 
-% 
-% <<results = hide>>=
-% neMod1 <- neModel(UPB ~ attbin0 + attbin1 + gender + educ + age,
-%                   family = binomial("logit"), expData = expData)
-% @
-% The \code{summary} table of the resulting natural effect model object provides these bootstrap standard errors along with corresponding Wald-type \textit{z}- and \textit{p}-values.
-% <<>>=
-% summary(neMod1)
-% @
-
 As an alternative, robust standard errors based on the sandwich estimator \citep{Liang1986} can be requested by setting \code{se = "robust"}. Calculation of these standard errors is less computer-intensive and is available for natural effect models with working models fitted via the \code{glm} function.
 <<>>=
 neMod1 <- neModel(UPB ~ attbin0 + attbin1 + gender + educ + age,
-                  family = binomial("logit"), expData = expData, 
-                  se = "robust")
+  family = binomial("logit"), expData = expData, se = "robust")
 summary(neMod1)
 @
 
@@ -411,7 +395,7 @@ Although application of the imputation-based approach is similar to that of the 
 can be fitted in \proglang{R} using the \code{glm} function:
 <<>>=
 impFit <- glm(UPB ~ factor(attbin) + negaff + gender + educ + age,
-              family = binomial("logit"), data = UPBdata)
+  family = binomial("logit"), data = UPBdata)
 @
 In order for \code{neImpute} to identify the predictor variables in the \code{formula} argument correctly as either exposure, mediator(s) or baseline covariates, they need to be entered in a particular order. That is, the first predictor variable again needs to point to the exposure and the second to the mediator, irrespective of the use of operators (i.e., \code{+}, \code{*} and \code{:}). All other predictors are automatically coded as baseline covariates.
 \par This fitted object then needs to be entered as the first argument in \code{neImpute}:
@@ -421,7 +405,7 @@ expData <- neImpute(impFit)
 Alternatively, the \code{formula}, \code{family} and \code{data} arguments can be directly specified in \code{neImpute}:
 <<>>=
 expData <- neImpute(UPB ~ factor(attbin) + negaff + gender + educ + age,
-                    family = binomial("logit"), data = UPBdata)
+  family = binomial("logit"), data = UPBdata)
 @
 Similar to \code{neWeight}, \code{neImpute} first expands the data along hypothetical exposure values. Instead of calculating weights for these new observations, \code{neImpute} then imputes the nested counterfactual outcomes by fitted values based on the imputation model. As illustrated below, the resulting expanded dataset includes two imputed nested counterfactual outcomes for each subject:
 <<>>=
@@ -432,8 +416,7 @@ head(expData, 4)
 After expanding and imputing the data, specifying the natural effect model can be done as for the weighting-based approach:
 <<results = hide>>=
 neMod1 <- neModel(UPB ~ attbin0 + attbin1 + gender + educ + age,
-                  family = binomial("logit"), expData = expData, 
-                  se = "robust")
+  family = binomial("logit"), expData = expData, se = "robust")
 @
 Again, bootstrap or robust standard errors are reported in the output of the \code{summary} function, in order to account for the uncertainty inherent to the working model (i.e., in this case, the imputation model):
 <<>>=
@@ -443,24 +426,24 @@ Natural direct and indirect effect odds ratio estimates and their confidence int
 
 %\newpage
 \section{Dealing with different types of variables}\label{types}
-In the previous section, we used a dichotomized version of the continuous exposure variable \code{att}. However, the natural effect model framework easily extends to different types of exposure, mediator or outcome variables. In the following two subsections, we give a detailed description on how to fit natural effect models with multicategorical (i.e., ordinal or nominal) and continuous exposures. In these subsections, as well as throughout the remainder of this paper, we will focus on the imputation-based approach when introducing new features of the \pkg{medflex} package. Unless indicated otherwise, the weighting-based approach can be applied analogously.
+In the previous section, we used a dichotomized version of the continuous exposure variable \code{att}. However, the natural effect model framework easily extends to different types of exposure, mediator or outcome variables. In the following two sections, we give a detailed description on how to fit natural effect models with multicategorical (i.e., ordinal or nominal) and continuous exposures. In these sections, as well as throughout the remainder of this paper, we will focus on the imputation-based approach when introducing new features of the \pkg{medflex} package. Unless indicated otherwise, the weighting-based approach can be applied analogously.
 \par An overview of the types of mediators and outcomes the \pkg{medflex} package can currently handle, is given in Table~\ref{tab-vartypes}. When using the weighting-based approach, models for binary, count and continuous mediators can be fitted using the \code{glm} function or the \code{vglm} function from the \pkg{VGAM} package. Models for nominal mediators, on the other hand, can only be fitted using the \code{vglm} function (setting \code{family = multinomial}).\footnote{In the current version of the package, when using working models for weighting (either when adopting the weighting-based approach or when fitting population-average natural effect models), robust standard errors are only available if these working models are fitted using \code{glm} and their outcomes (i.e., either an exposure or a mediator) follow either a normal, binomial or Poisson distribution.} Although models for ordinal mediators are not compatible with the \code{neWeight} function, ordered factors can easily be treated as nominal variables. Finally, the imputation-based approach can deal with virtually any type of mediator as it does not require the specification of a mediator model.
 
 \begin{table}[t]
 \centering
 \begin{tabular}{lcccccc}
 \toprule
-& \multicolumn{6}{c}{\textit{outcome type}}\\
+& \multicolumn{6}{c}{\textit{Outcome type}}\\
 \cmidrule{2-7}
- & \multicolumn{2}{c}{binary} & \multicolumn{2}{c}{count} & \multicolumn{2}{c}{continuous}\\
+ & \multicolumn{2}{c}{Binary} & \multicolumn{2}{c}{Count} & \multicolumn{2}{c}{Continuous}\\
 \cmidrule{2-7}
-\textit{mediator type} & \code{neWeight} & \code{neImpute} & \code{neWeight} & \code{neImpute} & \code{neWeight} & \code{neImpute} \\
+\textit{Mediator type} & \code{neWeight} & \code{neImpute} & \code{neWeight} & \code{neImpute} & \code{neWeight} & \code{neImpute} \\
 \midrule
-binary & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51}\\
-count & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51}\\
-continuous & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51}\\
-ordinal &  & \ding{51} &  & \ding{51} &  & \ding{51}\\
-nominal & \ding{51}$^*$ & \ding{51} & \ding{51}$^*$ & \ding{51} & \ding{51}$^*$ & \ding{51}\\
+Binary & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51}\\
+Count & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51}\\
+Continuous & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51}\\
+Ordinal &  & \ding{51} &  & \ding{51} &  & \ding{51}\\
+Nominal & \ding{51}$^*$ & \ding{51} & \ding{51}$^*$ & \ding{51} & \ding{51}$^*$ & \ding{51}\\
 \bottomrule
 \end{tabular}
 \caption{Types of variables that can be dealt with in the \pkg{medflex} package. Natural effect models are currently restricted to models that can be fitted with the \code{glm} function. `*' indicates that robust standard errors are not available.
@@ -469,23 +452,23 @@ nominal & \ding{51}$^*$ & \ding{51} & \ding{51}$^*$ & \ding{51} & \ding{51}$^*$ 
 
 \subsection{Multicategorical exposures}
 
-Methods for dealing with multicategorical treatments or exposures, as encountered in e.g., multiple intervention studies, in which multiple experimental conditions are compared to a control condition, have rarely been described within the mediation literature \citep[although see][for some notable exceptions]{Hayes2014,Tingley2014}.
+Methods for dealing with multicategorical treatments or exposures, as encountered in e.g., multiple intervention studies, in which multiple experimental conditions are compared to a control condition, have rarely been described within the mediation literature \citep[although see][for some notable exceptions]{Hayes2014,R:mediation}.
 \par In this section, we illustrate how to expand the dataset and fit natural effect models when using a multicategorical exposure. In this example, instead of using the binary exposure variable \code{attbin}, we use a discretized version of anxious attachment style, named \code{attcat} (with \code{L} indicating low, \code{M} indicating intermediate and \code{H} indicating high anxious attachment levels). 
 \par Inspecting the first rows of the expanded dataset shows that the number of replications for each subject again corresponds to the number of unique levels of the categorical exposure variable. That is, the auxiliary variable $x^*$ (\code{attcat1}) is fixed to the observed exposure level, whereas the other, $x$ (\code{attcat0}), enumerates all potential exposure levels.
 <<>>=
 expData <- neImpute(UPB ~ attcat + negaff + gender + educ + age,
-                    family = binomial, data = UPBdata)
+  family = binomial, data = UPBdata)
 head(expData)
 @
-The \code{summary} table returns estimates for the natural direct and indirect effect log odds ratios comparing intermediate and high anxious attachment levels to low levels of anxious attachment (i.e., the reference level). The \code{neEffdecomp} function, described in section~\ref{effdecomp}, can be used to derive (log) odds ratios corresponding to the contrast between high and intermediate levels of anxious attachment.
+The \code{summary} table returns estimates for the natural direct and indirect effect log odds ratios comparing intermediate and high anxious attachment levels to low levels of anxious attachment (i.e., the reference level). The \code{neEffdecomp} function, described in Section~\ref{effdecomp}, can be used to derive (log) odds ratios corresponding to the contrast between high and intermediate levels of anxious attachment.
 <<>>=
 neMod <- neModel(UPB ~ attcat0 + attcat1 + gender + educ + age,
-                 family = binomial, expData = expData, se = "robust")
+  family = binomial, expData = expData, se = "robust")
 summary(neMod)
 @
 Overall assessment of natural effects (i.e., a joint comparison of all levels of the exposure) cannot be based on the default \code{summary} output, but instead requires an Anova table for the natural effect model, which can be obtained using the \code{Anova} function from the \pkg{car} package \citep{R:car}:
 <<>>=
-library(car)
+library("car")
 Anova(neMod)
 @
 Both type-II (the default) and type-III Anova tables can be requested by specifying the desired type via the \code{type} argument. This table includes corresponding Wald $\chi^2$ tests for multivariate hypotheses which account for the uncertainty inherent to the working model. The output suggests that the natural direct and indirect effect odds differ significantly between the three exposure levels. 
@@ -496,19 +479,16 @@ In contrast to the \pkg{mediation} package, hypothesis testing for natural direc
 \par Both \code{neWeight} and \code{neImpute} allow to choose the number of draws to sample from this conditional distribution via the \code{nRep} argument (which defaults to 5).
 <<>>=
 expData <- neImpute(UPB ~ att + negaff + gender + educ + age, 
-                    family = binomial("logit"), data = UPBdata, nRep = 3)
+  family = binomial("logit"), data = UPBdata, nRep = 3)
 head(expData)
 @
 Specification of the natural effect model via \code{neModel} can be done as described before:
-<<warning = F, results = hide>>=
+<<>>=
 neMod1 <- neModel(UPB ~ att0 + att1 + gender + educ + age,
-                  family = binomial("logit"), expData = expData, 
-                  se = "robust")
+  family = binomial("logit"), expData = expData, se = "robust")
 summary(neMod1)
 @
-<<echo = F>>=
-summary(neMod1)
-@
+
 The output illustrates that defining natural effects on the (log) odds ratio scale allows to capture each of these effects along the entire support of the exposure by a single parameter. For instance, for a subject with baseline covariate levels $C$, the direct and indirect effects of one standard deviation increase in anxious attachment level (i.e., from $x$ to $x+1$) correspond to an increase in the odds of displaying unwanted pursuit behaviors by a factor 
 \begin{align*}
 \widehat{\mbox{OR}}^{\text{NDE}}_{x+1,x|C} &= \frac{\mbox{odds}\left\{Y(x+1,M(x))=1|C\right\}}{\mbox{odds}\left\{Y(x,M(x))=1|C\right\}} = \exp(\hat{\beta_1}) = \exp(\Sexpr{round(coef(neMod1)["att0"], 2)}) = \Sexpr{round(exp(coef(neMod1)["att0"]), 2)},
@@ -521,7 +501,7 @@ respectively, regardless of the initial level $x$. Defining natural effects on t
 \par Throughout the remainder of the paper, we will continue to use the original continuous exposure variable, \code{att}.
 
 \section{Effect modification of natural effects}\label{modmed}
-\subsection{Exposure-mediator interactions: relaxing the no interaction assumption}\label{subsec:ia}
+\subsection{Exposure-mediator interactions}\label{subsec:ia}
 So far, the considered natural effect models reflected the assumption that the exposure and mediator do not interact in their effect on the outcome. In particular, the natural direct effect odds ratio $$\mbox{OR}^{\text{NDE}}_{1,0|C}(x) = \frac{\mbox{odds}\left\{Y(1,M(x))=1|C\right\}}{\mbox{odds}\left\{Y(0,M(x))=1|C\right\}}$$ was declared to be the same for each choice of mediator level $M(x)$, and hence for each choice of $x$, at which the mediator is evaluated, while, similarly, the natural indirect effect odds ratio $$\mbox{OR}^{\text{NIE}}_{1,0|C}(x) = \frac{\mbox{odds}\left\{Y(x,M(1))=1|C\right\}}{\mbox{odds}\left\{Y(x,M(0))=1|C\right\}}$$ was declared to be the same for each choice of exposure level $x$ at which the outcome was evaluated. 
 In other words, the effects \cite{Greenland1992} referred to as the \emph{pure} direct effect, $\mbox{OR}^{\text{NDE}}_{1,0|C}(0)$, and \emph{total} direct effect, $\mbox{OR}^{\text{NDE}}_{1,0|C}(1)$, were assumed to be equal. Likewise, the \emph{pure} indirect effect, $\mbox{OR}^{\text{NIE}}_{1,0|C}(0)$, and \emph{total} indirect effect, $\mbox{OR}^{\text{NIE}}_{1,0|C}(1)$, were assumed to be equal. In many studies, these assumptions may not a priori be plausible.
 \par As pointed out by \cite{VanderWeele2013a}, total causal effects can be decomposed into a pure direct effect, a pure indirect effect and a mediated interactive effect. On an additive scale, the latter can be described as either the difference between total direct and pure direct effects or as the difference between total indirect and pure indirect effects. Similarly, within the natural effect model framework, the total effect odds ratio $$\mbox{OR}_{1,0|C} \equiv \frac{\mbox{odds}\left\{Y(1,M(1))=1|C\right\}}{\mbox{odds}\left\{Y(0,M(0))=1|C\right\}}$$ can be expressed as the product of the pure direct and pure indirect effect odds ratios and the mediated interaction odds ratio $$\mbox{OR}^{\text{NDE}}_{1,0|C}(0) \cdot \mbox{OR}^{\text{NIE}}_{1,0|C}(0) \cdot \dfrac{\mbox{OR}^{\text{NDE}}_{1,0|C}(1)}{\mbox{OR}^{\text{NDE}}_{1,0|C}(0)} = \mbox{OR}^{\text{NDE}}_{1,0|C}(0) \cdot \mbox{OR}^{\text{NIE}}_{1,0|C}(0) \cdot \dfrac{\mbox{OR}^{\text{NIE}}_{1,0|C}(1)}{\mbox{OR}^{\text{NIE}}_{1,0|C}(0)}.$$
@@ -536,15 +516,11 @@ differs from 0. When including this interaction term in the outcome model, $\bet
 \mbox{logit} \Pr(Y=1|X,M,C) = \gamma_0^\prime + \gamma_1^\prime X + \gamma_2^\prime M + \gamma_3^\prime X\cdot M + \gamma_4^\prime C.
 \end{align*}
 The output of the corresponding natural effect model object suggests there is no evidence for mediated interaction at the 5\% significance level.
-<<warning = F, results = hide>>=
+<<>>=
 expData <- neImpute(UPB ~ att * negaff + gender + educ + age,
-                    family = binomial("logit"), data = UPBdata)
+  family = binomial("logit"), data = UPBdata)
 neMod2 <- neModel(UPB ~ att0 * att1 + gender + educ + age,
-                  family = binomial("logit"), expData = expData, 
-                  se = "robust")
-summary(neMod2)
-@
-<<echo = F>>=
+  family = binomial("logit"), expData = expData, se = "robust")
 summary(neMod2)
 @
 
@@ -557,10 +533,9 @@ One might additionally wish to determine whether direct or indirect effects gene
 in which testing whether $\beta^{\prime\prime}_3 = 0$ corresponds to testing for moderated mediation by gender.
 <<>>=
 impData <- neImpute(UPB ~ (att + negaff) * gender + educ + age,
-                    family = binomial("logit"), data = UPBdata)
+  family = binomial("logit"), data = UPBdata)
 neMod3 <- neModel(UPB ~ att0 + att1 * gender + educ + age,
-                  family = binomial("logit"), expData = impData, 
-                  se = "robust")
+  family = binomial("logit"), expData = impData, se = "robust")
 summary(neMod3)
 @
 The output suggests that the natural indirect effect does not differ significantly between men and women.
@@ -570,12 +545,11 @@ The output suggests that the natural indirect effect does not differ significant
 \end{align}
 with $C_{2,1}$ and $C_{2,2}$ dummy variables encoding the three education levels. Effect modification of the natural indirect (direct) effect by education level in model~(\ref{eq:nemodelmodmed2}) is then captured by $\beta_5^{\star}$ and $\beta_6^{\star}$ ($\beta_3^{\star}$ and $\beta_4^{\star}$).
 
-<<results = hide>>=
+<<>>=
 impData <- neImpute(UPB ~ (att + negaff) * educ + gender + age,
-                    family = binomial("logit"), data = UPBdata)
+  family = binomial("logit"), data = UPBdata)
 neMod4 <- neModel(UPB ~ (att0 + att1) * educ + gender + age,
-                  family = binomial("logit"), expData = impData, 
-                  se = "robust")
+  family = binomial("logit"), expData = impData, se = "robust")
 @
 Testing for moderation by a multicategorical variable calls for a multivariate test, which can again be obtained by requesting an Anova table for the natural effect model.
 
@@ -585,10 +559,9 @@ In this section, we highlight tools that can aid in deriving and visualizing spe
 \subsection{Linear combinations of parameter estimates}
 Although effect estimates for e.g., the total causal effect can easily be derived from the \code{summary} table of a natural effect model, its standard error and confidence interval cannot. To this end, the function \code{neLht}, which exploits the functionality of the \code{glht} function from the \pkg{multcomp} package \citep{R:multcomp} can be of use. This function enables the calculation of linear combinations of parameter estimates as well as their corresponding standard errors and confidence intervals based on the bootstrap or robust variance-covariance matrix of the natural effect model. 
 \par For instance, in model~(\ref{eq:nemodelia}), the total direct and indirect effect can be expressed on the log odds scale as $\hat{\beta_1^\prime} + \hat{\beta_3^\prime}$ and $\hat{\beta_2^\prime} + \hat{\beta_3^\prime}$, respectively. Similarly, the total causal effect log odds ratio is captured by $\hat{\beta_1^\prime} + \hat{\beta_2^\prime} + \hat{\beta_3^\prime}$. As the argument for the linear function, \code{linfct}, needs to be specified in terms of one or more linear hypotheses, these effects can be specified as illustrated below:
-<<warning = F, results = hide>>=
+<<>>=
 lht <- neLht(neMod2, linfct = c("att0 + att0:att1 = 0",
-                                "att1 + att0:att1 = 0",
-                                "att0 + att1 + att0:att1 = 0"))
+  "att1 + att0:att1 = 0", "att0 + att1 + att0:att1 = 0"))
 @
 The corresponding odds ratios and their confidence intervals can be requested by exponentiating the coefficients and confidence intervals of the resulting object:
 <<>>=
@@ -598,7 +571,7 @@ Separate univariate tests for linear hypothesis objects can be requested using t
 <<>>=
 summary(lht)
 @
-In contrast to the \code{summary} table for \code{glht} objects, which yields \textit{p}-values that are adjusted for multiple testing, tests returned by the \code{summary} function applied to \code{neLht} objects report unadjusted univariate tests. Adjusted tests can be obtained by setting \code{test = adjusted()} (for more details consult the help page of the \code{adjusted()} function from the \pkg{multcomp} package \citep{R:multcomp}).
+In contrast to the \code{summary} table for \code{glht} objects, which yields $p$~values that are adjusted for multiple testing, tests returned by the \code{summary} function applied to \code{neLht} objects report unadjusted univariate tests. Adjusted tests can be obtained by setting \code{test = adjusted()} \citep[for more details consult the help page of the \code{adjusted()} function from the \pkg{multcomp} package;][]{R:multcomp}.
 
 \subsection{Effect decomposition}\label{effdecomp}
 If one is only interested in the natural effect parameters, the convenience function \code{neEffdecomp} can be used instead of \code{neLht}. This function automatically retains the natural effect estimates and generates a linear hypothesis object that reflects the most suitable effect decomposition:
@@ -670,7 +643,7 @@ expFit <- glm(att ~ gender + educ + age, data = UPBdata)
 Since specifying population-average natural effect models using the \code{neModel} is equivalent for the weighting- and imputation-based approaches, in the remainder of this section, we demonstrate how to proceed when adhering to the imputation-based approach. Moreover, when estimating population-average natural effects, incoherence between imputation and natural effect models is less of a concern as the latter does not require modeling the relation between outcome and covariates. The (first) working model can again be fitted using the same commands as before:
 <<>>=
 impData <- neImpute(UPB ~ att + negaff + gender + educ + age,
-                    family = binomial("logit"), data = UPBdata)
+  family = binomial("logit"), data = UPBdata)
 @
 Each observation in the expanded dataset to which the marginal natural effect model indexing the population-average natural direct and indirect effects
 \begin{align}\label{eq:nemodelweighted}
@@ -679,7 +652,7 @@ Each observation in the expanded dataset to which the marginal natural effect mo
 is fitted, needs to be weighted by the reciprocal of the exposure probability density, $\Pr(X|C)$, evaluated at the observed exposure. The fitted model object that is used to calculate regression weights needs to be specified in the \code{xFit} argument of the \code{neModel} function:
 <<>>=
 neMod5 <- neModel(UPB ~ att0 + att1, family = binomial("logit"),
-                  expData = impData, xFit = expFit, se = "robust")
+  expData = impData, xFit = expFit, se = "robust")
 summary(neMod5)
 @
 
@@ -694,7 +667,7 @@ Both the marginal natural direct and indirect effect odds ratios again seem to b
 \end{align*}
 A similar interpretation can again be made for the natural indirect effect.
 
-\section{Multiple mediators: a joint mediator approach} \label{multmed}
+\section{Multiple mediators: A joint mediator approach} \label{multmed}
 In many settings multiple mediators may be of interest. In our example, one could argue that being anxiously attached to one's partner makes respondents more hesitant to end their relationship and that, in turn, not having initiated the break-up causes them to engage in unwanted pursuit behaviors more often. In this sense, initiator status (\code{initiator}: either \code{"both"}, \code{"ex-partner"}, or \code{"myself"}) can also be considered as a mediator, which we denote $L$. 
 \par If hypothesized mediators do not affect one another, one can fit separate natural effect models (each with a different working model involving only one of the mediators) to assess the mediated effects through each of the mediators one at a time. That is, if the aforementioned ignorability assumptions (A1-A4) hold with respect to the whole set of mediators, natural indirect effects, as defined as causal pathways through single mediators, are identified since assumptions (A1-A4) then imply that the given mediators are independent \citep{Imai2013, VanderWeele2013b} given exposure and baseline covariates. Moreover, \cite{Lange2013a} recently proposed a regression-based approach for testing interdependence between mediators and demonstrated how independent intermediate pathways can be assessed in a single natural effect model using the weighting-based approach. 
 \par Often, however, mediators are interdependent and sometimes can be thought of as being linked in a sequential causal chain. For instance, not having initiated the break-up could have made respondents more prone to feeling sad, jealous, angry, frustrated or hurt, as reflected in the causal diagram depicted in Figure~\ref{dag2}. Under this diagram, initiator status confounds the relation between the mediator and outcome (given that negative affectivity is the mediator of interest), while at the same time being influenced by the exposure, hence violating identification assumption (A4). As a consequence, the natural indirect effect via negative affectivity can no longer identified using the mediation formula under the causal diagram depicted in Figure~\ref{dag2}.
@@ -722,16 +695,16 @@ In many settings multiple mediators may be of interest. In our example, one coul
 \par If indications of exposure-induced confounding or mediators affecting one another are present, an alternative might be to consider these multiple mediators jointly and to redefine natural indirect and direct effects by decomposing the total causal effect into an effect mediated through all given mediators simultaneously and an effect not mediated by any of these mediators, respectively \citep{VanderWeele2013b, VanderWeele2014}. Although this type of effect decomposition might not target the initial mediation hypothesis, it may, in certain cases, still shed some light on the underlying causal mechanisms. In particular, it can be interesting to assess if the two mediators in combination leads to a null direct effect as this signals that all important components of the causal chain from exposure to outcome have been identified. 
 \par For example, in the natural effect model framework, $\exp(\beta_1^{\star\star})$ in model
 \begin{align}
-\mbox{logit} \Pr\left\{Y(x,L(x^*),M(x^*))=1|C\right\} = \beta_0^{\star\star} + \beta_1^{\star\star} x + \beta_2^{\star\star} x^* + \beta_3^{\star\star} C,
+\mbox{logit} \Pr\left\{Y(x,L(x^*),M(x^*, L(x^*)))=1|C\right\} = \beta_0^{\star\star} + \beta_1^{\star\star} x + \beta_2^{\star\star} x^* + \beta_3^{\star\star} C,
 \label{eq:nemodelmultiv}
 \end{align}
 captures the (newly-defined) natural direct effect odds ratio 
 $$
-\mbox{OR}^{\text{NDE}}_{1,0|C} = \frac{\mbox{odds}\left\{Y(1,L(x^*),M(x^*))=1|C\right\}}{\mbox{odds}\left\{Y(0,L(x^*),M(x^*))=1|C\right\}},
+\mbox{OR}^{\text{NDE}}_{1,0|C} = \frac{\mbox{odds}\left\{Y(1,L(x^*),M(x^*, L(x^*)))=1|C\right\}}{\mbox{odds}\left\{Y(0,L(x^*),M(x^*, L(x^*)))=1|C\right\}},
 $$
 whereas $\exp(\beta_2^{\star\star})$ captures the natural indirect effect odds ratio
 $$
-\mbox{OR}^{\text{NIE}}_{1,0|C} = \frac{\mbox{odds}\left\{Y(x,L(1),M(1))=1|C\right\}}{\mbox{odds}\left\{Y(x,L(0),M(0))=1|C\right\}}
+\mbox{OR}^{\text{NIE}}_{1,0|C} = \frac{\mbox{odds}\left\{Y(x,L(1),M(1, L(1)))=1|C\right\}}{\mbox{odds}\left\{Y(x,L(0),M(0, L(0)))=1|C\right\}}
 $$ 
 through $L$ and $M$ jointly.
 \par Fitting this natural effect model, however, requires both mediators to be taken into account in the working model(s). When applying the weighting-based approach, dealing with multiple mediators entails fitting a model for each of the mediators separately to calculate ratio-of-mediator probability weights, as in \cite{Lange2013a}. The imputation-based approach, on the other hand, only requires one working model for the outcome (i.e., an imputation model). For this reason, estimation of joint mediated effects is implemented only for the imputation-based approach in the current version of the \pkg{medflex} package.
@@ -742,10 +715,9 @@ through $L$ and $M$ jointly.
 which also allows for a mediator-mediator interaction, one can fit natural effect model~(\ref{eq:nemodelmultiv}) to the imputed dataset. In \proglang{R}, these steps can be implemented using the following code:
 <<>>=
 impData <- neImpute(UPB ~ att + initiator * negaff + gender + educ + age,
-                    family = binomial("logit"), nMed = 2, data = UPBdata)
+  family = binomial("logit"), nMed = 2, data = UPBdata)
 neMod6 <- neModel(UPB ~ att0 + att1 + gender + educ + age,
-                 family = binomial("logit"), expData = impData, 
-                 se = "robust")
+  family = binomial("logit"), expData = impData, se = "robust")
 summary(neMod6)
 @
 As illustrated in the \proglang{R} code, the number of mediators to be considered jointly should be set via the \code{nMed} argument in the \code{neImpute} function. If \code{nMed = 2}, not only the second predictor variable, but the two predictor variables declared after the exposure variable are internally coded as mediators. Correct specification of the (number of) mediators can easily be checked in the \code{summary} output of the natural effect model object, which mentions the name of the exposure and all mediators.
@@ -756,10 +728,13 @@ In this paper, we provided some theoretical background on the counterfactual fra
 \par This package combines some important strengths of other (software) applications for mediation analysis that build on the mediation formula, while accommodating some of their respective weaknesses. The major appeal of this package is its flexibility in dealing with nonlinear parametric models and the functionalities it offers for hypothesis testing by resorting to natural effect models, which directly parameterize the target causal estimands. Furthermore, for the most common parametric models, robust standard errors can be obtained, so the computer-intensive bootstrap can be avoided. A limitation of this package is that, at present, it does not offer a framework for sensitivity analysis for possible violations of the identification assumptions of the causal estimands.
 \par As mentioned in the previous section, additional functionalities for dealing with exposure-induced confounding and multiple mediators are intended to be added to the package in the future, as well as extensions for survival models. Future developments within the natural effect model framework will be added in updates of the package.
 
+\bibliography{bib}
+
 \newpage
 \appendix
 
 \section[]{Link between estimators and the mediation formula}
+In this section we illustrate in more detail how natural effect models can be regarded as alternative formulations of the mediation formula.
 \subsection[]{Weighting-based estimator \citep{Lange2012}}\label{app:weightest}
 Fitting a stratum-specific natural effect model using the weighting-based approach requires a model for the mediator distribution $\Pr(M|X,C)$ as a working model:
 \begin{fleqn}
@@ -804,6 +779,6 @@ Fitting a marginal or population-averaged natural effect model requires a propen
 \end{align*}
 \end{fleqn}
 
-\bibliography{bib}
+\newpage
 
 \end{document}
