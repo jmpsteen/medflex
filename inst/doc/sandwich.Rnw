@@ -1,0 +1,202 @@
+%\VignetteIndexEntry{Sandwich estimator derivations for natural effect model parameters}
+
+\documentclass[]{article}
+
+%\usepackage{geometry}
+\usepackage{amsmath, bm}
+\usepackage[compact]{titlesec}
+
+\titlespacing{\subsection}{0pt}{*8}{*1}
+
+%opening
+\title{Sandwich estimator derivations for natural effect model parameters}
+\author{Johan Steen}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+\maketitle
+
+\section*{Weighting-based approach}
+     
+\subsection*{Stratum-specific effects}
+
+\subsubsection*{Models}
+natural effect model $\mu_1(X,x^*,C;\beta)$:
+\begin{flushright} e.g., $g\big[\textrm{E}\{Y(X,M(x^*))\vert C\}\big] = \beta_0 + \beta_1 X + \beta_2 x^* + \beta_3 C$\end{flushright}
+working model $\mu_2(X,C;\theta)$:
+\begin{flushright} e.g., $g\big[\textrm{E}(M\vert X,C)\big] = \theta_0 + \theta_1 X + \theta_2 C$\end{flushright}
+
+\subsubsection*{Estimating equations}
+\begin{align*}
+\displaystyle U_{1}(X_i,x^*,C_i;\beta,\theta) &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij},C_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\\[-0.6em] & \qquad \qquad \qquad \cdot \big[ Y_i - \mu_1(X_i,x^*_{ij},C_i;\beta) \big]\\[1em]
+\displaystyle U_{2}(X_i,C_i;\theta) &= \frac{\partial \mu_2(X_i,C_i;\theta)}{\partial \theta} \Sigma_{\mu_2}^{-1} \big[ Y_i - \mu_2(X_i,C_i;\theta) \big]
+\end{align*}
+with $k$ the number of replications or hypothetical values $x^*$ for each observation unit $i$ and $\Sigma_{\mu_i}$ the residual variance-covariance matrix for model $\mu_i$.
+
+\subsubsection*{Sandwich estimator}
+
+Let $\zeta = (\beta, \theta)$ and $\tilde U = (U_1, U_2)$. The sandwich estimator variance-covariance matrix can then be written as
+
+\begin{eqnarray*}
+\displaystyle n^{-1}\cdot\mbox{E}\left(-\frac{\partial \tilde U}{\partial \zeta}\right)^{-1} \mbox{Var}(\tilde U) \cdot \mbox{E}\left(-\frac{\partial \tilde U}{\partial \zeta}\right)^{-T}
+\end{eqnarray*}
+
+\noindent with $n$ the total sample size of the original dataset, 
+\[
+\renewcommand\arraystretch{2.5}
+\displaystyle \mbox{E}\left(-\frac{\partial \tilde U}{\partial \zeta}\right)^{-1} = 
+\begin{bmatrix}
+& \displaystyle\mbox{E}\left(-\frac{\partial U_1}{\partial \beta}\right) & \displaystyle\mbox{E}\left(-\frac{\partial U_1}{\partial \theta}\right) &\\
+& 0 & \displaystyle\mbox{E}\left(-\frac{\partial U_2}{\partial \theta}\right) &\\
+\end{bmatrix}^{-1}
+\]
+
+\noindent and
+\begin{align*}
+\displaystyle \frac{\partial U_1}{\partial \beta} &= - k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij},C_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)} \frac{\partial \mu_1(X_i,x^*_{ij},C_i;\beta)}{\partial \beta}\\[0.6em]
+\displaystyle \frac{\partial U_1}{\partial \theta} &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij},C_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \frac{\partial}{\partial \theta}\left(\frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\right)\\[-0.6em] & \qquad \qquad \qquad \qquad \qquad \qquad \cdot \big[ Y_i - \mu_1(X_i,x^*_{ij},C_i;\beta) \big]\\[0.6em]
+\displaystyle \frac{\partial U_2}{\partial \theta} &= - \frac{\partial \mu_2(X_i,C_i;\theta)}{\partial \theta} \Sigma_{\mu_2}^{-1} \frac{\partial \mu_2(X_i,C_i;\theta)}{\partial \theta}
+\end{align*}
+
+\subsection*{Population-average effects}
+
+\subsubsection*{Models}
+
+natural effect model $\mu_1(X,x^*;\beta)$:
+\begin{flushright} e.g., $g\big[\textrm{E}\{Y(X,M(x^*))\}\big] = \beta_0 + \beta_1 X + \beta_2 x^*$\end{flushright}
+working model $\mu_2(X,C;\theta)$:
+\begin{flushright} e.g., $g\big[\textrm{E}(M\vert X,C)\big] = \theta_0 + \theta_1 X + \theta_2 C$\end{flushright}
+working model $\mu_3(C;\tau)$:
+\begin{flushright} e.g., $g\big[\textrm{E}(X\vert C)\big] = \tau_0 + \tau_1 C$ \end{flushright}
+
+\subsubsection*{Estimating equations}
+
+\begin{align*}
+\displaystyle U_{1}(X_i,x^*;\beta,\theta,\tau) &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij};\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \Pr(X_i\vert C_i;\tau)^{-1} \cdot \frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\\[-0.6em] & \qquad \qquad \qquad \cdot \big[ Y_i - \mu_1(X_i,x^*_{ij};\beta) \big]\\[1em]
+\displaystyle U_{2}(X_i,C_i;\theta) &= \frac{\partial \mu_2(X_i,C_i;\theta)}{\partial \theta} \Sigma_{\mu_2}^{-1} \big[ Y_i - \mu_2(X_i,C_i;\theta) \big]\\[1em]
+\displaystyle U_{3}(C_i;\tau) &= \frac{\partial \mu_3(C_i;\tau)}{\partial \tau} \Sigma_{\mu_3}^{-1} \big[ X_i - \mu_3(C_i;\tau) \big]
+\end{align*}
+
+\subsubsection*{Sandwich estimator}
+
+Let $\zeta = (\beta, \theta, \tau)$ and $\tilde U = (U_1, U_2, U_3)$. The sandwich estimator variance-covariance matrix can then be written as
+
+\begin{eqnarray*}
+\displaystyle n^{-1}\cdot\mbox{E}\left(-\frac{\partial \tilde U}{\partial \zeta}\right)^{-1} \mbox{Var}(\tilde U) \cdot \mbox{E}\left(-\frac{\partial \tilde U}{\partial \zeta}\right)^{-T}
+\end{eqnarray*}
+
+\noindent with 
+\[
+\renewcommand\arraystretch{2.5}
+\displaystyle \mbox{E}\left(-\frac{\partial \tilde U}{\partial \zeta}\right)^{-1} = 
+\begin{bmatrix}
+& \displaystyle\mbox{E}\left(-\frac{\partial U_1}{\partial \beta}\right) & \displaystyle\mbox{E}\left(-\frac{\partial U_1}{\partial \theta}\right) & \displaystyle\mbox{E}\left(-\frac{\partial U_1}{\partial \tau}\right) &\\
+& 0 & \displaystyle\mbox{E}\left(-\frac{\partial U_2}{\partial \theta}\right) & 0 &\\
+& 0 & 0 & \displaystyle\mbox{E}\left(-\frac{\partial U_3}{\partial \tau}\right) &\\
+\end{bmatrix}^{-1}
+\]
+
+\noindent and
+\begin{align*}
+\displaystyle \frac{\partial U_1}{\partial \beta} &= - k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij};\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \Pr(X_i\vert C_i;\tau)^{-1} \cdot \frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\\[-0.6em] & \qquad \qquad \qquad \qquad \qquad \qquad \cdot \frac{\partial \mu_1(X_i,x^*_{ij};\beta)}{\partial \beta}\\[0.6em]
+\displaystyle \frac{\partial U_1}{\partial \theta} &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij};\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \Pr(X_i\vert C_i;\tau)^{-1} \cdot \frac{\partial}{\partial \theta}\left(\frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\right)\\[-0.6em] & \qquad \qquad \qquad \qquad \qquad \qquad \cdot \big[ Y_i - \mu_1(X_i,x^*_{ij};\beta) \big]\\[0.6em]
+\displaystyle \frac{\partial U_1}{\partial \tau} &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij};\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \frac{\partial \Pr(X_i\vert C_i;\tau)^{-1}}{\partial \tau} \cdot \frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\\[-0.6em] & \qquad \qquad \qquad \qquad \qquad \qquad \cdot \big[ Y_i - \mu_1(X_i,x^*_{ij};\beta) \big]\\[0.6em]
+\displaystyle \frac{\partial U_2}{\partial \theta} &= - \frac{\partial \mu_2(X_i,C_i;\theta)}{\partial \theta} \Sigma_{\mu_2}^{-1} \frac{\partial \mu_2(X_i,C_i;\theta)}{\partial \theta}\\[0.6em]
+\displaystyle \frac{\partial U_3}{\partial \tau} &= - \frac{\partial \mu_3(C_i;\tau)}{\partial \tau} \Sigma_{\mu_3}^{-1} \frac{\partial \mu_3(C_i;\tau)}{\partial \tau}
+\end{align*}
+
+\newpage
+\section*{Imputation-based approach}
+
+\subsection*{Stratum-specific effects}
+
+\subsubsection*{Models}
+
+natural effect model $\mu_1(x,X,C;\beta)$:
+\begin{flushright} e.g., $g\big[\textrm{E}\{Y(x,M(X))\vert C\}\big] = \beta_0 + \beta_1 x + \beta_2 X + \beta_3 C$ \end{flushright}
+working model $\mu_2(X,M,C;\gamma)$:
+\begin{flushright} e.g., $g\big[\textrm{E}(Y\vert X,M,C)\big] = \gamma_0 + \gamma_1 X + \gamma_2 M + \gamma_3 C$ \end{flushright}
+
+\subsubsection*{Estimating equations}
+
+\begin{align*}
+\displaystyle U_{1}(x,X_i,C_i;\beta,\gamma) &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(x_{ij},X_i,C_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1}\\[-0.6em] & \qquad \qquad \qquad \cdot \big[ \mu_2(x_{ij},M_i,C_i;\gamma) - \mu_1(x_{ij},X_i,C_i;\beta) \big]\\[1em]
+\displaystyle U_{2}(X_i,M_i,C_i;\gamma) &= \frac{\partial \mu_2(X_i,M_i,C_i;\gamma)}{\partial \gamma} \Sigma_{\mu_2}^{-1} \big[ Y_i - \mu_2(X_i,M_i,C_i;\gamma) \big]
+\end{align*}
+
+\subsubsection*{Sandwich estimator}
+
+Let $\zeta = (\beta, \gamma)$ and $\tilde U = (U_1, U_2)$. The sandwich estimator variance-covariance matrix can then be written as
+
+\begin{eqnarray*}
+\displaystyle n^{-1}\cdot\mbox{E}\left(-\frac{\partial \tilde U}{\partial \zeta}\right)^{-1} \mbox{Var}(\tilde U) \cdot \mbox{E}\left(-\frac{\partial \tilde U}{\partial \zeta}\right)^{-T}
+\end{eqnarray*}
+
+\noindent with 
+\[
+\renewcommand\arraystretch{2.5}
+\displaystyle \mbox{E}\left(-\frac{\partial \tilde U}{\partial \zeta}\right)^{-1} = 
+\begin{bmatrix}
+& \displaystyle\mbox{E}\left(-\frac{\partial U_1}{\partial \beta}\right) & \displaystyle\mbox{E}\left(-\frac{\partial U_1}{\partial \gamma}\right) &\\
+& 0 & \displaystyle\mbox{E}\left(-\frac{\partial U_2}{\partial \gamma}\right) &\\
+\end{bmatrix}^{-1}
+\]
+
+\noindent and
+\begin{align*}
+\displaystyle \frac{\partial U_1}{\partial \beta} &= - k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(x_{ij},X_i,C_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \frac{\partial \mu_1(x_{ij},X_i,C_i;\beta)}{\partial \beta}\\
+\displaystyle \frac{\partial U_1}{\partial \gamma} &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(x_{ij},X_i,C_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \frac{\partial \mu_2(x_{ij}, M_i,C_i;\gamma)}{\partial \gamma}\\
+\displaystyle \frac{\partial U_2}{\partial \gamma} &= - \frac{\partial \mu_2(X_i,M_i,C_i;\beta)}{\partial \gamma} \Sigma_{\mu_2}^{-1} \frac{\partial \mu_2(X_i,M_i,C_i;\beta)}{\partial \gamma}
+\end{align*}
+
+\vspace{12pt}
+
+\subsection*{Population-average effects}
+
+\subsubsection*{Models}
+
+natural effect model $\mu_1(x,X;\beta)$:
+\begin{flushright} e.g., $g\big[\textrm{E}\{Y(x,M(X))\}\big] = \beta_0 + \beta_1 x + \beta_2 X$ \end{flushright}
+working model $\mu_2(X,M,C;\gamma)$:
+\begin{flushright} e.g., $g\big[\textrm{E}(Y\vert X,M,C)\big] = \gamma_0 + \gamma_1 X + \gamma_2 M + \gamma_3 C$ \end{flushright}
+working model $\mu_3(C;\tau)$:
+\begin{flushright} e.g., $g\big[\textrm{E}(X\vert C)\big] = \tau_0 + \tau_1 C$ \end{flushright}
+
+\subsubsection*{Estimating equations}
+
+\begin{align*}
+\displaystyle U_{1}(x,X_i;\beta,\gamma,\tau) &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(x_{ij},X_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \Pr(X_i\vert C_i; \tau)^{-1} \\[-0.6em] & \qquad \qquad \qquad \cdot \big[ \mu_2(x_{ij},M_i,C_i;\gamma) - \mu_1(x_{ij},X_i;\beta) \big]\\[1em]
+\displaystyle U_{2}(X_i,M_i,C_i;\gamma) &= \frac{\partial \mu_2(X_i,M_i,C_i;\gamma)}{\partial \gamma} \Sigma_{\mu_2}^{-1} \big[ Y_i - \mu_2(X_i,M_i,C_i;\gamma) \big]\\[1em]
+\displaystyle U_{3}(C_i;\tau) &= \frac{\partial \mu_3(C_i;\tau)}{\partial \tau} \Sigma_{\mu_3}^{-1} \big[ X_i - \mu_3(C_i;\tau) \big]
+\end{align*}
+
+\subsubsection*{Sandwich estimator}
+
+Let $\zeta = (\beta, \gamma, \tau)$ and $\tilde U = (U_1, U_2, U_3)$. The sandwich estimator variance-covariance matrix can then be written as
+
+\begin{eqnarray*}
+\displaystyle n^{-1}\cdot\mbox{E}\left(-\frac{\partial \tilde U}{\partial \zeta}\right)^{-1} \mbox{Var}(\tilde U) \cdot \mbox{E}\left(-\frac{\partial \tilde U}{\partial \zeta}\right)^{-T}
+\end{eqnarray*}
+
+\noindent with 
+\[
+\renewcommand\arraystretch{2.5}
+\displaystyle \mbox{E}\left(-\frac{\partial \tilde U}{\partial \zeta}\right)^{-1} = 
+\begin{bmatrix}
+& \displaystyle\mbox{E}\left(-\frac{\partial U_1}{\partial \beta}\right) & \displaystyle\mbox{E}\left(-\frac{\partial U_1}{\partial \gamma}\right) & \displaystyle\mbox{E}\left(-\frac{\partial U_1}{\partial \tau}\right) &\\
+& 0 & \displaystyle\mbox{E}\left(-\frac{\partial U_2}{\partial \gamma}\right) & 0 &\\
+& 0 & 0 & \displaystyle\mbox{E}\left(-\frac{\partial U_3}{\partial \tau}\right) &\\
+\end{bmatrix}^{-1}
+\]
+
+\noindent and
+\begin{align*}
+\displaystyle \frac{\partial U_1}{\partial \beta} &= - k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(x_{ij},X_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \Pr(X_i\vert C_i)^{-1} \frac{\partial \mu_1(x_{ij},X_i;\beta)}{\partial \beta}\\[0.6em]
+\displaystyle \frac{\partial U_1}{\partial \gamma} &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(x_{ij},X_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \Pr(X_i\vert C_i)^{-1} \frac{\partial \mu_2(x_{ij}, M_i,C_i;\gamma)}{\partial \gamma}\\[0.6em]
+\displaystyle \frac{\partial U_1}{\partial \tau} &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(x_{ij},X_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \frac{\partial \Pr(X_i\vert C_i;\tau)^{-1}}{\partial \tau}\\[-0.6em] & \qquad \qquad \qquad \qquad \qquad \qquad \cdot \big[ \mu_2(x_{ij},M_i,C_i;\gamma) - \mu_1(x_{ij},X_i;\beta) \big]\\[0.6em]
+\displaystyle \frac{\partial U_2}{\partial \gamma} &= - \frac{\partial \mu_2(X_i,M_i,C_i;\beta)}{\partial \gamma} \Sigma_{\mu_2}^{-1} \frac{\partial \mu_2(X_i,M_i,C_i;\beta)}{\partial \gamma}\\[0.6em]
+\displaystyle \frac{\partial U_3}{\partial \tau} &= - \frac{\partial \mu_3(C_i;\tau)}{\partial \tau} \Sigma_{\mu_3}^{-1} \frac{\partial \mu_3(C_i;\tau)}{\partial \tau}
+\end{align*}
+
+\end{document}
