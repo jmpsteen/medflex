@@ -153,6 +153,7 @@ neWeight.default <- function (object, formula, data, nRep = 5, xSampling = c("qu
     "random"), xFit, percLim = c(0.05, 0.95), ...) 
 {
     args <- as.list(match.call())[-1L]
+    if (!is.null(args$nMed) && args$nMed != 1) warning("The joint mediation approach is only available for the imputation-based approach! nMed = 1 was specified instead.")
     nMed <- args$nMed <- 1
     fit <- object
     args$data <- if (missing(data)) {
@@ -206,9 +207,6 @@ neWeight.default <- function (object, formula, data, nRep = 5, xSampling = c("qu
         attr <- attributes(expData)
         vartype <- attr(attr$terms, "vartype")
     }
-#     family <- if (is.null(extrCall(fit)$family)) 
-#         formals(eval(extrCall(fit)[[1]]))$family #
-#     else extrCall(fit)$family
     family <- if(inherits(fit, "vglm")) fit@family@vfamily[1] else fit$family$family
     family <- c("gaussian", "binomial", "poisson", "multinomial")[mapply(function(x, 
         y) grepl(y, x), as.character(family), c("gaussian", "binomial", 
@@ -313,15 +311,14 @@ neWeight.formula <- function (object, family, data, FUN = glm, nRep = 5, xSampli
 {
     args <- as.list(match.call())[-1L]
     formula <- object
-    nMed <- 1
-    joint <- TRUE
+    # joint <- TRUE
     if (missing(family)) 
         family <- formals(FUN)$family
-    args$object <- do.call(FUN, eval(list(formula = formula, 
-        family = family, data = data, ...)))
-    call <- substitute(list(formula = formula, family = family, 
-        data = data, ...))
+    argsFUN <- list(formula = formula, family = family, data = data, ...)
+    args$object <- do.call(FUN, eval(argsFUN[!names(argsFUN) %in% "nMed"]))  
+    call <- substitute(list(formula = formula, family = family, data = data, ...))
     call[[1]] <- substitute(FUN)
+    call$nMed <- NULL
     if (isS4(args$object)) 
         args$object@call <- call
     else args$object$call <- call

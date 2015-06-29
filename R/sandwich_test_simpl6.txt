@@ -1,0 +1,216 @@
+library(medflex)
+library(sandwich)
+library(Matrix)
+
+mgsub <- medflex:::mgsub
+
+indmatch <- function (x, y) {
+  tmp <- which(sapply(seq.int(length(y) - length(x) + 1), function(i) identical(x, y[i + (seq_along(x)-1)])))
+  return(seq.int(x) - 1 + tmp)
+}
+
+adaptx <- function(FUN, expData, neModelFit, obs = NULL) {
+  fit1 <- neModelFit
+  fit2 <- attr(expData, "model")
+  vartype <- attr(terms(expData), "vartype")
+  tmp <- FUN(fit1)
+  # form <- fit2$formula
+  # form <- as.formula(paste0(as.character(form[2]), " ~ ", mgsub(c(vartype$X, vartype$M), vartype$Xexp, as.character(form[3]))))
+  # tmp <- FUN(form, expData)
+  tmp <- cbind(tmp, M = fit1$data[, vartype$M])
+  colnames(tmp)[ncol(tmp)] <- vartype$M
+  if (all(inherits(expData, "weightData"), obs == FALSE)) { 
+    colnames(tmp) <- gsub(vartype$Xexp[[2]], vartype$X, colnames(tmp)) 
+  } 
+  else {
+    colnames(tmp) <- gsub(vartype$Xexp[[1]], vartype$X, colnames(tmp))
+  } 
+  tmp <- tmp[, colnames(FUN(fit2))]
+  return(tmp)
+}
+
+
+## IMPUTATION-BASED APPROACH
+
+impData <- neImpute(UPB ~ att + negaff + gender + educ + age,
+                    family = binomial, data = UPBdata)
+system.time(
+  neMod <- neModel(UPB ~ att0 + att1 + gender + educ + age,
+                   family = binomial, expData = impData, nBoot = 100)
+)
+fit1 <- neMod$neModelFit
+fit2 <- attr(impData, "model")
+fit <- list(fit1, fit2)
+
+coefnames <- lapply(fit, function(x) names(coef(x)))
+dimnames <- unlist(coefnames)
+ind <- lapply(coefnames, indmatch, dimnames) 
+
+## ESTIMATING EQUATIONS (SCORE FUNCTIONS)
+
+estEqList <- lapply(fit, estfun)
+estEqList[[1]] <- as.matrix(aggregate(estEqList[[1]], by = list(as.numeric(fit1$data$id)), FUN = mean)[, -1])
+estEq <- as.matrix(data.frame(estEqList))
+dimnames(estEq)[[2]] <- dimnames
+# rm(estEqList) ???
+
+## MEAT
+meat <- crossprod(estEq) / nrow(estEq)
+
+## BREAD
+# diagonal inv bread (easy!) 
+breadInv <- as.matrix(bdiag(lapply(fit, function(x) solve(bread(x)))))
+dimnames(breadInv) <- list(dimnames, dimnames)
+
+# off-diagonal
+X12 <- lapply(list(modmat = model.matrix, modframe = model.frame), adaptx, impData, neMod$neModelFit)
+deriv12 <- X12$modmat * fit[[2]]$family$mu.eta(predict(fit[[2]], newdat = X12$modframe))
+
+breadInv[ind[[1]], ind[[2]]] <- -t(estfun(fit[[1]]) / resid(fit[[1]], type = "response")) %*% deriv12 / nrow(fit[[1]]$data)
+# breadInv <- Matrix(breadInv, sparse = TRUE)
+
+bread <- solve(breadInv)
+
+vcov <- as.matrix((bread %*% meat %*% t(bread)) / nrow(estEq))
+sqrt(diag(vcov)[ind[[1]]])
+
+sqrt(diag(vcov(neMod)))
+
+
+
+## WEIGHTING-BASED APPROACH
+
+UPBdata$negaffbin <- factor(cut(UPBdata$negaff, 2), labels = c("L", "H"))
+UPBdata$negaffbin <- as.numeric(UPBdata$negaffbin) - 1
+weightData <- neWeight(negaffbin ~ att + gender + educ + age,
+                       family = binomial("logit"), data = UPBdata)
+
+UPBdata$negaffbin <- factor(cut(UPBdata$negaff, 2), labels = c("L", "H"))
+weightData <- neWeight(negaffbin ~ att + gender + educ + age,
+                       family = binomial("probit"), data = UPBdata)
+
+UPBdata$negaffcount <- as.numeric(UPBdata$negaffcat)
+weightData <- neWeight(negaffcount ~ att + gender + educ + age,
+                       family = poisson, data = UPBdata)
+
+weightData <- neWeight(negaff ~ att + gender + educ + age,
+                       data = UPBdata)
+system.time(
+  neMod <- neModel(UPB ~ att0 + att1 + gender + educ + age,
+                   family = binomial, expData = weightData, nBoot = 1000)
+)
+fit1 <- neMod$neModelFit
+fit2 <- attr(weightData, "model")
+fit <- list(fit1, fit2)
+
+coefnames <- lapply(fit, function(x) names(coef(x)))
+dimnames <- unlist(coefnames)
+ind <- lapply(coefnames, indmatch, dimnames)
+
+## ESTIMATING EQUATIONS (SCORE FUNCTIONS)
+
+estEqList <- lapply(fit, estfun)
+estEqList[[1]] <- as.matrix(aggregate(estEqList[[1]], by = list(as.numeric(fit1$data$id)), FUN = mean)[, -1])
+estEq <- as.matrix(data.frame(estEqList))
+dimnames(estEq)[[2]] <- dimnames
+
+
+## MEAT
+meat <- crossprod(estEq) / nrow(estEq)
+
+
+## BREAD
+# diagonal inv bread (easy!) 
+breadInv <- as.matrix(bdiag(lapply(fit, function(x) solve(bread(x)))))
+dimnames(breadInv) <- list(dimnames, dimnames)
+
+
+# off-diagonal
+sigma <- sqrt(summary(fit[[2]])$dispersion)
+
+derivFUN <- switch(fit[[2]]$family$family, 
+                   gaussian = deriv(~ (- (M - mu)^2 / (2 * sigma^2)), "mu"), 
+                   binomial = deriv(~ ((mu)^M * (1-mu)^(1-M)), "mu"), 
+                   poisson = deriv(~ (mu^M * exp(-mu)) , "mu"))
+
+# first
+X12 <- lapply(list(modmat = model.matrix, modframe = model.frame), adaptx, weightData, neMod$neModelFit, obs = FALSE)
+mu <- predict(fit[[2]], newdat = X12$modframe, type = "response")
+M <- X12$modframe[, attr(terms(neMod), "vartype")$M]
+if (!is.numeric(M)) M <- as.numeric(M) - 1
+deriv12a <- X12$modmat * fit[[2]]$family$mu.eta(predict(fit[[2]], newdat = X12$modframe)) * as.vector(attr(eval(derivFUN), "gradient"))
+  
+# second
+X12 <- lapply(list(modmat = model.matrix, modframe = model.frame), adaptx, weightData, neMod$neModelFit, obs = TRUE)
+mu <- predict(fit[[2]], newdat = X12$modframe, type = "response")
+M <- X12$modframe[, attr(terms(neMod), "vartype")$M]
+if (!is.numeric(M)) M <- as.numeric(M) - 1
+deriv12b <- X12$modmat * fit[[2]]$family$mu.eta(predict(fit[[2]], newdat = X12$modframe)) * as.vector(attr(eval(derivFUN), "gradient"))
+
+deriv12 <- weights(fit1) * (deriv12a - deriv12b)
+
+breadInv12 <- -t(estfun(fit[[1]])) %*% deriv12 / nrow(fit[[1]]$data) 
+
+breadInv[ind[[1]], ind[[2]]] <- breadInv12
+# breadInv <- Matrix(breadInv, sparse = TRUE)
+
+bread <- solve(breadInv)
+
+vcov <- as.matrix((bread %*% meat %*% t(bread)) / nrow(estEq))
+sqrt(diag(vcov)[ind[[1]]])
+
+sqrt(diag(vcov(neMod)))
+
+
+
+## WEIGHTED IMPUTATION-BASED APPROACH
+
+xFit <- glm(att ~ gender + educ + age, data = UPBdata)
+impData <- neImpute(UPB ~ att + negaff + gender + educ + age,
+                    family = binomial, data = UPBdata)
+system.time(
+  neMod <- neModel(UPB ~ att0 + att1, family = binomial, 
+                   expData = impData, xFit = xFit, nBoot = 100)
+)
+
+fit1 <- neMod$neModelFit
+fit2 <- attr(impData, "model")
+fit3 <- xFit
+fit <- list(fit1, fit2, fit3)
+
+coefnames <- lapply(fit, function(x) names(coef(x)))
+dimnames <- unlist(coefnames)
+ind <- lapply(coefnames, indmatch, dimnames)
+
+## ESTIMATING EQUATIONS (SCORE FUNCTIONS)
+
+estEqList <- lapply(fit, estfun)
+estEqList[[1]] <- as.matrix(aggregate(estEqList[[1]], by = list(as.numeric(fit1$data$id)), FUN = mean)[, -1])
+estEq <- as.matrix(data.frame(estEqList))
+dimnames(estEq)[[2]] <- dimnames
+
+
+## MEAT
+meat <- crossprod(estEq) / nrow(estEq)
+
+
+## BREAD
+
+# diagonal inv bread (easy!) 
+breadInv <- as.matrix(bdiag(lapply(fit, function(x) solve(bread(x)))))
+dimnames(breadInv) <- list(dimnames, dimnames)
+
+### VANAF HIER VERDER DOEN!...
+# off-diagonal: 12 en 13??
+X12 <- lapply(list(modmat = model.matrix, modframe = model.frame), adaptx, impData, neMod$neModelFit)
+deriv12 <- X12$modmat * fit[[2]]$family$mu.eta(predict(fit[[2]], newdat = X12$modframe))
+
+breadInv[ind[[1]], ind[[2]]] <- -t(estfun(fit[[1]]) / resid(fit[[1]], type = "response")) %*% deriv12 / nrow(fit[[1]]$data)
+# breadInv <- Matrix(breadInv, sparse = TRUE)
+
+bread <- solve(breadInv)
+
+vcov <- as.matrix((bread %*% meat %*% t(bread)) / nrow(estEq))
+sqrt(diag(vcov)[ind[[1]]])
+
+sqrt(diag(vcov(neMod)))

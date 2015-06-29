@@ -4,7 +4,7 @@ year <- sub("-.*", "", meta$Date)
 note <- sprintf("R package version %s", meta$Version)
 
 citEntry(entry = "manual",
-    title = "{medflex}: Flexible mediation analysis using natural effect models",
+    title = "{medflex}: Flexible Mediation Analysis Using Natural Effect Models",
     author = personList(as.person("Johan Steen"),
                         as.person("Tom Loeys"),
   		                  as.person("Beatrijs Moerkerke"),
@@ -14,7 +14,7 @@ citEntry(entry = "manual",
 
   textVersion  =
   paste0("Johan Steen, Tom Loeys, Beatrijs Moerkerke and Stijn Vansteelandt (", year,
-        "). medflex: Flexible mediation analysis using natural effect models. ", note, ".")
+        "). medflex: Flexible Mediation Analysis Using Natural Effect Models. ", note, ".")
 )
 
 citEntry(entry = "Article",
