@@ -84,7 +84,7 @@ Empirical studies often aim at gaining insight into the underlying mechanisms by
 However, these extensions lack formal justification and yield effect estimates that are often difficult to interpret \citep[e.g.,][]{Pearl2012}.
 \par Recent advances from the causal inference literature \citep[e.g.,][]{Albert2008,Albert2011,Avin2005,Imai2010a,Pearl2001,Pearl2012,Greenland1992,VanderWeele2009b,VanderWeele2010} have furthered these earlier attempts and improved both inference and interpretability of causal effect estimators in nonlinear settings by building on the central notion of counterfactual or potential outcomes. This notion provides a framework that has aided in (i) formally defining direct and indirect effects (in a way that is not tied to a specific statistical model), (ii) describing the conditions required for their identification (unveiling and formalizing often implicitly made causal assumptions) and (iii) assessing the robustness of empirical findings against violations of these identification conditions (i.e., sensitivity analysis). 
 \par For instance, \cite{Imai2010b} proposed mediation analysis techniques that can be applied within a larger class of nonlinear models. They implemented these in a user-friendly \proglang{R} package, called \pkg{mediation} (\citealp{R:mediation}; see \citealp{Hicks2011} for a version in \proglang{Stata} \citep{stata} with more limited functionality). More recently, \cite{Valeri2013} reviewed the latest developments in mediation analysis for nonlinear models, focusing on exposure-mediator interactions, and provided \proglang{SAS} \citep{sas} and \proglang{SPSS} \citep{spss} macros, enabling practitioners to easily conduct these methods using well-known commercial packages. Similarly, \cite{Emsley2013} and \cite{Muthen2014} described how direct and indirect effects as defined in the counterfactual framework can be estimated in \proglang{Stata} and via extended types of structural equation models in \proglang{Mplus} \citep{mplus}, respectively.
-\par In this paper, we introduce \pkg{medflex} \citep{Steen2015}, an \proglang{R} package that allows for flexible estimation of direct and indirect effects while accommodating some of the limitations of other available packages. More specifically, we make use of novel so-called \textit{natural effect models} \citep{Lange2012,Lange2013a,Loeys2013a,Vansteelandt2012}, which directly parameterize the target causal estimands on their most natural scale. This renders formal testing and interpretation more straightforward compared to other approaches as implemented in the aforementioned software applications. The \pkg{medflex} package is freely available from the Comprehensive R Archive Network (CRAN) at \url{http://CRAN.R-project.org/package=medflex} \citep{R:base}.
+\par In this paper, we introduce \pkg{medflex} \citep{Steen2015}, an \proglang{R} package that enables flexible estimation of direct and indirect effects while accommodating some of the limitations of other available packages. More specifically, we make use of novel so-called \textit{natural effect models} \citep{Lange2012,Lange2013a,Loeys2013a,Vansteelandt2012}, which directly parameterize the target causal estimands on their most natural scale. This renders formal testing and interpretation more straightforward compared to other approaches as implemented in the aforementioned software applications. The \pkg{medflex} package is freely available from the Comprehensive R Archive Network (CRAN) at \url{http://CRAN.R-project.org/package=medflex} \citep{R:base}.
 \par Throughout, the functionalities of the \pkg{medflex} package will be illustrated using data from a survey study that was part of the Interdisciplinary Project for the Optimization of Separation trajectories \citepalias{iposurl}. This large-scale project involved the recruitment of individuals who divorced between March 2008 and March 2009 in four major courts in Flanders. It aimed to improve the quality of life in families during and after the divorce by translating research findings into practical guidelines for separation specialists (such as lawyers, judges, psychologists, welfare workers...) and by promoting evidence-based policy. The corresponding dataset (\code{UPBdata}) is included in the package and involves a subsample of 385 individuals who responded to a battery of questionnaires related to romantic \textit{relationship} characteristics (such as adult attachment style) and \textit{breakup} characteristics (such as breakup initiator status, experiencing negative affectivity and engaging in unwanted pursuit behaviors; UPB) \citep{Smet2012}. Respondents were asked to imagine their former partner as well as possible and to remember how they generally felt in their relationship \textit{before} the breakup when completing the attachment style questionnaire. The mediation hypothesis of interest concerned the question whether the level of emotional distress or negative affectivity experienced \textit{during} the breakup can be regarded as an intermediate mechanism (\textit{M}) through which attachment style towards the ex-partner \textit{before} the breakup (\textit{X}) exerts its influence on displaying UPBs \textit{after} the breakup (\textit{Y}) \citep{Loeys2013a}.
 \par In the next section, we briefly introduce the mediation formula \citep{Pearl2001,Pearl2012}, which is the predominant vehicle for effect decomposition within the counterfactual framework. Advantages of natural effect models over direct application of the mediation formula will also be discussed in more detail. We then explain how to fit natural effect models, focusing on two missing data techniques for fitting these models and demonstrate how these approaches can be implemented in \proglang{R} using the \pkg{medflex} package (Section~\ref{nateff}). Next, we demonstrate how different types of exposure and mediator variables can be dealt with (Section~\ref{types}) and how to assess effect modification of natural effects (e.g., exposure-mediator interactions and moderated mediation) (Section~\ref{modmed}). Tools are provided for deriving and visualizing different causal effects estimates (Section~\ref{tools}) and for estimating population-average natural effects (Section~\ref{popavg}) and natural indirect effects as defined through multiple intermediate pathways jointly (Section~\ref{multmed}). Finally, in Section~\ref{concl}, we give some concluding remarks and list some extensions of the package which are planned to be implemented in the near future.
 
@@ -112,7 +112,7 @@ For this purpose, the mediation formula \citep{Pearl2001,Pearl2012} plays a pivo
 Software applications for obtaining closed-form solutions derived from the mediation formula, as well as their corresponding delta method (or bootstrap) standard errors, have been made available as \proglang{SPSS} and \proglang{SAS} macros \citep{Valeri2013} and as the \proglang{Stata} module \pkg{PARAMED} \citep{Emsley2013}. 
 More recently, \cite{Muthen2014} demonstrated how natural effect estimates can be obtained via extended types of structural equation models in \proglang{Mplus}, even in the presence of latent variables. However, such closed-form expressions can often not readily be obtained, for instance when combining a linear model for the mediator and a logistic model for the outcome.
 \par \cite{Imai2010a} addressed this issue and instead suggested a more generic approach based on Monte-Carlo integration methods, which they implemented in the \proglang{R} package \pkg{mediation} \citep{R:mediation}.
-Whereas its lightweight version in \proglang{Stata} \citep{Hicks2011} and the \proglang{Stata} module \pkg{gformula} \citep{Daniel2011}, which adopts a similar simulation-based approach, are restricted to parametric models, this \proglang{R} package also allows to specify semi- or non-parametric models for the mediator and outcome. Despite being computationally intensive, these offer more flexibility than the applications based on a purely analytical approach. In addition, the \pkg{mediation} package offers useful extensions, such as methods for dealing with multiple mediators and treatment noncompliance, while at the same time enabling users to evaluate the robustness of their findings to potential unmeasured confounding in a widely applicable sensitivity analysis.
+Whereas its lightweight version in \proglang{Stata} \citep{Hicks2011} and the \proglang{Stata} module \pkg{gformula} \citep{Daniel2011}, which adopts a similar simulation-based approach, are restricted to parametric models, this \proglang{R} package additionally allows to specify semi- or non-parametric models for the mediator and outcome. Despite being computationally intensive, these offer more flexibility than the applications based on a purely analytical approach. In addition, the \pkg{mediation} package offers useful extensions, such as methods for dealing with multiple mediators and treatment noncompliance, while at the same time enabling users to evaluate the robustness of their findings to potential unmeasured confounding in a widely applicable sensitivity analysis.
 
 \begin{figure}[t]
 \centering
@@ -139,7 +139,7 @@ Specifically, because the indirect effect is not encoded by a single parameter, 
 \begin{itemize}
 \item it can handle a larger class of parametric models for the mediator and outcome than the software applications that rely on closed-form expressions (refer to Section~\ref{types}),
 \item effect estimates can be expressed on more natural scales than the additive scale (i.e., a scale that corresponds to the link-function of the outcome model), thereby avoiding potential (artifactual) dependency on exposure or covariate levels,
-\item natural effect models simplify testing since the hypotheses of interest can always be captured by one or more model parameters,
+\item natural effect models simplify testing since the hypotheses of interest can always be captured by a set of model parameters,
 \item for the most common types of parametric models robust standard errors (based on the sandwich estimator) are available as an alternative to more computer-intensive bootstrap standard errors.
 \end{itemize}
 In the next section, we describe this novel class of causal models together with two different approaches that have been suggested in \cite{Lange2012} and \cite{Vansteelandt2012}.
@@ -188,21 +188,22 @@ head(UPBdata)
 with $x$ and $x^*$ corresponding to hypothetical levels of the dichotomized version of the anxious attachment variable (i.e., 0 for lower than average or 1 otherwise), $M(x^*)$ corresponding to the level of negative affectivity that would have been reported if anxious attachment level were set to $x^*$, $C$ a set of baseline covariates, considered sufficient to control for confounding: age (in \textit{years}), gender and education level (\code{educ}; with \code{H} or `high' indicating having obtained at least a bachelor's degree, \code{M} or `intermediate' indicating having finished secondary school and \code{L} or `low' otherwise), and $Y(x,M(x^*))$ corresponding to the UPB perpetration status that would have been observed if anxious attachment level were set to $x$ and negative affectivity were set to the level that would have been reported if anxious attachment style were set to $x^*$.
 
 \begin{figure}[t]
+  \small
   \centering
   \begin{tikzpicture}[>=latex,semithick]
-  \node[] (c) at (4, -1.6)   {gender, education, age ($C$)};
-  \node[] (x) at (0, 0)   {anxious attachment ($X$)};
-  \node[] (m) at (4, 2)   {negative affectivity ($M$)};
-  \node[] (y) at (8, 0)   {unwanted pursuit behavior ($Y$)};
-  \path[->] (c) edge node {} (m);
-  \path[->] (c) edge node {} (x);
-  \path[->] (c) edge node {} (y);
-  \path[->] (x) edge node [above left] {} (m);
-  \path[->] (m) edge node [above right] {} (y);
-  \path[->] (x) edge node [above right] {} (y);
+\node[] (x) at (0, 0)   {anxious attachment ($X$)};
+\node[] (m) at (3, 1.7)   {negative affectivity ($M$)};
+\node[] (y) at (6, 0)   {unwanted pursuit ($Y$)};
+\node[] (c) at (3, -1.7) {gender, education, age ($C$)};
+\path[->] (c) edge node [above left] {} (x);
+\path[->] (c) edge node [above left] {} (m);
+\path[->] (c) edge node [above left] {} (y);
+\path[->] (x) edge node [above left] {} (m);
+\path[->] (m) edge node [above right] {} (y);
+\path[->] (x) edge node [above right] {} (y);
   \end{tikzpicture}
   \caption{Causal diagram reflecting the mediation hypothesis. \label{dag1}}
-\end{figure}
+\end{figure} 
 
 \begin{table}[h]
 \centering
@@ -574,7 +575,7 @@ summary(lht)
 In contrast to the \code{summary} table for \code{glht} objects, which yields $p$~values that are adjusted for multiple testing, tests returned by the \code{summary} function applied to \code{neLht} objects report unadjusted univariate tests. Adjusted tests can be obtained by setting \code{test = adjusted()} \citep[for more details consult the help page of the \code{adjusted()} function from the \pkg{multcomp} package;][]{R:multcomp}.
 
 \subsection{Effect decomposition}\label{effdecomp}
-If one is only interested in the natural effect parameters, the convenience function \code{neEffdecomp} can be used instead of \code{neLht}. This function automatically retains the natural effect estimates and generates a linear hypothesis object that reflects the most suitable effect decomposition:
+If interest is mainly focused on the natural effect parameters, the convenience function \code{neEffdecomp} can be used instead of \code{neLht}. This function automatically retains the natural effect estimates and generates a linear hypothesis object that reflects the most suitable effect decomposition:
 <<>>=
 effdecomp <- neEffdecomp(neMod2)
 summary(effdecomp)
@@ -609,7 +610,7 @@ neEffdecomp(neMod3, covLev = c(gender = "M"))
 @
 
 \subsection{Global hypothesis tests}
-Global hypothesis tests considering all linear hypothesis simultaneously can be requested by specifying \code{test = Chisqtest()}. For instance, in model~(\ref{eq:nemodelmodmed2}), instead of using the \code{Anova} function, one could also test for moderated mediation by means of a global hypothesis test involving the relevant parameters $\beta^\star_5$ and $\beta^\star_6$:
+Wald tests considering all specified linear hypotheses jointly can be requested by specifying \code{test = Chisqtest()}. For instance, in model~(\ref{eq:nemodelmodmed2}), instead of using the \code{Anova} function, one could also test for moderated mediation by means of a global hypothesis test involving the relevant parameters $\beta^\star_5$ and $\beta^\star_6$:
 <<>>=
 modmed <- neLht(neMod4, linfct = c("att1:educM = 0", "att1:educH = 0"))
 summary(modmed, test = Chisqtest())
@@ -635,7 +636,7 @@ plot(neMod2, xlab = "odds ratio", transf = exp)
 The default exposure reference and covariate levels for these plots are the same as for the \code{neEffdecomp} function, but can again be altered via the corresponding arguments \code{xRef} and \code{covLev}.
 
 \section{Population-average natural effects}\label{popavg}
-In all previous sections, we defined natural effects as conditional or stratum-specific effects (i.e., conditional on baseline covariates). However, the \pkg{medflex} package also allows to estimate population-average natural effects. As demonstrated in Appendix~\ref{app:wweightest} and~\ref{app:wimpest}, rewriting the mediation formula reveals that estimation of these population-average effects requires weighting by the reciprocal of the conditional exposure distribution in order to adjust for confounding \citep[also see][]{Albert2012a, Vansteelandt2012f}.
+In all previous sections, we defined natural effects as conditional or stratum-specific effects (i.e., conditional on baseline covariates). However, the \pkg{medflex} package additionally allows to estimate population-average natural effects. As demonstrated in Appendix~\ref{app:wweightest} and~\ref{app:wimpest}, rewriting the mediation formula reveals that estimation of these population-average effects requires weighting by the reciprocal of the conditional exposure distribution in order to adjust for confounding \citep[also see][]{Albert2012a, Vansteelandt2012f}.
 \par As a consequence, a model for the exposure distribution needs to be fitted and specified as an additional working model, e.g.,
 <<>>=
 expFit <- glm(att ~ gender + educ + age, data = UPBdata)
@@ -672,26 +673,27 @@ In many settings multiple mediators may be of interest. In our example, one coul
 \par If hypothesized mediators do not affect one another, one can fit separate natural effect models (each with a different working model involving only one of the mediators) to assess the mediated effects through each of the mediators one at a time. That is, if the aforementioned ignorability assumptions (A1-A4) hold with respect to the whole set of mediators, natural indirect effects, as defined as causal pathways through single mediators, are identified since assumptions (A1-A4) then imply that the given mediators are independent \citep{Imai2013, VanderWeele2013b} given exposure and baseline covariates. Moreover, \cite{Lange2013a} recently proposed a regression-based approach for testing interdependence between mediators and demonstrated how independent intermediate pathways can be assessed in a single natural effect model using the weighting-based approach. 
 \par Often, however, mediators are interdependent and sometimes can be thought of as being linked in a sequential causal chain. For instance, not having initiated the break-up could have made respondents more prone to feeling sad, jealous, angry, frustrated or hurt, as reflected in the causal diagram depicted in Figure~\ref{dag2}. Under this diagram, initiator status confounds the relation between the mediator and outcome (given that negative affectivity is the mediator of interest), while at the same time being influenced by the exposure, hence violating identification assumption (A4). As a consequence, the natural indirect effect via negative affectivity can no longer identified using the mediation formula under the causal diagram depicted in Figure~\ref{dag2}.
 \begin{figure}[t]
+  \small
   \centering
   \begin{tikzpicture}[>=latex,semithick]
-  \node[] (c) at (4, -1.6)   {gender, education, age ($C$)};
-  \node[] (x) at (0, 0)   {anxious attachment ($X$)};
-  \node[] (l) at (1, 2) {initiator status ($L$)};
-  \node[] (m) at (7, 2)   {negative affectivity ($M$)};
-  \node[] (y) at (8, 0)   {unwanted pursuit behavior ($Y$)};
-  \path[->] (c) edge node {} (m);
-  \path[->] (c) edge node {} (x);
-  \path[->] (c) edge node {} (y);
-  \path[->] (c) edge node {} (l);
-  \path[->] (x) edge node [above left] {} (m);
-  \path[->] (x) edge node [above left] {} (l);
-  \path[->] (l) edge node [above right] {} (m);
-  \path[->] (l) edge node [above right] {} (y);
-  \path[->] (m) edge node [above right] {} (y);
-  \path[->] (x) edge node [above right] {} (y);
+\node[] (x) at (0, 0)   {anxious attachment ($X$)};
+\node[] (l) at (1.8, 3) {initiator status ($L$)};
+\node[] (m) at (4.2, 1.7)   {negative affectivity ($M$)};
+\node[] (y) at (6, 0)   {unwanted pursuit ($Y$)};
+\node[] (c) at (3, -1.7) {gender, education, age ($C$)};
+\path[->] (c) edge node [above left] {} (x);
+\path[->] (c) edge node [above left] {} (l);
+\path[->] (c) edge node [above left] {} (m);
+\path[->] (c) edge node [above left] {} (y);
+\path[->] (x) edge node [above left] {} (m);
+\path[->] (x) edge node [above left] {} (l);
+\path[->] (l) edge node [above right] {} (m);
+\path[->] (l) edge [bend left=90] node [above right] {} (y);
+\path[->] (m) edge node [above right] {} (y);
+\path[->] (x) edge node [above right] {} (y);
   \end{tikzpicture}
   \caption{Causal diagram reflecting exposure-induced confounding. \label{dag2}}
-\end{figure}
+\end{figure} 
 \par If indications of exposure-induced confounding or mediators affecting one another are present, an alternative might be to consider these multiple mediators jointly and to redefine natural indirect and direct effects by decomposing the total causal effect into an effect mediated through all given mediators simultaneously and an effect not mediated by any of these mediators, respectively \citep{VanderWeele2013b, VanderWeele2014}. Although this type of effect decomposition might not target the initial mediation hypothesis, it may, in certain cases, still shed some light on the underlying causal mechanisms. In particular, it can be interesting to assess if the two mediators in combination leads to a null direct effect as this signals that all important components of the causal chain from exposure to outcome have been identified. 
 \par For example, in the natural effect model framework, $\exp(\beta_1^{\star\star})$ in model
 \begin{align}

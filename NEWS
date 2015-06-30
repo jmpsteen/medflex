@@ -1,6 +1,7 @@
 Changes in Version 0.5-1
 
   o Error/bug when using factor() terms in neEffdecomp: fixed
+  o neWeight now returns a warning when trying to specify more than one mediator (e.g. 'nMed = 2'), as joint mediated effects are only implemented for the imputation-based approach.
   o Coding error for outcome variable 'UPB' in UPBdata dataset: fixed (up to version 0.5-0 'UPB' was a binary variable indicating whether the individual reported having displayed at least 4 events of unwanted pursuit behavior; while it stated to indicate whether the individual reported having displayed any unwanted pursuit behavior(s) towards the ex-partner)
   
 
