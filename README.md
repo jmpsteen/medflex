@@ -1,7 +1,7 @@
 medflex
 =======
 
-This R package allows to run flexible mediation analyses using natural effect models as described in the papers listed below.
+This R package runs flexible mediation analyses using natural effect models as described in the papers listed below.
 
 To install:
 `devtools::install_github("jmpsteen/medflex")` (requires `devtools` installation)
