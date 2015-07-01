@@ -166,11 +166,13 @@ neWeight.default <- function (object, formula, data, nRep = 5, xSampling = c("qu
         class(formula) <- c("Mformula", "formula")
         vartype <- args$vartype <- attr(neTerms(formula, Y = NA, 
             nMed = nMed, joint = joint), "vartype")
-        xFact <- try(is.factor(model.frame(formula, eval(args$data))[, 
-            attr(vartype, "xasis")]), silent = TRUE)
-        if (!is.logical(xFact)) 
-            xFact <- is.factor(model.frame(fit)[, attr(vartype, 
-                "xasis")])
+        xFact <- if ("SuperLearner" %in% class(fit)) {
+            is.factor(model.frame(formula, eval(args$data))[, attr(vartype, "xasis")])
+        } else if (any(c("vglm", "vgam") %in% class(fit))) {
+            is.factor(VGAM::model.frame(fit)[, attr(vartype, "xasis")])
+        } else {
+            is.factor(model.frame(fit)[, attr(vartype, "xasis")])
+        }
         if (xFact) {
             dontapply <- c("nRep", "xSampling", "xFit", "percLim")
             ind <- !sapply(args[dontapply], is.null)

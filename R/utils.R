@@ -1,5 +1,7 @@
-#' @importFrom stats weights
+#' @import graphics
 #' @import multcomp
+#' @import stats
+#' @import utils
 
 extrCall <- function (x) 
 {

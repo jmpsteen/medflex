@@ -176,8 +176,13 @@ neImpute.default <- function (object, formula, data, nMed = 1, nRep = 5, xSampli
         class(formula) <- c("Yformula", "formula")
         vartype <- args$vartype <- attr(neTerms(formula, nMed, 
             joint), "vartype")
-        xFact <- is.factor(model.frame(formula, eval(args$data))[, 
-            attr(vartype, "xasis")])
+        xFact <- if ("SuperLearner" %in% class(fit)) {
+            is.factor(model.frame(formula, eval(args$data))[, attr(vartype, "xasis")])
+        } else if (any(c("vglm", "vgam") %in% class(fit))) {
+            is.factor(VGAM::model.frame(fit)[, attr(vartype, "xasis")])
+        } else {
+            is.factor(model.frame(fit)[, attr(vartype, "xasis")])
+        }
         if (xFact) {
             dontapply <- c("nRep", "xSampling", "xFit", "percLim")
             ind <- !sapply(args[dontapply], is.null)
