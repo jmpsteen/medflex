@@ -22,7 +22,7 @@ extrData <- function (x)
 
 mgsub <- function (pattern, replacement, x, ...) 
 {
-    for (i in 1:length(pattern)) x <- gsub(pattern[i], replacement[i], 
+    for (i in 1:length(pattern)) x <- gsub(paste0("^", pattern[i], "$"), replacement[i], 
         x, ...)
     return(x)
 }

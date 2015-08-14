@@ -28,6 +28,7 @@ NULL
 expandData <- function (x, data, nMed, ...) 
 {
     args <- eval(substitute(alist(x, data, ...)))
+    if (inherits(data, "environment")) data <- as.data.frame(as.list(data))
     args[[1]] <- if (!is.null(args$vartype) && grepl("factor", 
         attr(eval(args$vartype), "xasis"))) {
         quote(as.factor(data[, x]))

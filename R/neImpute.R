@@ -202,6 +202,7 @@ neImpute.default <- function (object, formula, data, nMed = 1, nRep = 5, xSampli
             args$nRep <- substitute(nRep)
         if (missing(percLim)) 
             args$percLim <- percLim
+        args$data <- eval.parent(args$data, n = 2)
         expData <- do.call("expandData", c(x = substitute(vartype$X), 
             args))
         nExp <- ifelse(joint, 1, nMed)
@@ -334,6 +335,8 @@ neImpute.formula <- function (object, family, data, FUN = glm, nMed = 1, nRep = 
         0.95), ...) 
 {
     args <- as.list(match.call())[-1L]
+    if (missing(data)) 
+      data <- environment(object)
     formula <- object
     if (missing(family)) 
         family <- formals(FUN)$family

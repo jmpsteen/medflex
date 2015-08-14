@@ -284,7 +284,11 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
     nBoot = 1000, parallel = c("no", "multicore", "snow"), ncpus = getOption("boot.ncpus", 
         1L), progress = TRUE, ...) 
 {
-    args <- as.list(match.call())
+    args <- as.list(match.call()) 
+    if (missing(expData)) {
+      expData <- parent.frame(2)$envir
+      args$expData <- quote(expData)
+    }
     args[[1]] <- substitute(neModelEst)
     args <- c(args[[1]], args[names(args) %in% names(formals(neModelEst))])
     neModelFit <- eval(as.call(args))
@@ -318,8 +322,7 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
             all.vars(formulaImpData), labels(terms(expData)), 
             fixed = TRUE)
         termsImpData <- mgsub(unlist(attr(terms(expData), "vartype")[c("X", 
-            "M")]), attr(terms(expData), "vartype")$Xexp, termsImpData, 
-            fixed = TRUE)
+            "M")]), attr(terms(expData), "vartype")$Xexp, termsImpData)
         termsNeModel <- mgsub(dimnames(attr(terms(neModelFit), 
             "factors"))[[1]], all.vars(neModelFit$formula), labels(terms(neModelFit)), 
             fixed = TRUE)
@@ -386,7 +389,10 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
              
              ## ESTIMATING EQUATIONS        
              estEqList <- lapply(fit, sandwich::estfun)
-             estEqList[[1]] <- as.matrix(aggregate(estEqList[[1]], by = list(as.numeric(fit[[1]]$data$id)), FUN = mean)[, -1])
+             #
+             # tmp <- attr(fit[[2]]$model, "na.action")
+             # estEqList[[1]] <- as.matrix(aggregate(estEqList[[1]], by = list(as.numeric(fit[[1]]$data$id)), FUN = mean)[, -1])[-tmp, ]
+             #
              estEq <- as.matrix(data.frame(estEqList))
              rm(estEqList)
              dimnames(estEq)[[2]] <- dimnames
