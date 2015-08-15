@@ -128,6 +128,8 @@ neTerms.Mformula <- function (x, Y, ...)
         1) predvars[2:nMed], all.vars(terms[[2]])), C = predvars[-(1:nMed)])
     attr(attr(terms, "vartype"), "xasis") <- dimnames(attr(terms, 
         "factors"))[[1]][rowSums(attr(terms, "factors")) > 0][1]
+    attr(attr(terms, "vartype"), "masis") <- dimnames(attr(terms, 
+        "factors"))[[1]][rowSums(attr(terms, "factors")) > 0][2:(nMed + 1)]
     class(terms) <- c("neTerms.object", class(terms))
     return(terms)
 }
@@ -151,6 +153,8 @@ neTerms.Yformula <- function (x, nMed, ...)
             1))])
     attr(attr(terms, "vartype"), "xasis") <- dimnames(attr(terms, 
         "factors"))[[1]][rowSums(attr(terms, "factors")) > 0][1]
+    attr(attr(terms, "vartype"), "masis") <- dimnames(attr(terms, 
+        "factors"))[[1]][rowSums(attr(terms, "factors")) > 0][2:(nMed + 1)]
     class(terms) <- c("neTerms.object", class(terms))
     return(terms)
 }

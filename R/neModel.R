@@ -318,11 +318,21 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
         formulaImpData <- extrCall(attr(expData, "model"))$formula
         if (is.null(formulaImpData)) 
             formulaImpData <- attr(expData, "call")$formula
-        termsImpData <- mgsub(dimnames(attr(terms(expData), "factors"))[[1]], 
-            all.vars(formulaImpData), labels(terms(expData)), 
-            fixed = TRUE)
-        termsImpData <- mgsub(unlist(attr(terms(expData), "vartype")[c("X", 
-            "M")]), attr(terms(expData), "vartype")$Xexp, termsImpData)
+        nMed <- length(attr(terms(expData), "vartype")$M)
+        # joint <- attr(expData, "call")$joint
+        termsImpData <- labels(terms(expData))
+        xasis <- attr(attr(terms(expData), "vartype"), "xasis")
+        masis <- attr(attr(terms(expData), "vartype"), "masis")
+        xpattern <- mapply(glob2rx, c(paste0(xasis), paste0(xasis, ":*"), paste0("*:", xasis, ":*"), paste0("*:", xasis)), trim.head = TRUE)
+        mpattern <- mapply(glob2rx, c(paste0(masis), paste0(masis, ":*"), paste0("*:", masis, ":*"), paste0("*:", masis)), trim.head = TRUE)
+        X0 <- attr(terms(expData), "vartype")$Xexp[1]
+        X1 <- attr(terms(expData), "vartype")$Xexp[2]
+        # X2 <- ... (if joint = FALSE and nMed > 1)
+        pattern <- c(xpattern, mpattern)
+        # if(joint | nMed < 2) {
+          replacement <- c(X0, paste0(X0, ":"), paste0(":", X0, ":"), paste0(":", X0), rep(c(X1, paste0(X1, ":"), paste0(":", X1, ":"), paste0(":", X1)), each = nMed))
+          termsImpData <- unique(mgsub(pattern, replacement, termsImpData))
+        # }  else {}
         termsNeModel <- mgsub(dimnames(attr(terms(neModelFit), 
             "factors"))[[1]], all.vars(neModelFit$formula), labels(terms(neModelFit)), 
             fixed = TRUE)
@@ -389,6 +399,7 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
              
              ## ESTIMATING EQUATIONS        
              estEqList <- lapply(fit, sandwich::estfun)
+             estEqList[[1]] <- as.matrix(aggregate(estEqList[[1]], by = list(as.numeric(fit[[1]]$data$id)), FUN = mean)[, -1])
              #
              # tmp <- attr(fit[[2]]$model, "na.action")
              # estEqList[[1]] <- as.matrix(aggregate(estEqList[[1]], by = list(as.numeric(fit[[1]]$data$id)), FUN = mean)[, -1])[-tmp, ]
