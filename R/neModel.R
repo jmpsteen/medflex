@@ -311,16 +311,13 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
         counter <- 0
         progbar <- txtProgressBar(min = 0, max = nBoot, style = 3)
     }
-    if (sum(sapply(attr(terms(expData), "vartype")$M, grepl, 
-        labels(terms(neModelFit))))) 
+    m <- attr(terms(expData), "vartype")$M
+    mpattern <- mapply(glob2rx, c(paste0(m), paste0(m, ":*"), paste0("*:", m, ":*"), paste0("*:", m), paste0("*(", m, ")*"), paste0("*(", m, "^*")), trim.head = TRUE)
+    if (sum(sapply(mpattern, grepl, glob2rx(labels(terms(neModelFit))), fixed = TRUE)))
         stop("The original mediator variables should not be included in the natural effect model!")
     if (inherits(expData, "impData")) {
-        formulaImpData <- extrCall(attr(expData, "model"))$formula
-        if (is.null(formulaImpData)) 
-            formulaImpData <- attr(expData, "call")$formula
         nMed <- length(attr(terms(expData), "vartype")$M)
         # joint <- attr(expData, "call")$joint
-        termsImpData <- labels(terms(expData))
         xasis <- attr(attr(terms(expData), "vartype"), "xasis")
         masis <- attr(attr(terms(expData), "vartype"), "masis")
         xpattern <- mapply(glob2rx, c(paste0(xasis), paste0(xasis, ":*"), paste0("*:", xasis, ":*"), paste0("*:", xasis)), trim.head = TRUE)
@@ -329,6 +326,7 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
         X1 <- attr(terms(expData), "vartype")$Xexp[2]
         # X2 <- ... (if joint = FALSE and nMed > 1)
         pattern <- c(xpattern, mpattern)
+        termsImpData <- labels(terms(expData))
         # if(joint | nMed < 2) {
           replacement <- c(X0, paste0(X0, ":"), paste0(":", X0, ":"), paste0(":", X0), rep(c(X1, paste0(X1, ":"), paste0(":", X1, ":"), paste0(":", X1)), each = nMed))
           termsImpData <- unique(mgsub(pattern, replacement, termsImpData))

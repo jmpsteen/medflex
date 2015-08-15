@@ -1,6 +1,6 @@
 Changes in Version 0.5-2
 
-  o Warning about model incongeniality when name of the exposure variable is a substring of the name of the mediator variable (cf mail correspondence with CY 08/07/2015): bug fixed
+  o Warning about model uncongeniality when name of the exposure variable is a substring of the name of the mediator variable (cf mail correspondence with CY 08/07/2015): bug fixed
   o Slight changes to neImpute and neModel (and expandData) to ensure future compatibility with mice and mitools packages (still similar changes required for neWeight?)
  
 Changes in Version 0.5-1
