@@ -13,11 +13,12 @@ extrData <- function (x)
     if (inherits(x, "SuperLearner")) {
         data <- cbind(eval(x$call$X), eval(x$call$Y))
         dimnames(data)[[2]][ncol(data)] <- as.character(x$call$Y[[3]])
-        return(data)
     }
     else {
-        return(eval(extrCall(x)$data))
+        data <- eval(extrCall(x)$data)
     }
+    if (!is.data.frame(data)) data <- as.data.frame(as.list(data))
+    return(data)
 }
 
 mgsub <- function (pattern, replacement, x, ...) 

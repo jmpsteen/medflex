@@ -383,7 +383,7 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
              fit3 <- if (!missing(xFit)) xFit else NULL
              
              if (inherits(expData, "weightData") && !is.null(na.action(fit1))) {
-               fit1$data$w <- vector(length = nrow(fit1$data))
+               fit1$data$wts <- vector(length = nrow(fit1$data))
                fit1$data[-na.action(fit1), "wts"] <- weights(fit1, "prior")
                fit1$data[na.action(fit1), all.vars(fit1$formula)[1]] <- 0
                fit1$call[[1]] <- quote(glm)
@@ -395,7 +395,7 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
              }
              
              if (inherits(expData, "impData") && !is.null(na.action(fit2))) {
-               fit2$data$w <- vector(length = nrow(fit2$data))
+               fit2$data$wts <- vector(length = nrow(fit2$data))
                fit2$data[-na.action(fit2), "wts"] <- weights(fit2, "prior")
                fit2$data[na.action(fit2), all.vars(fit2$formula)[1]] <- 0
                fit2 <- update(fit2, data = fit2$data, weights = wts)
@@ -430,7 +430,7 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
              ## BREAD
              # diagonal
              # breadInv <- as.matrix(Matrix::bdiag(lapply(fit, function(x) solve(sandwich::bread(x)))))
-             breadInv <- as.matrix(Matrix::bdiag(lapply(fit, function(x) solve(sandwich::bread(x) * nrow(x$data) / sum(summary(x)$df[1:2])))))
+             breadInv <- as.matrix(Matrix::bdiag(lapply(fit, function(x) solve(sandwich::bread(x) * nrow(x$model) / sum(summary(x)$df[1:2])))))
              dimnames(breadInv) <- list(dimnames, dimnames)
              
              # off-diagonal        
@@ -479,110 +479,7 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
                deriv13 <- - X13$modmat * fit[[3]]$family$mu.eta(predict(fit[[3]], newdat = X13$newdat)) * as.vector(attr(eval(derivFUN), "gradient"))
                breadInv[ind[[1]], ind[[3]]] <- -t(sandwich::estfun(fit[[1]])) %*% deriv13 / nrow(deriv13)
              }
-             
-#              ## ESTIMATING EQUATIONS        
-#              na <- if (inherits(expData, "weightData")) 
-#                unique(expData[fit[[1]]$na.action, ]$id) 
-#              else if (inherits(expData, "impData"))
-#                fit[[2]]$na.action
-#              aggregateid <- if (length(na) && inherits(expData, "weightData"))
-#                expData$id[!expData$id %in% na]
-#              else
-#                expData$id
-#              estEqList <- lapply(fit, sandwich::estfun)
-#              # estEqList[[1]] <- as.matrix(aggregate(estEqList[[1]], by = list(as.numeric(aggregateid)), FUN = mean)[, -1])
-#              ## 2 lijntjes hieronder vereenvoudigen? zonder as.numeric mogelijk? => checken!
-#              estEqList[[1]] <- aggregate(estEqList[[1]], by = list(as.numeric(aggregateid)), FUN = mean)[, -1]
-#              row.names(estEqList[[1]]) <- unique(aggregateid)
-#              ##
-#              if (length(na)) {
-#                if (inherits(expData, "weightData")) {
-#                  estEqList[[2]] <- estEqList[[2]][unique(aggregateid), ]
-#                  if (length(fit) > 2) estEqList[[3]] <- estEqList[[3]][unique(aggregateid), ]
-#                }
-#                else if (inherits(expData, "impData")) {
-#                  all <- attr(model.frame(fit[[2]], na.action = NULL), "row.names")
-#                  estEqList[[2]] <- rbind(estEqList[[2]], matrix(rep(0, ncol(estEqList[[2]]) * length(na)), nrow = length(na), dimnames = list(na, dimnames(estEqList[[2]])[[2]])))[all, ]
-#                }
-#              } 
-#              estEq <- as.matrix(data.frame(estEqList))
-#              # rm(estEqList)
-#              dimnames(estEq)[[2]] <- dimnames
-#              
-#              ## MEAT
-#              meat <- crossprod(estEq) / nrow(estEq)
-#              
-#              ## BREAD
-#              # diagonal
-#              breadInv <- as.matrix(Matrix::bdiag(lapply(fit, function(x) solve(sandwich::bread(x)))))
-#              dimnames(breadInv) <- list(dimnames, dimnames)
-#              
-#              ####
-# #              if (length(na))
-# #              
-# #              invBread2 <- function(estfun, x) {
-# #                i <- if (length(row.names(estfun)) > nrow(x$model)) row.names(x$model) else row.names(estfun)
-# #                return(t(estfun[i, ] / residuals(x, type = "response")[i]) %*% (model.matrix(x)[i, ] * x$family$mu.eta(predict(x)[i])) / nrow(estfun))
-# #              }
-# #              
-# #              breadInv[ind[[2]], ind[[2]]] <- invBread2(estEqList[[2]], fit[[2]])
-#              
-#              ## nog stroomlijnen + ook doorvoeren voor fit[[3]]
-#              ## checken bij Stijn!!! (zie blad)
-#              ## checken of code hieronder ook ok is
-#              ## evt simulaties runnen en vergelijken met empirische SD?
-#              ####
-#              
-#              # off-diagonal        
-#              # deriv12
-#              if (inherits(expData, "weightData")) {
-#                # notna <- which(expData$id %in% aggregateid)
-#                incl <- which(!expData$id %in% na)
-#                derivFUN <- switch(fit[[2]]$family$family, 
-#                                   gaussian = deriv(~ (- (M - mu)^2 / (2 * sigma^2)), "mu"), 
-#                                   binomial = deriv(~ (M * log(mu) + (1-M) * log(1-mu)), "mu"), 
-#                                   poisson = deriv(~ (M * log(mu) - mu), "mu"))
-#                sigma <- sqrt(summary(fit[[2]])$dispersion)
-#                # first
-#                X12 <- adaptx(expData, fit[[1]], obs = FALSE)
-#                mu <- predict(fit[[2]], newdat = X12$newdat, type = "response")[incl]
-#                M <- X12$newdat[incl, attr(terms(expData), "vartype")$M]
-#                if (!is.numeric(M)) M <- as.numeric(M) - 1
-#                deriv12a <- X12$modmat[incl, ] * fit[[2]]$family$mu.eta(predict(fit[[2]], newdat = X12$newdat))[incl] * as.vector(attr(eval(derivFUN), "gradient"))
-#                
-#                # second
-#                X12 <- adaptx(expData, fit[[1]], obs = TRUE)
-#                mu <- predict(fit[[2]], newdat = X12$newdat, type = "response")[incl]
-#                M <- X12$newdat[incl, attr(terms(expData), "vartype")$M]
-#                if (!is.numeric(M)) M <- as.numeric(M) - 1
-#                deriv12b <- X12$modmat[incl, ] * fit[[2]]$family$mu.eta(predict(fit[[2]], newdat = X12$newdat))[incl] * as.vector(attr(eval(derivFUN), "gradient"))
-#                
-#                deriv12 <- deriv12a - deriv12b
-#                breadInv[ind[[1]], ind[[2]]] <- -t(sandwich::estfun(fit[[1]])) %*% deriv12 / nrow(expData[incl, ]) # only non-missing?
-#              }
-#              else if (inherits(expData, "impData")) {
-#                X12 <- adaptx(expData, fit[[1]], obs = FALSE)
-#                deriv12 <- X12$modmat * fit[[2]]$family$mu.eta(predict(fit[[2]], newdat = X12$newdat))
-#                
-#                breadInv[ind[[1]], ind[[2]]] <- -t(sandwich::estfun(fit[[1]]) / resid(fit[[1]], type = "response")) %*% deriv12 / nrow(expData)
-#              }
-#              
-#              # deriv13
-#              if (length(fit) > 2) {
-#                if (inherits(expData, "impData")) incl <- seq.int(length(expData$id))
-#                derivFUN <- switch(fit[[3]]$family$family, 
-#                                   gaussian = deriv(~ (- (X - mu)^2 / (2 * sigma^2)), "mu"), 
-#                                   binomial = deriv(~ (X * log(mu) + (1-X) * log(1-mu)), "mu"), 
-#                                   poisson = deriv(~ (X * log(mu) - mu), "mu"))
-#                sigma <- sqrt(summary(fit[[3]])$dispersion)
-#                X13 <- adaptx(expData, fit[[1]], obs = TRUE, xFit = fit[[3]])
-#                mu <- predict(fit[[3]], newdata = X13$newdat, type = "response")[incl]
-#                X <- X13$newdat[incl, attr(terms(expData), "vartype")$X]
-#                if (!is.numeric(X)) X <- as.numeric(X) - 1
-#                deriv13 <- - X13$modmat[incl] * fit[[3]]$family$mu.eta(predict(fit[[3]], newdat = X13$newdat))[incl] * as.vector(attr(eval(derivFUN), "gradient"))
-#                breadInv[ind[[1]], ind[[3]]] <- -t(sandwich::estfun(fit[[1]])) %*% deriv13 / nrow(expData[incl, ])
-#              }
-             
+    
              bread <- solve(breadInv)
              vcov <- as.matrix((bread %*% meat %*% t(bread)) / nrow(estEq))
              
