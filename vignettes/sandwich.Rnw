@@ -30,7 +30,7 @@ working model $\mu_2(X,C;\theta)$:
 \subsubsection*{Estimating equations}
 \begin{align*}
 \displaystyle U_{1}(X_i,x^*,C_i;\beta,\theta) &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij},C_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\\[-0.6em] & \qquad \qquad \qquad \cdot \big[ Y_i - \mu_1(X_i,x^*_{ij},C_i;\beta) \big]\\[1em]
-\displaystyle U_{2}(X_i,C_i;\theta) &= \frac{\partial \mu_2(X_i,C_i;\theta)}{\partial \theta} \Sigma_{\mu_2}^{-1} \big[ Y_i - \mu_2(X_i,C_i;\theta) \big]
+\displaystyle U_{2}(X_i,C_i;\theta) &= \frac{\partial \mu_2(X_i,C_i;\theta)}{\partial \theta} \Sigma_{\mu_2}^{-1} \big[ M_i - \mu_2(X_i,C_i;\theta) \big]
 \end{align*}
 with $k$ the number of replications or hypothetical values $x^*$ for each observation unit $i$ and $\Sigma_{\mu_i}$ the residual variance-covariance matrix for model $\mu_i$.
 
@@ -49,16 +49,28 @@ Let $\zeta = (\beta, \theta)$ and $\tilde U = (U_1, U_2)$. The sandwich estimato
 \begin{bmatrix}
 & \displaystyle\mbox{E}\left(-\frac{\partial U_1}{\partial \beta}\right) & \displaystyle\mbox{E}\left(-\frac{\partial U_1}{\partial \theta}\right) &\\
 & 0 & \displaystyle\mbox{E}\left(-\frac{\partial U_2}{\partial \theta}\right) &\\
-\end{bmatrix}^{-1}
+\end{bmatrix}^{-1},
 \]
 
-\noindent and
+%\noindent and
 \begin{align*}
 \displaystyle \frac{\partial U_1}{\partial \beta} &= - k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij},C_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)} \frac{\partial \mu_1(X_i,x^*_{ij},C_i;\beta)}{\partial \beta}\\[0.6em]
-\displaystyle \frac{\partial U_1}{\partial \theta} &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij},C_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \frac{\partial}{\partial \theta}\left(\frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\right)\\[-0.6em] & \qquad \qquad \qquad \qquad \qquad \qquad \cdot \big[ Y_i - \mu_1(X_i,x^*_{ij},C_i;\beta) \big]\\[0.6em]
+% \displaystyle \frac{\partial U_1}{\partial \theta} &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij},C_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \frac{\partial}{\partial \theta}\left(\frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\right)\\[-0.6em] & \qquad \qquad \qquad \qquad \qquad \qquad \cdot \big[ Y_i - \mu_1(X_i,x^*_{ij},C_i;\beta) \big]\\[0.6em]
+\displaystyle \frac{\partial U_1}{\partial \theta} &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij},C_i;\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \frac{\partial}{\partial \theta}\left(\frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\right)\big[ Y_i - \mu_1(X_i,x^*_{ij},C_i;\beta) \big]\\[0.6em]
 \displaystyle \frac{\partial U_2}{\partial \theta} &= - \frac{\partial \mu_2(X_i,C_i;\theta)}{\partial \theta} \Sigma_{\mu_2}^{-1} \frac{\partial \mu_2(X_i,C_i;\theta)}{\partial \theta}
 \end{align*}
 
+\vspace{6pt}
+\noindent and 
+\begin{align*}
+\displaystyle &\frac{\partial}{\partial \theta}\left(\frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\right)\\[0.6em] 
+&= \frac{\partial}{\partial \theta}\left(\exp\left\{\log\left(\frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\right)\right\}\right)\\[0.6em]
+&= \frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)} \frac{\partial}{\partial \theta}\left(\log\left\{\frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\right\}\right)\\[0.6em]
+&= \frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)} \frac{\partial}{\partial \theta}\left(\log\Pr(M_i\vert x^*_{ij},C_i;\theta) - \log\Pr(M_i\vert X_i,C_i;\theta)\right)\\[0.6em]
+&= \frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)} \left\{\frac{\partial \log\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\partial \mu_2(x^*_{ij},C_i;\theta)} \frac{\partial \mu_2(x^*_{ij},C_i;\theta)}{\partial \theta}\right.\\& \qquad \qquad \qquad \qquad \quad - \left.\frac{\partial \log\Pr(M_i\vert X_i,C_i;\theta)}{\partial \mu_2(X_i,C_i;\theta)}  \frac{\partial \mu_2(X_i,C_i;\theta)}{\partial \theta}\right\}
+\end{align*}
+
+\newpage
 \subsection*{Population-average effects}
 
 \subsubsection*{Models}
@@ -74,7 +86,7 @@ working model $\mu_3(C;\tau)$:
 
 \begin{align*}
 \displaystyle U_{1}(X_i,x^*;\beta,\theta,\tau) &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij};\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \Pr(X_i\vert C_i;\tau)^{-1} \cdot \frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\\[-0.6em] & \qquad \qquad \qquad \cdot \big[ Y_i - \mu_1(X_i,x^*_{ij};\beta) \big]\\[1em]
-\displaystyle U_{2}(X_i,C_i;\theta) &= \frac{\partial \mu_2(X_i,C_i;\theta)}{\partial \theta} \Sigma_{\mu_2}^{-1} \big[ Y_i - \mu_2(X_i,C_i;\theta) \big]\\[1em]
+\displaystyle U_{2}(X_i,C_i;\theta) &= \frac{\partial \mu_2(X_i,C_i;\theta)}{\partial \theta} \Sigma_{\mu_2}^{-1} \big[ M_i - \mu_2(X_i,C_i;\theta) \big]\\[1em]
 \displaystyle U_{3}(C_i;\tau) &= \frac{\partial \mu_3(C_i;\tau)}{\partial \tau} \Sigma_{\mu_3}^{-1} \big[ X_i - \mu_3(C_i;\tau) \big]
 \end{align*}
 
@@ -94,16 +106,23 @@ Let $\zeta = (\beta, \theta, \tau)$ and $\tilde U = (U_1, U_2, U_3)$. The sandwi
 & \displaystyle\mbox{E}\left(-\frac{\partial U_1}{\partial \beta}\right) & \displaystyle\mbox{E}\left(-\frac{\partial U_1}{\partial \theta}\right) & \displaystyle\mbox{E}\left(-\frac{\partial U_1}{\partial \tau}\right) &\\
 & 0 & \displaystyle\mbox{E}\left(-\frac{\partial U_2}{\partial \theta}\right) & 0 &\\
 & 0 & 0 & \displaystyle\mbox{E}\left(-\frac{\partial U_3}{\partial \tau}\right) &\\
-\end{bmatrix}^{-1}
+\end{bmatrix}^{-1},
 \]
 
-\noindent and
 \begin{align*}
 \displaystyle \frac{\partial U_1}{\partial \beta} &= - k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij};\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \Pr(X_i\vert C_i;\tau)^{-1} \cdot \frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\\[-0.6em] & \qquad \qquad \qquad \qquad \qquad \qquad \cdot \frac{\partial \mu_1(X_i,x^*_{ij};\beta)}{\partial \beta}\\[0.6em]
 \displaystyle \frac{\partial U_1}{\partial \theta} &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij};\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \Pr(X_i\vert C_i;\tau)^{-1} \cdot \frac{\partial}{\partial \theta}\left(\frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\right)\\[-0.6em] & \qquad \qquad \qquad \qquad \qquad \qquad \cdot \big[ Y_i - \mu_1(X_i,x^*_{ij};\beta) \big]\\[0.6em]
 \displaystyle \frac{\partial U_1}{\partial \tau} &= k^{-1} \sum_{j=1}^{k} \frac{\partial \mu_1(X_i,x^*_{ij};\beta)}{\partial \beta} \Sigma_{\mu_1}^{-1} \frac{\partial \Pr(X_i\vert C_i;\tau)^{-1}}{\partial \tau} \cdot \frac{\Pr(M_i\vert x^*_{ij},C_i;\theta)}{\Pr(M_i\vert X_i,C_i;\theta)}\\[-0.6em] & \qquad \qquad \qquad \qquad \qquad \qquad \cdot \big[ Y_i - \mu_1(X_i,x^*_{ij};\beta) \big]\\[0.6em]
 \displaystyle \frac{\partial U_2}{\partial \theta} &= - \frac{\partial \mu_2(X_i,C_i;\theta)}{\partial \theta} \Sigma_{\mu_2}^{-1} \frac{\partial \mu_2(X_i,C_i;\theta)}{\partial \theta}\\[0.6em]
 \displaystyle \frac{\partial U_3}{\partial \tau} &= - \frac{\partial \mu_3(C_i;\tau)}{\partial \tau} \Sigma_{\mu_3}^{-1} \frac{\partial \mu_3(C_i;\tau)}{\partial \tau}
+\end{align*}
+
+\vspace{6pt}
+\noindent and
+\begin{align*}
+\displaystyle \frac{\partial \Pr(X_i\vert C_i;\tau)^{-1}}{\partial \tau} &= \frac{\partial \exp \{ \log \Pr(X_i\vert C_i;\tau)^{-1} \}}{\partial \tau}\\[0.6em]
+&= \Pr(X_i\vert C_i;\tau)^{-1} \left(-\frac{\partial \log\Pr(X_i\vert C_i;\tau)}{\partial \tau}\right)\\[0.6em]
+&= \Pr(X_i\vert C_i;\tau)^{-1} \left(-\frac{\partial \log\Pr(X_i\vert C_i;\tau)}{\partial \mu_3(C_i; \tau)} \frac{\partial \mu_3(C_i; \tau)}{\partial \tau}\right)
 \end{align*}
 
 \newpage
