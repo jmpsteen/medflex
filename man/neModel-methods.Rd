@@ -5,6 +5,8 @@
 \alias{confint.neModel}
 \alias{confint.neModelBoot}
 \alias{neModel-methods}
+\alias{residualPlot.neModel}
+\alias{residualPlots.neModel}
 \alias{summary.neModel}
 \alias{vcov.neModel}
 \alias{weights.neModel}
@@ -16,6 +18,10 @@
   ...)
 
 \method{confint}{neModel}(object, parm, level = 0.95, ...)
+
+\method{residualPlot}{neModel}(object, ...)
+
+\method{residualPlots}{neModel}(object, ...)
 
 \method{summary}{neModel}(object, ...)
 
@@ -37,7 +43,7 @@
 \item{type}{the type of bootstrap intervals required. The default \code{"norm"} returns normal approximation bootstrap confidence intervals. Currently, \code{"norm"}, \code{"basic"}, \code{"perc"} and \code{"bca"} are supported (see \code{\link[boot]{boot.ci}}).}
 }
 \description{
-Extractor functions, confidence intervals and statistical tests for natural effect models.
+Extractor functions, confidence intervals, residual plots and statistical tests for natural effect models.
 }
 \details{
 \code{confint} yields bootstrap confidence intervals or confidence intervals based on the sandwich estimator (depending on the type of standard errors requested when fitting the \code{\link{neModel}} object).
@@ -58,6 +64,8 @@ These weights can be based on
  \item ratio-of-mediator probability (density) weights (only if the weighting-based approach is used)
  \item inverse probability of treatment (exposure) weights (only if \code{xFit} was specified in \code{\link{neModel}})
 }
+
+\code{residualPlot} and \code{residualPlots} are convenience functions from the \pkg{car} package. These can be used to assess model adequacy.
 }
 \note{
 For the bootstrap, \emph{z}-values in the summary table are calculated by dividing the parameter estimate by its corresponding bootstrap standard error.
@@ -89,8 +97,12 @@ confint(neMod, type = "perc", level = 0.90)
 
 ## summary table
 summary(neMod)
+
+## residual plots
+library(car)
+residualPlots(neMod)
 }
 \seealso{
-\code{\link{neModel}}, \code{\link{plot.neModel}}, \code{\link{weights}}
+\code{\link{neModel}}, \code{\link{plot.neModel}}, \code{\link[car]{residualPlot}}, \code{\link[car]{residualPlots}}, \code{\link{weights}}
 }
 

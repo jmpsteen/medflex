@@ -9,12 +9,12 @@
 #' Suffixes \code{0} and \code{1} are used for variables whose corresponding parameters in the final natural effect model index natural direct and indirect effects, respectively.
 #'
 #' This object also stores some additional attributes, which are used as input for \code{\link{neModel}}, such as
-#'   \item{\code{model}}{the fitted imputation model object}
+#'   \item{\code{model}}{the fitted working model object}
 #'   \item{\code{data}}{original dataset}
 #'   \item{\code{call}}{the matched call}
 #   \item{\code{terms}}{the \code{\link{neTerms}} object used}
 #'   \item{\code{terms}}{the \code{neTerms} (internal class) object used}
-#'   \item{\code{weigths}}{ratio-of-mediator probability weights (only stored if object inherits from class \code{weightData})}
+#'   \item{\code{weights}}{ratio-of-mediator probability weights (only stored if object inherits from class \code{weightData})}
 #' @note If the weighting-based approach (\code{\link{neWeight}}) is applied, the original outcome values are copied for the nested counterfactual outcomes
 #' and the object stores an additional attribute, \code{"weights"}, containing a vector with ratio-of-mediator probability weights.
 #'

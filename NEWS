@@ -1,13 +1,10 @@
-Changes in Version 0.5-3
+Changes in Version 0.6-0
 
-  o Sandwich estimator now also accommodates settings with missingness only in the outcome (requires MAR assumption for imputation-based approach and MCAR assumption for weighting-based approach)
-
-
-Changes in Version 0.5-2
-
+  o Compatibility with mice and mitools packages for multiple imputation (see vignette for documentation and example)
+  o Sandwich estimator now also accommodates settings with missingness only in the outcome (requires MAR assumption for imputation-based approach on all cases and MCAR assumption for weighting-based approach on complete cases): no more error returned
+  o Goodness-of-fit tools added: convenience functions residualPlot and residualPlots from the car package can now also be used on expData-class and neModel-class objects to assess model adequacy of the working model(s) and natural effect models, respectively.
   o Error when name of the mediator variable is a substring of the name of the exposure variable ("The original mediator variables should not be included in the natural effect model!"): fixed
   o Warning about model uncongeniality when name of the exposure variable is a substring of the name of the mediator variable (cf mail correspondence with CY 08/07/2015): bug fixed
-  o Slight changes to neImpute and neModel (and expandData) to ensure future compatibility with mice and mitools packages (still similar changes required for neWeight?)
  
  
 Changes in Version 0.5-1

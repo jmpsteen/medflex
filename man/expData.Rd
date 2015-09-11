@@ -12,11 +12,11 @@ These auxiliary variables (\emph{x} and \emph{x*}) are named after the exposure 
 Suffixes \code{0} and \code{1} are used for variables whose corresponding parameters in the final natural effect model index natural direct and indirect effects, respectively.
 
 This object also stores some additional attributes, which are used as input for \code{\link{neModel}}, such as
-  \item{\code{model}}{the fitted imputation model object}
+  \item{\code{model}}{the fitted working model object}
   \item{\code{data}}{original dataset}
   \item{\code{call}}{the matched call}
   \item{\code{terms}}{the \code{neTerms} (internal class) object used}
-  \item{\code{weigths}}{ratio-of-mediator probability weights (only stored if object inherits from class \code{weightData})}
+  \item{\code{weights}}{ratio-of-mediator probability weights (only stored if object inherits from class \code{weightData})}
 }
 \description{
 Expanded dataset including either ratio-of-mediator probability weights or imputed nested counterfactual outcomes.

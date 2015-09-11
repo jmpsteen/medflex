@@ -2,6 +2,8 @@
 #' @import multcomp
 #' @import stats
 #' @import utils
+#' @importFrom car residualPlot
+#' @importFrom car residualPlots
 
 extrCall <- function (x) 
 {
