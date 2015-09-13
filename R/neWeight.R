@@ -14,6 +14,8 @@
 #' or internally (\code{\link{neWeight.formula}}).
 #' @seealso \code{\link{neWeight.default}}, \code{\link{neWeight.formula}}, \code{\link{expData}}
 #' @references
+#' Hong, G. (2010). Ratio of mediator probability weighting for estimating natural direct and indirect effects. In \emph{Proceedings of the American Statistical Association, Biometrics Section}, pp. 2401-2415. American Statistical Association, Alexandria, VA.
+#' 
 #' Lange, T., Vansteelandt, S., & Bekaert, M. (2012). A Simple Unified Approach for Estimating Natural Direct and Indirect Effects. \emph{American Journal of Epidemiology}, \bold{176}(3), 190-195.
 #' @export
 neWeight <- function (object, ...) 

@@ -427,7 +427,7 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
              
              if (inherits(expData, "weightData") && !is.null(na.action(fit1))) {
                fit1$data$wts <- vector(length = nrow(fit1$data))
-               fit1$data[-na.action(fit1), "wts"] <- weights(fit1, "prior")
+               fit1$data$wts[-na.action(fit1)] <- weights(fit1, "prior")
                fit1$data[na.action(fit1), all.vars(fit1$formula)[1]] <- 0
                fit1$call[[1]] <- quote(glm)
                fit1$call[["expData"]] <- NULL
@@ -439,9 +439,11 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
              
              if (inherits(expData, "impData") && !is.null(na.action(fit2))) {
                fit2$data$wts <- vector(length = nrow(fit2$data))
-               fit2$data[-na.action(fit2), "wts"] <- weights(fit2, "prior")
+               fit2$data$wts[-na.action(fit2)] <- weights(fit2, "prior")
                fit2$data[na.action(fit2), all.vars(fit2$formula)[1]] <- 0
-               fit2 <- update(fit2, data = fit2$data, weights = wts)
+               fit2$call[["data"]] <- quote(fit2$data)
+               fit2$call[["weights"]] <- quote(wts)
+               fit2 <- update(fit2)
              }
              
              fit <- list(fit1, fit2, fit3)
