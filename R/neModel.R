@@ -158,11 +158,11 @@ confint.neModelBoot <- function (object, parm, level = 0.95, type = "norm", ...)
 #' @export
 confint.neModel <- function (object, parm, level = 0.95, ...) 
 {
-  ci <- confint.default(object, parm, level, ...)
-  dimnames(ci)[[2]] <- paste0(100 * level, c("% LCL", "% UCL"))
-  attributes(ci) <- c(attributes(ci), list(level = level, coef = coef(object)[parm]))
-  class(ci) <- c("neModelCI", class(ci))
-  return(ci)
+    ci <- confint.default(object, parm, level, ...)
+    dimnames(ci)[[2]] <- paste0(100 * level, c("% LCL", "% UCL"))
+    attributes(ci) <- c(attributes(ci), list(level = level, coef = coef(object)[parm]))
+    class(ci) <- c("neModelCI", class(ci))
+    return(ci)
 }
 
 #' @export
@@ -329,7 +329,6 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
 {
     args <- as.list(match.call()) 
     if (missing(expData)) {
-      # expData <- environment(formula)
       expData <- parent.frame(2)$envir
       args$expData <- quote(expData)
     }
@@ -361,20 +360,16 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
         stop("The original mediator variables should not be included in the natural effect model!")
     if (inherits(expData, "impData")) {
         nMed <- length(attr(terms(expData), "vartype")$M)
-        # joint <- attr(expData, "call")$joint
         xasis <- attr(attr(terms(expData), "vartype"), "xasis")
         masis <- attr(attr(terms(expData), "vartype"), "masis")
         xpattern <- mapply(glob2rx, c(paste0(xasis), paste0(xasis, ":*"), paste0("*:", xasis, ":*"), paste0("*:", xasis)), trim.head = TRUE)
         mpattern <- mapply(glob2rx, c(paste0(masis), paste0(masis, ":*"), paste0("*:", masis, ":*"), paste0("*:", masis)), trim.head = TRUE)
         X0 <- attr(terms(expData), "vartype")$Xexp[1]
         X1 <- attr(terms(expData), "vartype")$Xexp[2]
-        # X2 <- ... (if joint = FALSE and nMed > 1)
         pattern <- c(xpattern, mpattern)
         termsImpData <- labels(terms(expData))
-        # if(joint | nMed < 2) {
-          replacement <- c(X0, paste0(X0, ":"), paste0(":", X0, ":"), paste0(":", X0), rep(c(X1, paste0(X1, ":"), paste0(":", X1, ":"), paste0(":", X1)), each = nMed))
-          termsImpData <- unique(mgsub(pattern, replacement, termsImpData))
-        # }  else {}
+        replacement <- c(X0, paste0(X0, ":"), paste0(":", X0, ":"), paste0(":", X0), rep(c(X1, paste0(X1, ":"), paste0(":", X1, ":"), paste0(":", X1)), each = nMed))
+        termsImpData <- unique(mgsub(pattern, replacement, termsImpData))
         termsNeModel <- mgsub(dimnames(attr(terms(neModelFit), 
             "factors"))[[1]], all.vars(neModelFit$formula), labels(terms(neModelFit)), 
             fixed = TRUE)

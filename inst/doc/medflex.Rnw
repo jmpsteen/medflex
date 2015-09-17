@@ -8,7 +8,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage[utf8]{inputenc}
-\usepackage{amsmath, booktabs, nccmath, pifont, tkz-berge}
+\usepackage{amsmath, booktabs, colortbl, nccmath, pifont, tkz-berge}
 
 \defcitealias{iposurl}{IPOS}
 \newcommand{\cip}{\mbox{$\perp\!\!\!\perp$}}
@@ -20,7 +20,6 @@
         \hspace{-.5in}Tom Loeys \\ \hspace{-.5in}Ghent University \And
         \hspace{-.7in}Beatrijs Moerkerke \\ \hspace{-.7in}Ghent University \And
         \hspace{-.4in}Stijn Vansteelandt \\ \hspace{-.4in}Ghent University}
-
 \title{\pkg{Medflex}: An \proglang{R} Package for Flexible Mediation Analysis using Natural Effect Models}
 
 %% for pretty printing and a nice hypersummary also set:
@@ -137,6 +136,7 @@ The language of counterfactuals has enabled to clearly define causal effects in 
 The main identification result \citep{Pearl2001,Imai2010a}, which \cite{Pearl2012} referred to as the \textit{mediation formula}, has played a pivotal role in this regard. It prescribes estimating the expected value of nested counterfactuals by standardizing predictions from the outcome model corresponding to exposure level $x$ under the mediator distribution corresponding to exposure level $x^*$: $$\E\left\{Y(x,M(x^*))|C\right\} = \sum_m \E(Y|X=x,M=m,C) \Pr(M=m|X=x^*,C).$$  This weighted sum can be calculated based on any type of statistical model and has been shown to yield closed-form expressions for the natural indirect effect that encompass the traditional difference-in-coefficients and product-of-coefficient estimators when confined to strictly linear models \citep[e.g.,][]{VanderWeele2009b, Pearl2012}. However, as soon as moving beyond linear settings, the latter estimators no longer coincide with their corresponding mediation formula expressions and no longer yield readily interpretable causal effect estimates (as formalized in the counterfactual framework).\footnote{\cite{Muthen2014} give an intuitive account for SEM practitioners explaining why the product-of-coefficient estimator fails when applied in nonlinear settings or settings involving exposure-mediator interactions. Nonetheless, the product-of-coefficients method can still be useful for testing the null hypothesis of no indirect effect \citep{VanderWeele2011a,Vansteelandt2012}.}
 \par More recently, closed-form expressions for natural direct and indirect effects as defined on both additive and ratio scales have been derived for a limited number of nonlinear scenarios \citep{VanderWeele2009b,VanderWeele2010,Valeri2013}.
 
+\newpage
 \subsection{Applying the mediation formula in practice}
 Software applications for obtaining closed-form solutions derived from the mediation formula, as well as their corresponding Delta method (or bootstrap) standard errors, have been made available as \proglang{SPSS} and \proglang{SAS} macros \citep{Valeri2013} and as the \proglang{Stata} module \pkg{PARAMED} \citep{Emsley2013}. 
 More recently, \cite{Muthen2014} demonstrated how natural effect estimates can be obtained via extended types of structural equation models in \proglang{Mplus}, even in the presence of latent variables. However, such closed-form expressions can often not readily be obtained, for instance when combining a linear model for the mediator and a logistic model for the outcome.
@@ -162,7 +162,7 @@ an expression which depends on exposure and covariate levels in a complicated wa
 \par An approach that circumvents the aforementioned complexity but is closely related to application of the mediation formula was recently proposed by \cite{Lange2012} and \cite{Vansteelandt2012}. These authors proposed to directly model the natural effects and introduced a novel class of mean models for nested counterfactuals, which they termed \textit{natural effect models} \citep[also see][for a similar approach]{VanderLaan2008}. This approach is implemented in the \pkg{medflex} package and provides a viable alternative to the aforementioned software applications because
 \begin{itemize}
 \item it can handle a larger class of parametric models for the mediator and outcome than the software applications that rely on closed-form expressions (refer to Section~\ref{types}),
-\item estimates can be expressed on more natural effect scales (i.e., a scale that corresponds to the link-function of the outcome model), thereby avoiding potential induced dependency on exposure or covariate levels characteristic for the additive scale,
+\item estimates can be expressed on more natural effect scales (i.e., a scale that corresponds to the link-function of the outcome model), thereby avoiding potential induced dependence on exposure or covariate levels characteristic for the additive scale,
 \item natural effect models simplify testing since the hypotheses of interest can always be captured by a finite set of model parameters,
 \item for the most common types of parametric models robust standard errors (based on the sandwich estimator) are available as an alternative to more computer-intensive bootstrap standard errors.
 \end{itemize}
@@ -225,21 +225,7 @@ head(UPBdata)
 \label{eq:nemodelnoia}
 \end{align}
 with $x$ and $x^*$ corresponding to hypothetical levels of the dichotomized version of the anxious attachment variable (i.e., 0 for lower than average or 1 otherwise), $M(x^*)$ to the level of negative affectivity that would have been reported if anxious attachment level were set to $x^*$, and $Y(x,M(x^*))$ to the UPB perpetration status that would have been observed if anxious attachment level were set to $x$ and negative affectivity were set to the level that would have been reported if anxious attachment style were set to $x^*$. To control for confounding, we condition on a set of baseline covariates $C$: age (in \textit{years}), gender and education level (\code{educ}; with \code{H} or `high' indicating having obtained at least a bachelor's degree, \code{M} or `intermediate' indicating having finished secondary school and \code{L} or `low' otherwise). As emphasized earlier, the selection of such an adjustment set needs careful consideration in order to meet identification conditions \ref{A1}-\ref{A4}. For illustrative purposes, the current set of baseline covariates $C$ will, possibly contrary to the fact, be considered sufficient to control for confounding throughout the remainder of the paper.
-\par As an illustration, we schematically display the first two observations in Table~\ref{tab-exp1}. For each individual or observation unit $i$, only the counterfactual outcome $Y_i(X_i,M_i(X_i))$, corresponding to $Y_i(x,M_i(x^*))$ with $x$ and $x^*$ equal to the observed exposure level $X_i$, is observed. 
-\begin{table}[h]
-\centering
-\begin{tabular}{ccccc}
-\toprule
-$i$ & $X_i$ & $x$ & $x^*$ & $Y_i(x,M_i(x^*))$\\
-\midrule
-1 & 1 & 1 & 1 & $Y_1$\\
-2 & 0 & 0 & 0 & $Y_2$\\
-\vdots & \vdots & \vdots & \vdots & \vdots\\
-\bottomrule
-\end{tabular}
-\caption{Schematic display of the original dataset.}\label{tab-exp1}
-\end{table}
-\par Postulating a model for nested counterfactuals that encodes both natural direct and indirect effects requires data in which either $x$ or $x^*$ can be kept fixed within each individual while allowing the other variable to vary. Such a procedure amounts to expanding the data along unobserved $(x, x^*)$ combinations, as illustrated in Table~\ref{tab-exp2}. Although, for the data at hand, three $(x, x^*)$ combinations are unobserved for each individual, to disentangle natural direct and indirect effects, it is sufficient to introduce only one additional observation corresponding to an unobserved combination for which $x$ does not equal $x^*$.
+\par As an illustration, we schematically display the first two observations in Table~\ref{tab-exp1}. For each individual or observation unit $i$, only the counterfactual outcome $Y_i(X_i,M_i(X_i))$, corresponding to $Y_i(x,M_i(x^*))$ with $x$ and $x^*$ equal to the observed exposure level $X_i$, is observed. Postulating a model for nested counterfactuals that encodes both natural direct and indirect effects requires data in which either $x$ or $x^*$ can be kept fixed within each individual while allowing the other variable to vary. Such a procedure amounts to expanding the data along unobserved $(x, x^*)$ combinations, as illustrated by the grey entries in Table~\ref{tab-exp1}. Although, for the data at hand, three $(x, x^*)$ combinations are unobserved for each individual, to disentangle natural direct and indirect effects, it is sufficient to introduce only one additional observation corresponding to an unobserved combination for which $x$ does not equal $x^*$.
 \begin{table}[h]
 \centering
 \begin{tabular}{ccccc}
@@ -249,16 +235,24 @@ $i$ & $X_i$ & $x$ & $x^*$ & $Y_i(x,M_i(x^*))$\\
 1 & 1 & 1 & 1 & $Y_1$\\
 \rowcolor[gray]{.9}
 1 & 1 & 1 &  \textcolor{red}{\bf 0} & .\\
+\rowcolor[gray]{.9}
+1 & 1 & \textcolor{red}{\bf 0} & 1 & .\\
+\rowcolor[gray]{.9}
+1 & 1 & \textcolor{red}{\bf 0} &  \textcolor{red}{\bf 0} & .\\
 2 & 0 & 0 & 0 & $Y_2$\\
 \rowcolor[gray]{.9}
 2 & 0 & 0 & \textcolor{red}{\bf 1} & .\\
+\rowcolor[gray]{.9}
+2 & 0 & \textcolor{red}{\bf 1} & 0 & .\\
+\rowcolor[gray]{.9}
+2 & 0 & \textcolor{red}{\bf 1} & \textcolor{red}{\bf 1} & .\\
 \vdots & \vdots & \vdots & \vdots & \vdots\\
 \bottomrule
 \end{tabular}
-\caption{Schematic display of the expanded dataset with missing counterfactual outcomes.}\label{tab-exp2}
+\caption{Schematic display of the expanded dataset with missing counterfactual outcomes.}\label{tab-exp1}
 \end{table}
 \par Fitting natural effect models then entails using well-established methods to deal with missingness in the outcome, which results from expanding the data. Throughout, we will describe a weighting- and an imputation-based approach, which, as outlined below, differ mainly in terms of the statistical working models on which they rely \citep{Vansteelandt2012f}.
-\par Data expansion is identical for both approaches, but subsequent algorithms for data preparation differ depending on the type of working model. In the \pkg{medflex} package, these two steps are implemented in the functions \code{neWeight} and \code{neImpute}. Both return an expanded dataset to which the natural effect model can be fitted using the central function \code{neModel} (see Figure~\ref{fig:workflow}). In the next two sections, we explain both approaches and give example code in \proglang{R}.
+\par Data expansion is highly similar for both approaches, but subsequent algorithms for data preparation differ depending on the type of working model. In the \pkg{medflex} package, these two steps are implemented in the functions \code{neWeight} and \code{neImpute}. Both return an expanded dataset to which the natural effect model can be fitted using the central function \code{neModel} (see Figure~\ref{fig:workflow}). In the next two sections, we explain both approaches and give example code in \proglang{R}.
 \begin{figure}[t]
   \centering
   \includegraphics[width=6cm]{workflow.pdf}
@@ -267,8 +261,8 @@ $i$ & $X_i$ & $x$ & $x^*$ & $Y_i(x,M_i(x^*))$\\
 \end{figure}
 \subsection{Weighting-based approach}
 One way to account for missingness in the expanded data is to standardize observed outcomes to the mediator distribution of the hypothetical exposure level $x^*$. Building on \citeauthor{Hong2010}'s \citeyearpar{Hong2010} ratio-of-mediator-probability weighting (RMPW) method, \cite{Lange2012} proposed to weight each observation in the expanded dataset by $$w_i = \dfrac{p_i(x^*)}{p_i(x)} = \dfrac{\Pr(M = M_i \vert X = x^*, C = C_i)}{\Pr(M = M_i \vert X = x, C = C_i)}.$$
-\par For a binary exposure, $\E\{Y(0,M(0))|C\}$ and $\E\{Y(1,M(1))|C\}$ can readily be estimated from the observed data (under assumption~\ref{A1}) without weighting (i.e., as $x$ = $x^*$ the corresponding weights equal 1). To enable estimation of $\E\{Y(1,M(0))|C\}$ and $\E\{Y(0,M(1))|C\}$ RMPW aims to construct a `parallel' pseudo-population for each exposure group $x$ (within each stratum of $C$) with mediator values that would have been observed if each subject had been a member of the opposite exposure group $x^* = 1-x$. Intuitively, this is done by up-weighting individuals whose observed mediator value is more typical for the opposite exposure group than the exposure group to which they originally belong. Similarly, individuals whose observed mediator value is relatively more typical for the original exposure group are down-weighted.\footnote{\cite{Hong2015} gives a more detailed example which may provide more intuition into RMPW. Other weighting methods based on inverse odds (ratio) weighting \citep{Huber2013, TchetgenTchetgen2013} have been proposed recently. In contrast to RMPW these weighting methods rely on models for the exposure distribution (conditional on mediator and baseline covariates). Although these could easily be adopted within the natural effect model framework, these are currently not implemented in the \pkg{medflex} package.}
-\par Estimates for natural direct and indirect effects can then be obtained by regressing the observed outcome on $x$, $x^*$ and baseline covariates $C$, weighting each observation in the expanded dataset by its corresponding ratio-of-mediator-probability weight. This procedure is illustrated in Table~\ref{tab-exp3} and easily extends to continuous exposures (see Section~\ref{contexp}) and/or mediators (provided probabilities are replaced by densities). The interested reader is referred to Appendix~\ref{app:weightest}, where a more technical account is given on the link between the weighting-based approach and the mediation formula.
+\par For instance, for a binary exposure, $\E\{Y(0,M(0))|C\}$ and $\E\{Y(1,M(1))|C\}$ can readily be estimated from the observed data (under assumption~\ref{A1}) without weighting (i.e., as $x$ = $x^*$ the corresponding weights equal 1). To enable estimation of $\E\{Y(1,M(0))|C\}$ and $\E\{Y(0,M(1))|C\}$ RMPW aims to construct a `parallel' pseudo-population for each exposure group $x$ (within each stratum of $C$) with mediator values that would have been observed if each subject had been a member of the opposite exposure group $x^* = 1-x$. This is done by up-weighting individuals whose observed mediator value is more typical for the opposite exposure group than the exposure group to which they originally belong. Similarly, individuals whose observed mediator value is relatively more typical for the original exposure group are down-weighted.\footnote{\cite{Hong2015} gives a more detailed example which may provide more intuition into RMPW. Other weighting methods based on inverse odds (ratio) weighting \citep{Huber2013, TchetgenTchetgen2013} have been proposed recently. In contrast to RMPW these weighting methods rely on models for the exposure distribution (conditional on mediator and baseline covariates). Although these could easily be adopted within the natural effect model framework, these are currently not implemented in the \pkg{medflex} package.} 
+\par Data expansion hence only requires $x^*$ to take on values different from the observed exposure to enable estimation of natural direct and indirect effects via the weighting-based approach, as illustrated in~Table~\ref{tab-exp2}. Estimates can then be obtained by regressing the observed outcome on $x$, $x^*$ and baseline covariates $C$, weighting each observation in the expanded dataset by its corresponding ratio-of-mediator-probability weight. This procedure easily extends to continuous exposures (see Section~\ref{contexp}) and/or mediators (provided probabilities are replaced by densities). The interested reader is referred to Appendix~\ref{app:weightest}, where a more technical account is given on the link between the weighting-based approach and the mediation formula.
 \begin{table}[h]
 \centering
 \begin{tabular}{ccccccl}
@@ -284,7 +278,7 @@ $i$& $X_i$ & $x$ & $x^*$ & $Y_i(x,M_i(x^*))$ & & $w_i$\\
 \vdots & \vdots & \vdots & \vdots & \vdots & & \vdots \\
 \cmidrule[\heavyrulewidth](){1-5}
 \end{tabular}
-\caption{Schematic display of the weighting-based approach.}\label{tab-exp3}
+\caption{Schematic display of the weighting-based approach.}\label{tab-exp2}
 \end{table}
 
 \subsubsection[]{Expanding the data and computing weights for the natural effect model}
@@ -377,7 +371,8 @@ If standard errors are obtained via the bootstrap procedure, bootstrap confidenc
 
 \newpage
 \subsection{Imputation-based approach}\label{imp-appr}
-The second approach avoids reliance on a model for the mediator distribution and instead requires fitting a working model for the outcome mean \citep{Vansteelandt2012}. By setting $x^*$ (rather than $x$) equal to the observed exposure $X$, unobserved nested counterfactuals can be imputed using any appropriate model for the outcome mean. That is, since the potential intermediate outcome $M(x^*)$ equals the observed mediator $M$ within the subgroup with exposure $X = x^*$, $Y(x,M(x^*))$ equals $Y(x,M)$ for all individuals in that exposure group. The latter can then be imputed using fitted values $\hat \E(Y \vert X = x,M,C)$ based on an appropriate model for the outcome mean, henceforth referred to as the imputation model, with exposure $X$ set to $x$ and with mediator $M$ and baseline covariates $C$ set to their observed values. This approach easily accommodates missing outcomes in the original dataset, as the corresponding nested counterfactuals can likewise be imputed. Finally, natural direct and indirect effect estimates can be obtained upon fitting a natural effect model to the imputed dataset. This procedure is illustrated in Table~\ref{tab-exp4}. For ease of implementation, observed nested counterfactuals are imputed as well in the \pkg{medflex} package.\footnote{Simulation studies (not shown here) have shown that this procedure does not lead to bias or loss of efficiency.} In Appendix~\ref{app:impest}, we demonstrate the link between the mediation formula and the imputation-based approach by showing how the former can be rewritten as an expression that prescribes estimating nested counterfactuals by calculating the mean of imputed nested counterfactuals, conditional on $x$, $x^*$ and $C$.
+The second approach avoids reliance on a model for the mediator distribution and instead requires fitting a working model for the outcome mean \citep{Vansteelandt2012}. By setting $x^*$ (rather than $x$) equal to the observed exposure $X$, unobserved nested counterfactuals can be imputed using any appropriate model for the outcome mean. That is, since the potential intermediate outcome $M(x^*)$ equals the observed mediator $M$ within the subgroup with exposure $X = x^*$, $Y(x,M(x^*))$ equals $Y(x,M)$ for all individuals in that exposure group. The latter can then be imputed using fitted values $\hat \E(Y \vert X = x,M,C)$ based on an appropriate model for the outcome mean, henceforth referred to as the imputation model, with exposure $X$ set to $x$ and with mediator $M$ and baseline covariates $C$ set to their observed values. This approach easily accommodates missing outcomes in the original dataset, as the corresponding nested counterfactuals can likewise be imputed.
+\par In contrast to the weighting-based approach, data expansion only requires $x$ to take on values different from the observed exposure to enable estimation of natural direct and indirect effects, as illustrated in~Table~\ref{tab-exp3}. Estimates can finally be obtained upon fitting a natural effect model to the imputed dataset. For ease of implementation, observed nested counterfactuals are imputed as well in the \pkg{medflex} package.\footnote{Simulation studies (not shown here) have shown that this procedure does not lead to bias or loss of efficiency.} In Appendix~\ref{app:impest}, we demonstrate the link between the mediation formula and the imputation-based approach by showing how the former can be rewritten as an expression that prescribes estimating nested counterfactuals by calculating the mean of imputed nested counterfactuals, conditional on $x$, $x^*$ and $C$.
 \begin{table}[h]
 \centering
 \begin{tabular}{ccccc}
@@ -393,7 +388,7 @@ $i$ & $X_i$ & $x$ & $x^*$ & $Y_i(x,M_i(x^*))$\\
 \vdots & \vdots & \vdots & \vdots & \vdots\\
 \bottomrule
 \end{tabular}
-\caption{Schematic display of the imputation-based approach. $\hat Y_i(x,M_i)$ represent the imputed counterfactual outcomes.}\label{tab-exp4}
+\caption{Schematic display of the imputation-based approach. $\hat Y_i(x,M_i)$ represent the imputed counterfactual outcomes.}\label{tab-exp3}
 \end{table}
 
 \subsubsection[]{Expanding the data and imputing nested counterfactuals}\label{subsec:expimp}
@@ -417,7 +412,7 @@ Alternatively, the \code{formula}, \code{family} and \code{data} arguments can b
 expData <- neImpute(UPB ~ factor(attbin) + negaff + gender + educ + age,
   family = binomial("logit"), data = UPBdata)
 @
-Similar to \code{neWeight}, \code{neImpute} first expands the data along hypothetical exposure values. Instead of calculating weights for these new observations, \code{neImpute} then imputes the nested counterfactual outcomes by fitted values based on the imputation model. As illustrated below, the resulting expanded dataset includes two imputed nested counterfactual outcomes for each subject. The outcomes are no longer binary, but correspond to conditional mean imputations.
+Similar to \code{neWeight}, \code{neImpute} first expands the data along hypothetical exposure values. Instead of calculating weights for these new observations, \code{neImpute} then imputes the nested counterfactual outcomes by fitted values based on the imputation model. As illustrated below, the resulting expanded dataset includes two imputed nested counterfactual outcomes for each subject. The outcomes are no longer binary, but are substituted by conditional mean imputations.
 <<>>=
 head(expData, 4)
 @
@@ -464,13 +459,13 @@ Methods for dealing with multicategorical treatments or exposures, as encountere
 \par Inspecting the first rows of the expanded dataset shows that the number of replications for each subject again corresponds to the number of unique levels of the categorical exposure variable. That is, the auxiliary variable $x^*$ (\code{attcat1}) is fixed to the observed exposure, whereas the other, $x$ (\code{attcat0}), enumerates all potential exposure levels.
 <<>>=
 expData <- neImpute(UPB ~ attcat + negaff + gender + educ + age,
-  family = binomial, data = UPBdata)
+  family = binomial("logit"), data = UPBdata)
 head(expData)
 @
 The \code{summary} table returns estimates for the natural direct and indirect effect log odds ratios comparing intermediate and high anxious attachment levels to low levels of anxious attachment (i.e., the reference level).
 <<>>=
 neMod <- neModel(UPB ~ attcat0 + attcat1 + gender + educ + age,
-  family = binomial, expData = expData, se = "robust")
+  family = binomial("logit"), expData = expData, se = "robust")
 summary(neMod)
 @
 Overall assessment of natural effects (i.e., a joint comparison of all levels of the exposure) cannot be based on the default \code{summary} output, but instead requires an Anova table for the natural effect model, which can be obtained using the \code{Anova} function from the \pkg{car} package \citep{R:car}:
@@ -506,6 +501,7 @@ and
 respectively, regardless of the initial level $x$. Defining natural effects on the risk difference scale (as in the \pkg{mediation} package) would not have enabled to capture these by a single parameter along the entire support of the exposure, because of induced non-additivity \citep[an artificial example illustrating this induced non-additivity is given in Figure 4 of][]{Loeys2013a}.
 \par Throughout the remainder of the paper, we will continue to use the original continuous exposure variable, \code{att}.
 
+\newpage
 \section{Effect modification of natural effects}\label{modmed}
 \subsection{Exposure-mediator interactions}\label{subsec:ia}
 So far, the considered natural effect models reflected the assumption that exposure and mediator do not interact in their effect on the outcome (on the scale defined by the link function). In particular, the natural direct effect odds ratio 
@@ -571,6 +567,7 @@ neMod4 <- neModel(UPB ~ (att0 + att1) * educ + gender + age,
 @
 Testing for moderation by a multicategorical variable calls for a multivariate test, which can again be obtained by requesting an Anova table for the natural effect model.
 
+\newpage
 \section{Tools for calculating and visualizing causal effect estimates}\label{tools}
 In this section, we highlight tools that can aid in calculating and visualizing specific causal effect estimates of interest. These tools might prove useful for gaining insight, especially for more complex models including interaction terms involving natural effect parameters. 
 
@@ -626,21 +623,6 @@ neEffdecomp(neMod3)
 neEffdecomp(neMod3, covLev = c(gender = "M"))
 @
 
-<<label=plot2,include=FALSE>>=
-par(mfrow = c(1, 2))
-plot(neMod2, xlab = "log odds ratio")
-plot(neMod2, xlab = "odds ratio", transf = exp)
-@
-\begin{figure}[b]
-\begin{center}
-<<label=fig2,fig=TRUE,echo=FALSE,height=3.6,width=9>>=
-<<plot2>>
-@
-\end{center}
-\vspace{-0.8cm}
-\caption{Effect decomposition on the log odds ratio and odds ratio scales.\label{plot-effdecomp}}
-\end{figure}
-
 \subsection{Global hypothesis tests}
 Wald tests considering all specified linear hypotheses jointly can be requested by specifying \code{test = Chisqtest()}. For instance, in model~\eqref{eq:nemodelmodmed2}, instead of using the \code{Anova} function, one could also test for moderated mediation by the multicategorical baseline covariate education level via a global hypothesis test involving the relevant parameters $\beta^\star_5$ and $\beta^\star_6$.
 <<>>=
@@ -649,10 +631,28 @@ summary(modmed, test = Chisqtest())
 @
 
 \subsection{Visualizing effect estimates and their uncertainty}
+<<label=plot2,echo=FALSE,include=FALSE>>=
+par(mfrow = c(1, 2))
+plot(neMod2, xlab = "log odds ratio")
+plot(neMod2, xlab = "odds ratio", transf = exp)
+@
 Finally, the generic \code{plot} function can be applied to linear hypothesis objects to visualize (linear combinations of) effect estimates and their uncertainty by means of confidence interval plots. To obtain estimates and confidence intervals on the odds ratio scale, one can specify \code{transf = exp} in order to exponentiate the original parameter estimates (on the log odds ratio scale).
+\begin{figure}[h]
+\begin{center}
+<<label=fig2,fig=TRUE,echo=FALSE,height=3.6,width=9>>=
+<<plot2>>
+@
+\end{center}
+\vspace{-0.8cm}
+\caption{Effect decomposition on the log odds ratio and odds ratio scales.\label{plot-effdecomp}}
+\end{figure}
 \par Applying the \code{plot} function to a natural effect model object automatically retains the causal effect estimates of interest, generates a linear hypothesis object using \code{neEffdecomp} and then plots its corresponding estimates and confidence intervals, as shown in Figure~\ref{plot-effdecomp}.
-
-The default exposure reference and covariate levels for these plots are the same as for the \code{neEffdecomp} function, but can again be altered via the corresponding arguments \code{xRef} and \code{covLev}.
+<<eval=FALSE>>=
+par(mfrow = c(1, 2))
+plot(neMod2, xlab = "log odds ratio")
+plot(neMod2, xlab = "odds ratio", transf = exp)
+@
+\par The default exposure reference and covariate levels for these plots are the same as for the \code{neEffdecomp} function, but can again be altered via the corresponding arguments \code{xRef} and \code{covLev}.
 
 \section{Population-average natural effects}\label{popavg}
 In all previous sections, we defined natural effects as conditional or stratum-specific effects (i.e., conditional on baseline covariates). However, the \pkg{medflex} package additionally allows to estimate population-average natural effects. As demonstrated in Appendix~\ref{app:wweightest} and~\ref{app:wimpest}, rewriting the mediation formula reveals that estimation of these population-average effects requires weighting by the reciprocal of the conditional exposure density in order to adjust for confounding \citep[also see][]{Albert2012a, Vansteelandt2012f}.

@@ -319,7 +319,6 @@ neWeight.formula <- function (object, family, data, FUN = glm, nRep = 5, xSampli
     formula <- object
     if (missing(family)) 
       family <- formals(FUN)$family
-    # joint <- args$joint <- TRUE
     argsFUN <- list(formula = formula, family = family, data = data, ...)
     args$object <- do.call(FUN, eval(argsFUN[!names(argsFUN) %in% "nMed"]))  
     call <- substitute(list(formula = formula, family = family, data = data, ...))

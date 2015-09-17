@@ -70,9 +70,10 @@ Mediation analysis is routinely adopted by researchers from a wide range of appl
   E-mail: \email{stijn.vansteelandt@ugent.be}
 }
 
+\usepackage{Sweave}
 \begin{document}
 %\SweaveOpts{concordance=TRUE}
-\SweaveOpts{concordance=FALSE}
+
 
 %% include your article here, just as usual
 %% Note that you should use the \pkg{}, \proglang{} and \code{} commands.
@@ -204,19 +205,23 @@ enables to quantify the natural direct and indirect effect for count outcomes on
 \end{figure} 
 Before describing the two main approaches for fitting natural effect methods, we first return to our motivating example. The corresponding dataset will then be used to both illustrate these approaches and to demonstrate how they can be implemented in \proglang{R}.
 \par After loading the \pkg{medflex} package, displaying the first few rows of the example dataset \code{UPBdata} provides some insight into the data:
-<<echo=FALSE>>=
-options(prompt = "R> ", continue = "+  ", width = 76, digits = 3, useFancyQuotes = FALSE)
-  listing <- function(x, options) {
-    paste("\\begin{lstlisting}[basicstyle=\\ttfamily,breaklines=true]\n",
-      x, "\\end{lstlisting}\n", sep = "")
-  }
-@
 
-<<>>=
-library("medflex")
-data("UPBdata")
-head(UPBdata)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> library("medflex")
+R> data("UPBdata")
+R> head(UPBdata)
+\end{Sinput}
+\begin{Soutput}
+     att attbin attcat negaff  initiator gender educ age UPB
+1  1.001      1      M  0.840     myself      F    M  41   1
+2 -0.709      0      L -1.257       both      M    M  42   0
+3 -0.709      0      L -1.202       both      F    H  43   0
+4  0.606      1      M -0.374 ex-partner      M    H  52   1
+5  0.212      1      M  1.945 ex-partner      M    M  32   1
+6  2.052      1      H -0.816 ex-partner      M    H  47   0
+\end{Soutput}
+\end{Schunk}
 \cite{Smet2012} and \cite{Loeys2013a} proposed emotional distress or the amount of negative affectivity experienced during the breakup as a mediating variable for the effect of attachment style towards the ex-partner before the breakup on displaying unwanted pursuit behaviors after the breakup. Figure~\ref{dag1} depicts the causal diagram \citep{Pearl1995} that reflects this mediation hypothesis along with its aforementioned identification assumptions. 
 \par As direct and indirect effects are most easily understood for a binary exposure, we will use a dichotomized version of anxious attachment level (\code{attbin}) for didactive purposes. Moreover, negative affectivity (\code{negaff}) has been standardized to allow for easily interpretable effect estimates. The outcome variable unwanted pursuit behavior (\code{UPB}) indicates whether (=1) or not (=0) the respondent has engaged in any unwanted pursuit behaviors. 
 \par A relatively simple natural effect model is the logistic model
@@ -288,30 +293,50 @@ To calculate the weights, a model for the mediator needs to be fitted. For insta
 \E(M|X,C) = \alpha_0 + \alpha_1 X + \alpha_2 C,
 \end{align*}
 can be fitted using the \code{glm} function:
-<<>>=
-medFit <- glm(negaff ~ factor(attbin) + gender + educ + age, 
-  family = gaussian, data = UPBdata)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> medFit <- glm(negaff ~ factor(attbin) + gender + educ + age, 
++    family = gaussian, data = UPBdata)
+\end{Sinput}
+\end{Schunk}
 Next, this fitted object needs to be specified as the first argument in \code{neWeight}, which in turn codes the first predictor variable in the \code{formula} argument as the exposure and then expands the data along hypothetical values of this variable. It is important to note here that, for successful data expansion, categorical exposures should be explicitly coded as factors in the \code{formula} if they are not yet coded as such in the dataset.
-<<>>=
-expData <- neWeight(medFit)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> expData <- neWeight(medFit)
+\end{Sinput}
+\end{Schunk}
 Inspecting the first rows of the resulting expanded dataset shows that for each individual two replications have been created:
-<<>>=
-head(expData, 4)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> head(expData, 4)
+\end{Sinput}
+\begin{Soutput}
+  id attbin0 attbin1    att attcat negaff initiator gender educ age UPB
+1  1       1       1  1.001      M   0.84    myself      F    M  41   1
+2  1       1       0  1.001      M   0.84    myself      F    M  41   1
+3  2       0       0 -0.709      L  -1.26      both      M    M  42   0
+4  2       0       1 -0.709      L  -1.26      both      M    M  42   0
+\end{Soutput}
+\end{Schunk}
 The new variables \code{attbin0} and \code{attbin1} correspond to hypothetical exposure values $x$ and $x^*$, respectively. By convention, the index `0' is used for parameters (and corresponding auxiliary variables) indexing natural direct effects, whereas the index `1' is used for parameters indexing natural indirect effects in the natural effect model.
 \par To shorten code, one can instead choose to directly specify the \code{formula}, \code{family} and \code{data} arguments in \code{neWeight}.
-<<>>=
-expData <- neWeight(negaff ~ factor(attbin) + gender + educ + age,
-  data = UPBdata)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> expData <- neWeight(negaff ~ factor(attbin) + gender + educ + age,
++    data = UPBdata)
+\end{Sinput}
+\end{Schunk}
 \par By default, \code{glm} is used as internal model-fitting function. However, other model-fitting functions can be specified in the \code{FUN} argument \citep[e.g., \code{vglm} from the \pkg{VGAM} package;][]{R:VGAM}.\footnote{In the current version of the package also \code{vglm} and \code{vgam} from the \pkg{VGAM} package and \code{gam} from the \pkg{gam} package \citep{R:gam} are supported. When specifying model-fitting functions other than \code{glm} in the \code{FUN} argument, one might need to specify the \code{family} argument differently. That is, in a way that is consistent with argument specification of that specific model-fitting function.}
 \par Finally, the weights are stored as an attribute of the expanded dataset and can easily be retrieved using the generic \code{weights} function, e.g., for further inspection of their empirical distribution:
-<<>>=
-w <- weights(expData)
-head(w, 10)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> w <- weights(expData)
+R> head(w, 10)
+\end{Sinput}
+\begin{Soutput}
+ [1] 1.000 0.640 1.000 0.494 1.000 0.475 1.000 1.211 1.000 0.326
+\end{Soutput}
+\end{Schunk}
 
 \subsubsection[]{Fitting the natural effect model on the expanded data}
 After expanding the data and calculating regression weights for each of the replicates, the natural effect model can be fitted using the \code{neModel} function. Argument specification for this function is similar to that of the \code{glm} function, which is called internally. However, the \code{formula} argument now must be specified in function of the variables from the expanded dataset. The latter, in turn, needs to be specified via the \code{expData} argument. \code{neModel} automatically extracts the regression weights from this expanded dataset and applies them for model fitting.
@@ -348,25 +373,53 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 \end{Soutput}
 \end{Schunk}
 \par As an alternative, robust standard errors based on the sandwich estimator \citep{Liang1986} can be requested by setting \code{se = "robust"}. Calculation of these standard errors is less computer-intensive and is available for natural effect models with working models fitted via the \code{glm} function.
-<<>>=
-neMod1 <- neModel(UPB ~ attbin0 + attbin1 + gender + educ + age,
-  family = binomial("logit"), expData = expData, se = "robust")
-summary(neMod1)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> neMod1 <- neModel(UPB ~ attbin0 + attbin1 + gender + educ + age,
++    family = binomial("logit"), expData = expData, se = "robust")
+R> summary(neMod1)
+\end{Sinput}
+\begin{Soutput}
+Natural effect model
+with robust standard errors based on the sandwich estimator
+---
+Exposure: attbin 
+Mediator(s): negaff 
+---
+Parameter estimates:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -0.92521    0.71463   -1.29    0.195    
+attbin01     0.39592    0.21761    1.82    0.069 .  
+attbin11     0.35197    0.08939    3.94  8.2e-05 ***
+genderM      0.27597    0.23370    1.18    0.238    
+educM        0.16701    0.50065    0.33    0.739    
+educH        0.42335    0.50917    0.83    0.406    
+age         -0.00945    0.01227   -0.77    0.441    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{Soutput}
+\end{Schunk}
 
 \subsubsection{Interpreting model parameters}
 Exponentiating the model parameter estimates provides estimates that can be interpreted as odds ratios. For instance, for a subject with baseline covariate levels $C$, altering the level of anxious attachment from low (=0) to high (=1), while controlling negative affectivity at levels as naturally observed at any given level of anxious attachment $x$, increases the odds of displaying unwanted pursuit behaviors with a factor
 \begin{align*}
-\widehat{\mbox{OR}}^{\text{NDE}}_{1,0|C} &= \frac{\mbox{odds}\left\{Y(1,M(x))=1|C\right\}}{\mbox{odds}\left\{Y(0,M(x))=1|C\right\}} = \exp(\hat{\beta_1}) = \exp(\Sexpr{print(format(coef(neMod1)["attbin01"], digits = 4, nsmall = 2), quote = FALSE)}) = \Sexpr{round(exp(coef(neMod1)["attbin01"]), 2)}.
+\widehat{\mbox{OR}}^{\text{NDE}}_{1,0|C} &= \frac{\mbox{odds}\left\{Y(1,M(x))=1|C\right\}}{\mbox{odds}\left\{Y(0,M(x))=1|C\right\}} = \exp(\hat{\beta_1}) = \exp(0.3959) = 1.49.
 \end{align*}
 Altering levels of negative affectivity as observed at low anxious attachment scores to levels that would have been observed at high anxious attachment scores, while controlling their anxious attachment score at any given level $x$, increases the odds of displaying unwanted pursuit behaviors with a factor
 \begin{align*}
-\widehat{\mbox{OR}}^{\text{NIE}}_{1,0|C} &= \frac{\mbox{odds}\left\{Y(x,M(1))=1|C\right\}}{\mbox{odds}\left\{Y(x,M(0))=1|C\right\}} = \exp(\hat{\beta_2}) = \exp(\Sexpr{print(format(coef(neMod1)["attbin11"], digits = 4, nsmall = 2), quote = FALSE)}) = \Sexpr{round(exp(coef(neMod1)["attbin11"]), 2)}.
+\widehat{\mbox{OR}}^{\text{NIE}}_{1,0|C} &= \frac{\mbox{odds}\left\{Y(x,M(1))=1|C\right\}}{\mbox{odds}\left\{Y(x,M(0))=1|C\right\}} = \exp(\hat{\beta_2}) = \exp(0.352) = 1.42.
 \end{align*}
 Wald-type confidence intervals can be obtained by applying the \code{confint} function to the natural effect model object. The confidence level defaults to 95\%, but can be changed via the \code{level} argument. By exponentiating the intervals on the logit scale, we can obtain the corresponding 95\% confidence intervals (based on the robust standard errors) on the odds ratio scale:
-<<>>=
-exp(confint(neMod1)[c("attbin01", "attbin11"), ])
-@
+\begin{Schunk}
+\begin{Sinput}
+R> exp(confint(neMod1)[c("attbin01", "attbin11"), ])
+\end{Sinput}
+\begin{Soutput}
+         95% LCL 95% UCL
+attbin01    0.97    2.28
+attbin11    1.19    1.69
+\end{Soutput}
+\end{Schunk}
 If standard errors are obtained via the bootstrap procedure, bootstrap confidence intervals are returned. The default type is calculated based on a first order normal approximation (\code{type = "norm"}), but other types of bootstrap confidence intervals (such as basic bootstrap, bootstrap percentile and bias-corrected and accelerated confidence intervals) can be obtained by setting the \code{type} argument to the desired type.\footnote{The \code{type} argument in \code{confint} corresponds to that of the \code{boot.ci} function from the \pkg{boot} package \citep{R:boot}, which is called internally.}
 
 \newpage
@@ -398,35 +451,73 @@ Although application of the imputation-based approach is similar to that of the 
 \mbox{logit} \Pr(Y=1|X,M,C) = \gamma_0 + \gamma_1 X + \gamma_2 M + \gamma_3 C,
 \end{align*}
 can be fitted in \proglang{R} using the \code{glm} function:
-<<>>=
-impFit <- glm(UPB ~ factor(attbin) + negaff + gender + educ + age,
-  family = binomial("logit"), data = UPBdata)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> impFit <- glm(UPB ~ factor(attbin) + negaff + gender + educ + age,
++    family = binomial("logit"), data = UPBdata)
+\end{Sinput}
+\end{Schunk}
 In order for \code{neImpute} to identify the predictor variables in the \code{formula} argument correctly as either exposure, mediator(s) or baseline covariates, they need to be entered in a particular order. That is, the first predictor variable again needs to point to the exposure and the second to the mediator. All other predictors are automatically coded as baseline covariates. It is important to adhere to this prespecified order to enable \code{neImpute} to create valid pointers to these different types of predictor variables. This requirement extends to the use of operators different from the \code{+} operator, such as the \code{:} and \code{*} operators (when e.g., adding interaction terms). For instance, the formula expressions \code{Y ~ X + M + C1 + C2 + X:C1 + M:C1}, \code{Y ~ X + M + X:C1 + M:C1 + C1 + C2}, \code{Y ~ (X + M) * C1 + C2} and \code{Y ~ X * C1 + M * C1 + C2} all impose the same structural form for the imputation model. However, only for the former three expressions, correct pointers to exposure, mediator and baseline covariates will be created, as the order of occurence of each of the unique predictor variables is identical in all three specifications, but not in the latter.
 \par This fitted object then needs to be entered as the first argument in \code{neImpute}:
-<<warning = F>>=
-expData <- neImpute(impFit)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> expData <- neImpute(impFit)
+\end{Sinput}
+\end{Schunk}
 Alternatively, the \code{formula}, \code{family} and \code{data} arguments can be directly specified in \code{neImpute}:
-<<>>=
-expData <- neImpute(UPB ~ factor(attbin) + negaff + gender + educ + age,
-  family = binomial("logit"), data = UPBdata)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> expData <- neImpute(UPB ~ factor(attbin) + negaff + gender + educ + age,
++    family = binomial("logit"), data = UPBdata)
+\end{Sinput}
+\end{Schunk}
 Similar to \code{neWeight}, \code{neImpute} first expands the data along hypothetical exposure values. Instead of calculating weights for these new observations, \code{neImpute} then imputes the nested counterfactual outcomes by fitted values based on the imputation model. As illustrated below, the resulting expanded dataset includes two imputed nested counterfactual outcomes for each subject. The outcomes are no longer binary, but are substituted by conditional mean imputations.
-<<>>=
-head(expData, 4)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> head(expData, 4)
+\end{Sinput}
+\begin{Soutput}
+  id attbin0 attbin1    att attcat negaff initiator gender educ age   UPB
+1  1       1       1  1.001      M   0.84    myself      F    M  41 0.492
+2  1       0       1  1.001      M   0.84    myself      F    M  41 0.384
+3  2       0       0 -0.709      L  -1.26      both      M    M  42 0.187
+4  2       1       0 -0.709      L  -1.26      both      M    M  42 0.263
+\end{Soutput}
+\end{Schunk}
 
 \subsubsection[]{Fitting the natural effect model on the imputed data}
 After expanding and imputing the data, specifying the natural effect model can be done as for the weighting-based approach:
-<<results = hide>>=
-neMod1 <- neModel(UPB ~ attbin0 + attbin1 + gender + educ + age,
-  family = binomial("logit"), expData = expData, se = "robust")
-@
+\begin{Schunk}
+\begin{Sinput}
+R> neMod1 <- neModel(UPB ~ attbin0 + attbin1 + gender + educ + age,
++    family = binomial("logit"), expData = expData, se = "robust")
+\end{Sinput}
+\end{Schunk}
 Again, bootstrap or robust standard errors are reported in the output of the \code{summary} function, in order to account for the uncertainty inherent to the working model (i.e., in this case, the imputation model):
-<<>>=
-summary(neMod1)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> summary(neMod1)
+\end{Sinput}
+\begin{Soutput}
+Natural effect model
+with robust standard errors based on the sandwich estimator
+---
+Exposure: attbin 
+Mediator(s): negaff 
+---
+Parameter estimates:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -0.9216     0.6892   -1.34     0.18    
+attbin01      0.4015     0.2134    1.88     0.06 .  
+attbin11      0.3407     0.0805    4.23  2.3e-05 ***
+genderM       0.2940     0.2250    1.31     0.19    
+educM         0.3462     0.4817    0.72     0.47    
+educH         0.5143     0.4878    1.05     0.29    
+age          -0.0122     0.0119   -1.02     0.31    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{Soutput}
+\end{Schunk}
 Natural direct and indirect effect odds ratio estimates and their confidence intervals can be obtained as before. 
 
 \section{Dealing with different types of variables}\label{types}
@@ -457,46 +548,128 @@ Nominal & \ding{51}$^*$ & \ding{51} & \ding{51}$^*$ & \ding{51} & \ding{51}$^*$ 
 Methods for dealing with multicategorical treatments or exposures, as encountered in e.g., multiple intervention studies, in which multiple experimental conditions are compared to a control condition, have rarely been described within the mediation literature \citep[although see][for some notable exceptions]{Hayes2014,R:mediation}.
 \par In this section, we illustrate how to expand the dataset and fit natural effect models when using a multicategorical exposure. In this example, instead of using the binary exposure variable \code{attbin}, we use a discretized version of anxious attachment style, named \code{attcat} (with \code{L} indicating low, \code{M} indicating intermediate and \code{H} indicating high anxious attachment levels). 
 \par Inspecting the first rows of the expanded dataset shows that the number of replications for each subject again corresponds to the number of unique levels of the categorical exposure variable. That is, the auxiliary variable $x^*$ (\code{attcat1}) is fixed to the observed exposure, whereas the other, $x$ (\code{attcat0}), enumerates all potential exposure levels.
-<<>>=
-expData <- neImpute(UPB ~ attcat + negaff + gender + educ + age,
-  family = binomial("logit"), data = UPBdata)
-head(expData)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> expData <- neImpute(UPB ~ attcat + negaff + gender + educ + age,
++    family = binomial("logit"), data = UPBdata)
+R> head(expData)
+\end{Sinput}
+\begin{Soutput}
+  id attcat0 attcat1    att attbin negaff initiator gender educ age   UPB
+1  1       M       M  1.001      1   0.84    myself      F    M  41 0.468
+2  1       H       M  1.001      1   0.84    myself      F    M  41 0.558
+3  1       L       M  1.001      1   0.84    myself      F    M  41 0.366
+4  2       L       L -0.709      0  -1.26      both      M    M  42 0.182
+5  2       M       L -0.709      0  -1.26      both      M    M  42 0.253
+6  2       H       L -0.709      0  -1.26      both      M    M  42 0.327
+\end{Soutput}
+\end{Schunk}
 The \code{summary} table returns estimates for the natural direct and indirect effect log odds ratios comparing intermediate and high anxious attachment levels to low levels of anxious attachment (i.e., the reference level).
-<<>>=
-neMod <- neModel(UPB ~ attcat0 + attcat1 + gender + educ + age,
-  family = binomial("logit"), expData = expData, se = "robust")
-summary(neMod)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> neMod <- neModel(UPB ~ attcat0 + attcat1 + gender + educ + age,
++    family = binomial("logit"), expData = expData, se = "robust")
+R> summary(neMod)
+\end{Sinput}
+\begin{Soutput}
+Natural effect model
+with robust standard errors based on the sandwich estimator
+---
+Exposure: attcat 
+Mediator(s): negaff 
+---
+Parameter estimates:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -0.9616     0.6976   -1.38  0.16807    
+attcat0M      0.3921     0.2365    1.66  0.09729 .  
+attcat0H      0.7239     0.3105    2.33  0.01975 *  
+attcat1M      0.3012     0.0797    3.78  0.00016 ***
+attcat1H      0.5218     0.1314    3.97  7.2e-05 ***
+genderM       0.2700     0.2266    1.19  0.23336    
+educM         0.3279     0.4817    0.68  0.49601    
+educH         0.4826     0.4877    0.99  0.32239    
+age          -0.0127     0.0121   -1.05  0.29510    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{Soutput}
+\end{Schunk}
 Overall assessment of natural effects (i.e., a joint comparison of all levels of the exposure) cannot be based on the default \code{summary} output, but instead requires an Anova table for the natural effect model, which can be obtained using the \code{Anova} function from the \pkg{car} package \citep{R:car}:
-<<>>=
-library("car")
-Anova(neMod)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> library("car")
+R> Anova(neMod)
+\end{Sinput}
+\begin{Soutput}
+Analysis of Deviance Table (Type II tests)
+
+Response: UPB
+            Df Chisq Pr(>Chisq)    
+attcat0      2  5.98       0.05 .  
+attcat1      2 19.11    7.1e-05 ***
+gender       1  1.42       0.23    
+educ         2  1.17       0.56    
+age          1  1.10       0.30    
+Residuals 1146                     
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{Soutput}
+\end{Schunk}
 Both type-II (the default) and type-III Anova tables can be requested by specifying the desired type via the \code{type} argument. This table includes corresponding Wald $\chi^2$ tests for multivariate hypotheses which account for the uncertainty inherent to the working model. The output suggests that the natural direct and indirect effect odds differ significantly between the three exposure levels. 
 
 \subsection{Continuous exposures}\label{contexp}
 In contrast to the \pkg{mediation} package, hypothesis testing for natural direct and indirect effects along the entire support of continuous exposures is facilitated by defining causal effects on their most natural scale. In this section, we use the continuous variable \code{att}, a standardized version of the original anxious attachment variable. 
 \par For continuous variables, expanding the dataset along unobserved ($x$, $x^*$) combinations requires a slightly adapted approach than for categorical exposures. Instead of enumerating all exposure levels to construct auxiliary variables $x$ and $x^*$ for each subject, \cite{Vansteelandt2012} proposed to draw specific quantiles from the conditional density of the exposure given baseline covariates. By default, these hypothetical exposure levels are drawn from a linear model for the exposure, conditional on a linear combination of all covariates specified in the working model.\footnote{If one wishes to use another model for the exposure, this default model specification can be overruled by referring to a fitted model object in the \code{xFit} argument. Misspecification of this sampling model does not induce bias in the estimated coefficients and standard errors of the natural effect model.}
 \par Both \code{neWeight} and \code{neImpute} allow to choose the number of draws to sample from this conditional density via the \code{nRep} argument (which defaults to 5).\footnote{We recommend to use a minimum of 3 draws. Although finite sample bias and sampling variability can be reduced to some extent by choosing a larger number of draws, simulations have shown this gain to be ignorable when choosing more than 5 draws \citep{Vansteelandt2012}.}
-<<>>=
-expData <- neImpute(UPB ~ att + negaff + gender + educ + age, 
-  family = binomial("logit"), data = UPBdata, nRep = 3)
-head(expData)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> expData <- neImpute(UPB ~ att + negaff + gender + educ + age, 
++    family = binomial("logit"), data = UPBdata, nRep = 3)
+R> head(expData)
+\end{Sinput}
+\begin{Soutput}
+  id      att0   att1 attbin attcat negaff initiator gender educ age   UPB
+1  1 -1.64e+00  1.001      1      M   0.84    myself      F    M  41 0.309
+2  1  8.02e-06  1.001      1      M   0.84    myself      F    M  41 0.429
+3  1  1.64e+00  1.001      1      M   0.84    myself      F    M  41 0.557
+4  2 -1.66e+00 -0.709      0      L  -1.26      both      M    M  42 0.149
+5  2 -1.82e-02 -0.709      0      L  -1.26      both      M    M  42 0.227
+6  2  1.63e+00 -0.709      0      L  -1.26      both      M    M  42 0.330
+\end{Soutput}
+\end{Schunk}
 Specification of the natural effect model via \code{neModel} can be done as described before:
-<<>>=
-neMod1 <- neModel(UPB ~ att0 + att1 + gender + educ + age,
-  family = binomial("logit"), expData = expData, se = "robust")
-summary(neMod1)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> neMod1 <- neModel(UPB ~ att0 + att1 + gender + educ + age,
++    family = binomial("logit"), expData = expData, se = "robust")
+R> summary(neMod1)
+\end{Sinput}
+\begin{Soutput}
+Natural effect model
+with robust standard errors based on the sandwich estimator
+---
+Exposure: att 
+Mediator(s): negaff 
+---
+Parameter estimates:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -0.4873     0.6862   -0.71   0.4776    
+att0          0.2923     0.1091    2.68   0.0074 ** 
+att1          0.2018     0.0470    4.29  1.8e-05 ***
+genderM       0.2671     0.2274    1.17   0.2402    
+educM         0.2679     0.4894    0.55   0.5841    
+educH         0.4103     0.4959    0.83   0.4080    
+age          -0.0120     0.0122   -0.99   0.3236    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{Soutput}
+\end{Schunk}
 \par The output illustrates that defining natural effects on the (log) odds ratio scale allows to capture each of these effects along the entire support of the exposure by a single parameter. For instance, for a subject with baseline covariate levels $C$, the direct and indirect effects of one standard deviation increase in anxious attachment level (i.e., from $x$ to $x+1$) correspond to an increase in the odds of displaying unwanted pursuit behaviors by a factor 
 \begin{align*}
-\widehat{\mbox{OR}}^{\text{NDE}}_{x+1,x|C} &= \frac{\mbox{odds}\left\{Y(x+1,M(x))=1|C\right\}}{\mbox{odds}\left\{Y(x,M(x))=1|C\right\}} = \exp(\hat{\beta_1}) = \exp(\Sexpr{round(coef(neMod1)["att0"], 2)}) = \Sexpr{round(exp(coef(neMod1)["att0"]), 2)},
+\widehat{\mbox{OR}}^{\text{NDE}}_{x+1,x|C} &= \frac{\mbox{odds}\left\{Y(x+1,M(x))=1|C\right\}}{\mbox{odds}\left\{Y(x,M(x))=1|C\right\}} = \exp(\hat{\beta_1}) = \exp(0.29) = 1.34,
 \end{align*}
 and 
 \begin{align*}
-\widehat{\mbox{OR}}^{\text{NIE}}_{x+1,x|C} &= \frac{\mbox{odds}\left\{Y(x,M(x+1))=1|C\right\}}{\mbox{odds}\left\{Y(x,M(x))=1|C\right\}} = \exp(\hat{\beta_2}) = \exp(\Sexpr{round(coef(neMod1)["att1"], 2)}) = \Sexpr{round(exp(coef(neMod1)["att1"]), 2)},
+\widehat{\mbox{OR}}^{\text{NIE}}_{x+1,x|C} &= \frac{\mbox{odds}\left\{Y(x,M(x+1))=1|C\right\}}{\mbox{odds}\left\{Y(x,M(x))=1|C\right\}} = \exp(\hat{\beta_2}) = \exp(0.2) = 1.22,
 \end{align*}
 respectively, regardless of the initial level $x$. Defining natural effects on the risk difference scale (as in the \pkg{mediation} package) would not have enabled to capture these by a single parameter along the entire support of the exposure, because of induced non-additivity \citep[an artificial example illustrating this induced non-additivity is given in Figure 4 of][]{Loeys2013a}.
 \par Throughout the remainder of the paper, we will continue to use the original continuous exposure variable, \code{att}.
@@ -531,13 +704,35 @@ differs from 0. When including this interaction term in the outcome model, $\bet
 \mbox{logit} \Pr(Y=1|X,M,C) = \gamma_0^\prime + \gamma_1^\prime X + \gamma_2^\prime M + \gamma_3^\prime XM + \gamma_4^\prime C.
 \end{align*}
 The output of the corresponding natural effect model object suggests there is no evidence for mediated interaction at the 5\% significance level ($p = .0541$).
-<<>>=
-expData <- neImpute(UPB ~ att * negaff + gender + educ + age,
-  family = binomial("logit"), data = UPBdata)
-neMod2 <- neModel(UPB ~ att0 * att1 + gender + educ + age,
-  family = binomial("logit"), expData = expData, se = "robust")
-summary(neMod2)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> expData <- neImpute(UPB ~ att * negaff + gender + educ + age,
++    family = binomial("logit"), data = UPBdata)
+R> neMod2 <- neModel(UPB ~ att0 * att1 + gender + educ + age,
++    family = binomial("logit"), expData = expData, se = "robust")
+R> summary(neMod2)
+\end{Sinput}
+\begin{Soutput}
+Natural effect model
+with robust standard errors based on the sandwich estimator
+---
+Exposure: att 
+Mediator(s): negaff 
+---
+Parameter estimates:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -0.3949     0.6800   -0.58   0.5614    
+att0          0.2950     0.1102    2.68   0.0074 ** 
+att1          0.1817     0.0467    3.90  9.8e-05 ***
+genderM       0.2815     0.2263    1.24   0.2135    
+educM         0.1798     0.4857    0.37   0.7113    
+educH         0.3105     0.4929    0.63   0.5287    
+age          -0.0139     0.0122   -1.14   0.2545    
+att0:att1     0.0698     0.0363    1.93   0.0541 .  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{Soutput}
+\end{Schunk}
 
 \subsection{Effect modification by baseline covariates}
 One might additionally wish to determine whether direct or indirect effects generalize across different strata of the population and across different conditions.
@@ -546,25 +741,49 @@ One might additionally wish to determine whether direct or indirect effects gene
 \mbox{logit} \Pr\left\{Y(x,M(x^*))=1|C\right\} = \beta_0^{\prime\prime} + \beta_1^{\prime\prime} x + \beta_2^{\prime\prime} x^* + \beta_3^{\prime\prime} x^* C_1 + \beta_4^{\prime\prime} C.
 \end{align}
 The amount of effect modification by gender in this model is then simply captured by $\beta^{\prime\prime}_3$.
-<<>>=
-impData <- neImpute(UPB ~ (att + negaff) * gender + educ + age,
-  family = binomial("logit"), data = UPBdata)
-neMod3 <- neModel(UPB ~ att0 + att1 * gender + educ + age,
-  family = binomial("logit"), expData = impData, se = "robust")
-summary(neMod3)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> impData <- neImpute(UPB ~ (att + negaff) * gender + educ + age,
++    family = binomial("logit"), data = UPBdata)
+R> neMod3 <- neModel(UPB ~ att0 + att1 * gender + educ + age,
++    family = binomial("logit"), expData = impData, se = "robust")
+R> summary(neMod3)
+\end{Sinput}
+\begin{Soutput}
+Natural effect model
+with robust standard errors based on the sandwich estimator
+---
+Exposure: att 
+Mediator(s): negaff 
+---
+Parameter estimates:
+             Estimate Std. Error z value Pr(>|z|)   
+(Intercept)   -0.4731     0.6860   -0.69   0.4904   
+att0           0.2850     0.1069    2.67   0.0077 **
+att1           0.1441     0.0583    2.47   0.0134 * 
+genderM        0.2591     0.2278    1.14   0.2553   
+educM          0.2718     0.4903    0.55   0.5793   
+educH          0.4166     0.4975    0.84   0.4024   
+age           -0.0123     0.0122   -1.00   0.3153   
+att1:genderM   0.1598     0.1016    1.57   0.1156   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{Soutput}
+\end{Schunk}
 \par The output suggests that the natural indirect effect does not differ significantly between men and women ($p = 0.1156$).
 \par In a similar way, researchers can gauge effect modification by education level. Suppose, for instance, that one wishes to test whether education level moderates both the direct and indirect effect. This can be done by fitting the natural effect model
 \begin{align}\label{eq:nemodelmodmed2}
 \mbox{logit} \Pr\left\{Y(x,M(x^*))=1|C\right\} &= \beta_0^{\star} + \beta_1^{\star} x + \beta_2^{\star} x^* + \beta_3^{\star} x C_{2,1} + \beta_4^{\star} x C_{2,2}\nonumber\\ & \phantom{= \beta_0^{\star} + \beta_1^{\star} x + \beta_2^{\star} x^*} + \beta_5^{\star} x^* C_{2,1} + \beta_6^{\star} x^* C_{2,2} + \beta_7^{\star} C,
 \end{align}
 with $C_{2,1}$ and $C_{2,2}$ dummy variables encoding the three education levels. Effect modification of the natural indirect (direct) effect by education level in model~\eqref{eq:nemodelmodmed2} is then captured by $\beta_5^{\star}$ and $\beta_6^{\star}$ ($\beta_3^{\star}$ and $\beta_4^{\star}$).
-<<>>=
-impData <- neImpute(UPB ~ (att + negaff) * educ + gender + age,
-  family = binomial("logit"), data = UPBdata)
-neMod4 <- neModel(UPB ~ (att0 + att1) * educ + gender + age,
-  family = binomial("logit"), expData = impData, se = "robust")
-@
+\begin{Schunk}
+\begin{Sinput}
+R> impData <- neImpute(UPB ~ (att + negaff) * educ + gender + age,
++    family = binomial("logit"), data = UPBdata)
+R> neMod4 <- neModel(UPB ~ (att0 + att1) * educ + gender + age,
++    family = binomial("logit"), expData = impData, se = "robust")
+\end{Sinput}
+\end{Schunk}
 Testing for moderation by a multicategorical variable calls for a multivariate test, which can again be obtained by requesting an Anova table for the natural effect model.
 
 \newpage
@@ -574,115 +793,205 @@ In this section, we highlight tools that can aid in calculating and visualizing 
 \subsection{Linear combinations of parameter estimates}
 Although effect estimates for e.g., the total causal effect can easily be obtained from the \code{summary} table of a natural effect model, its standard error and confidence interval cannot. To this end, the function \code{neLht}, which exploits the functionality of the \code{glht} function from the \pkg{multcomp} package \citep{R:multcomp} can be of use. This function enables the calculation of linear combinations of parameter estimates as well as their corresponding standard errors and confidence intervals based on the bootstrap or robust variance-covariance matrix of the natural effect model. 
 \par For instance, in model~\eqref{eq:nemodelia}, the total direct and indirect effect can be expressed on the log odds scale as $\beta_1^\prime + \beta_3^\prime$ and $\beta_2^\prime + \beta_3^\prime$, respectively. Similarly, the total causal effect log odds ratio is captured by $\beta_1^\prime + \beta_2^\prime + \beta_3^\prime$. As the argument for the linear function, \code{linfct}, needs to be specified in terms of one or more linear hypotheses, these effects can be specified as illustrated below:
-<<>>=
-lht <- neLht(neMod2, linfct = c("att0 + att0:att1 = 0",
-  "att1 + att0:att1 = 0", "att0 + att1 + att0:att1 = 0"))
-@
+\begin{Schunk}
+\begin{Sinput}
+R> lht <- neLht(neMod2, linfct = c("att0 + att0:att1 = 0",
++    "att1 + att0:att1 = 0", "att0 + att1 + att0:att1 = 0"))
+\end{Sinput}
+\end{Schunk}
 The corresponding odds ratios and their confidence intervals can be requested by exponentiating the coefficients and confidence intervals of the resulting object:
-<<>>=
-exp(cbind(coef(lht), confint(lht)))
-@
+\begin{Schunk}
+\begin{Sinput}
+R> exp(cbind(coef(lht), confint(lht)))
+\end{Sinput}
+\begin{Soutput}
+                             95% LCL 95% UCL
+att0 + att0:att1        1.44    1.15    1.80
+att1 + att0:att1        1.29    1.15    1.43
+att0 + att1 + att0:att1 1.73    1.39    2.15
+\end{Soutput}
+\end{Schunk}
 Separate univariate tests for linear hypothesis objects can be requested using the \code{summary} function:
-<<>>=
-summary(lht)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> summary(lht)
+\end{Sinput}
+\begin{Soutput}
+Linear hypotheses for natural effect models
+with standard errors based on the sandwich estimator
+---
+                        Estimate Std. Error z value Pr(>|z|)    
+att0 + att0:att1          0.3648     0.1145    3.19   0.0014 ** 
+att1 + att0:att1          0.2515     0.0553    4.55  5.4e-06 ***
+att0 + att1 + att0:att1   0.5465     0.1118    4.89  1.0e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+(Univariate p-values reported)
+\end{Soutput}
+\end{Schunk}
 In contrast to the \code{summary} table for \code{glht} objects, which yields $p$~values that are adjusted for multiple testing, tests returned by the \code{summary} function applied to \code{neLht} objects report unadjusted univariate tests. Adjusted tests can be obtained by setting \code{test = adjusted()} \citep[for more details consult the help page of the \code{adjusted()} function from the \pkg{multcomp} package;][]{R:multcomp}.
 
 \subsection{Effect decomposition}\label{effdecomp}
 If interest is mainly focused on the natural effect parameters, the convenience function \code{neEffdecomp} can be used instead of \code{neLht}. This function automatically retains the natural effect estimates and generates a linear hypothesis object that reflects the most suitable effect decomposition:
-<<>>=
-effdecomp <- neEffdecomp(neMod2)
-summary(effdecomp)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> effdecomp <- neEffdecomp(neMod2)
+R> summary(effdecomp)
+\end{Sinput}
+\begin{Soutput}
+Effect decomposition on the scale of the linear predictor
+with standard errors based on the sandwich estimator
+---
+conditional on: gender, educ, age 
+with x* = 0, x = 1 
+---
+                      Estimate Std. Error z value Pr(>|z|)    
+pure direct effect      0.2950     0.1102    2.68   0.0074 ** 
+total direct effect     0.3648     0.1145    3.19   0.0014 ** 
+pure indirect effect    0.1817     0.0467    3.90  9.8e-05 ***
+total indirect effect   0.2515     0.0553    4.55  5.4e-06 ***
+total effect            0.5465     0.1118    4.89  1.0e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+(Univariate p-values reported)
+\end{Soutput}
+\end{Schunk}
 By default, reference levels for the exposure, $x$ and $x^*$, are chosen to be 1 and 0, respectively. If one wishes to evaluate causal effects at different reference levels (e.g., if the natural effect model allows for mediated interaction or if it includes quadratic or higher-order polynomial terms for the exposure), these can be specified as a vector of the form \code{c(x*,x)} via the \code{xRef} argument.
 \par The output indicates that, for a subject with baseline covariate levels $C$, a standard deviation increase from the average level of anxious attachment (=0), increases the odds of displaying unwanted pursuit behaviors with a factor 
 \begin{align*}
-\widehat{\mbox{OR}}^{\text{NDE}}_{1,0|C}(0) &= \frac{\mbox{odds}\left\{Y(1,M(0))=1|C\right\}}{\mbox{odds}\left\{Y(0,M(0))=1|C\right\}} = \exp(\hat{\beta_1^\prime}) = \Sexpr{print(format(exp(coef(neMod2)["att0"]), digits = 2, nsmall = 2), quote = FALSE)}
+\widehat{\mbox{OR}}^{\text{NDE}}_{1,0|C}(0) &= \frac{\mbox{odds}\left\{Y(1,M(0))=1|C\right\}}{\mbox{odds}\left\{Y(0,M(0))=1|C\right\}} = \exp(\hat{\beta_1^\prime}) = 1.34
 \end{align*}
 when controlling negative affectivity at levels as naturally observed at average anxious attachment levels, or with a factor
 \begin{align*}
-\widehat{\mbox{OR}}^{\text{NDE}}_{1,0|C}(1) &= \frac{\mbox{odds}\left\{Y(1,M(1))=1|C\right\}}{\mbox{odds}\left\{Y(0,M(1))=1|C\right\}} = \exp(\hat{\beta_1^\prime} + \hat{\beta_3^\prime}) = \Sexpr{print(format(exp(coef(lht)[1]), digits = 2, nsmall = 2), quote = FALSE)}
+\widehat{\mbox{OR}}^{\text{NDE}}_{1,0|C}(1) &= \frac{\mbox{odds}\left\{Y(1,M(1))=1|C\right\}}{\mbox{odds}\left\{Y(0,M(1))=1|C\right\}} = \exp(\hat{\beta_1^\prime} + \hat{\beta_3^\prime}) = 1.44
 \end{align*}
 when controlling negative affectivity at levels as naturally observed at anxious attachment levels one standard deviation above the average level.
 \par On the other hand, altering negative affectivity from levels that would have been observed at average levels of anxious attachment to levels that would have been observed at attachment scores of one standard deviation higher, increases the odds of displaying unwanted pursuit behaviors with a factor
 \begin{align*}
-\widehat{\mbox{OR}}^{\text{NIE}}_{1,0|C}(0) &= \frac{\mbox{odds}\left\{Y(0,M(1))=1|C\right\}}{\mbox{odds}\left\{Y(0,M(0))=1|C\right\}} = \exp(\hat{\beta_2^\prime}) = \Sexpr{print(format(exp(coef(neMod2)["att1"]), digits = 2, nsmall = 2), quote = FALSE)}
+\widehat{\mbox{OR}}^{\text{NIE}}_{1,0|C}(0) &= \frac{\mbox{odds}\left\{Y(0,M(1))=1|C\right\}}{\mbox{odds}\left\{Y(0,M(0))=1|C\right\}} = \exp(\hat{\beta_2^\prime}) = 1.20
 \end{align*}
 when controlling their anxious attachment level at the average, or with a factor
 \begin{align*}
-\widehat{\mbox{OR}}^{\text{NIE}}_{1,0|C}(1) &= \frac{\mbox{odds}\left\{Y(1,M(1))=1|C\right\}}{\mbox{odds}\left\{Y(1,M(0))=1|C\right\}} = \exp(\hat{\beta_2^\prime} + \hat{\beta_3^\prime}) = \Sexpr{print(format(exp(coef(lht)[2]), digits = 2, nsmall = 2), quote = FALSE)}
+\widehat{\mbox{OR}}^{\text{NIE}}_{1,0|C}(1) &= \frac{\mbox{odds}\left\{Y(1,M(1))=1|C\right\}}{\mbox{odds}\left\{Y(1,M(0))=1|C\right\}} = \exp(\hat{\beta_2^\prime} + \hat{\beta_3^\prime}) = 1.29
 \end{align*}
 when controlling their anxious attachment level one standard deviation above the average.
 \par The total causal effect odds ratio can be expressed as the product of the pure direct and indirect effect odds ratios and the mediated interaction odds ratio: a standard deviation increase from the average level of anxious attachment approximately doubles the odds of displaying unwanted pursuit behaviors.
 \begin{align*}
-\widehat{\mbox{OR}}_{1,0|C} &= \frac{\mbox{odds}\left\{Y(1,M(1))=1|C\right\}}{\mbox{odds}\left\{Y(0,M(0))=1|C\right\}} = \exp(\hat{\beta_1^\prime} + \hat{\beta_2^\prime} + \hat{\beta_3^\prime}) = \Sexpr{print(format(exp(coef(lht)[3]), digits = 2, nsmall = 2), quote = FALSE)}.
+\widehat{\mbox{OR}}_{1,0|C} &= \frac{\mbox{odds}\left\{Y(1,M(1))=1|C\right\}}{\mbox{odds}\left\{Y(0,M(0))=1|C\right\}} = \exp(\hat{\beta_1^\prime} + \hat{\beta_2^\prime} + \hat{\beta_3^\prime}) = 1.73.
 \end{align*}
 \par If the model includes terms reflecting effect modification by baseline covariates (e.g., as in model~\eqref{eq:nemodelmodmed1}), effect decomposition is by default evaluated at covariate levels that correspond to 0 for continuous covariates and to the reference level for categorical covariates coded as factors. However, for this type of models, it might often be insightful to evaluate natural effect components at different covariate levels than the default levels. This can be done via the \code{covLev} argument, which requires a vector including valid levels for modifier covariates specified in the natural effect model. An example of effect decomposition for women (\code{gender = "F"}, the default covariate level) and men (\code{gender = "M"}) in model~\eqref{eq:nemodelmodmed1} is given in the \proglang{R} code below.
-<<>>=
-neEffdecomp(neMod3)
-neEffdecomp(neMod3, covLev = c(gender = "M"))
-@
+\begin{Schunk}
+\begin{Sinput}
+R> neEffdecomp(neMod3)
+\end{Sinput}
+\begin{Soutput}
+Effect decomposition on the scale of the linear predictor
+---
+conditional on: gender = F, educ, age 
+with x* = 0, x = 1 
+---
+                        Estimate
+natural direct effect      0.285
+natural indirect effect    0.144
+total effect               0.429
+\end{Soutput}
+\begin{Sinput}
+R> neEffdecomp(neMod3, covLev = c(gender = "M"))
+\end{Sinput}
+\begin{Soutput}
+Effect decomposition on the scale of the linear predictor
+---
+conditional on: gender = M, educ, age 
+with x* = 0, x = 1 
+---
+                        Estimate
+natural direct effect      0.285
+natural indirect effect    0.304
+total effect               0.589
+\end{Soutput}
+\end{Schunk}
 
 \subsection{Global hypothesis tests}
 Wald tests considering all specified linear hypotheses jointly can be requested by specifying \code{test = Chisqtest()}. For instance, in model~\eqref{eq:nemodelmodmed2}, instead of using the \code{Anova} function, one could also test for moderated mediation by the multicategorical baseline covariate education level via a global hypothesis test involving the relevant parameters $\beta^\star_5$ and $\beta^\star_6$.
-<<>>=
-modmed <- neLht(neMod4, linfct = c("att1:educM = 0", "att1:educH = 0"))
-summary(modmed, test = Chisqtest())
-@
+\begin{Schunk}
+\begin{Sinput}
+R> modmed <- neLht(neMod4, linfct = c("att1:educM = 0", "att1:educH = 0"))
+R> summary(modmed, test = Chisqtest())
+\end{Sinput}
+\begin{Soutput}
+Global linear hypothesis test for natural effect models
+with standard errors based on the sandwich estimator
+---
+  Chisq DF Pr(>Chisq)
+1   5.2  2     0.0742
+\end{Soutput}
+\end{Schunk}
 
 \subsection{Visualizing effect estimates and their uncertainty}
-<<label=plot2,echo=FALSE,include=FALSE>>=
-par(mfrow = c(1, 2))
-plot(neMod2, xlab = "log odds ratio")
-plot(neMod2, xlab = "odds ratio", transf = exp)
-@
 Finally, the generic \code{plot} function can be applied to linear hypothesis objects to visualize (linear combinations of) effect estimates and their uncertainty by means of confidence interval plots. To obtain estimates and confidence intervals on the odds ratio scale, one can specify \code{transf = exp} in order to exponentiate the original parameter estimates (on the log odds ratio scale).
 \begin{figure}[h]
 \begin{center}
-<<label=fig2,fig=TRUE,echo=FALSE,height=3.6,width=9>>=
-<<plot2>>
-@
+\includegraphics{medflex-fig2}
 \end{center}
 \vspace{-0.8cm}
 \caption{Effect decomposition on the log odds ratio and odds ratio scales.\label{plot-effdecomp}}
 \end{figure}
 \par Applying the \code{plot} function to a natural effect model object automatically retains the causal effect estimates of interest, generates a linear hypothesis object using \code{neEffdecomp} and then plots its corresponding estimates and confidence intervals, as shown in Figure~\ref{plot-effdecomp}.
-<<eval=FALSE>>=
-par(mfrow = c(1, 2))
-plot(neMod2, xlab = "log odds ratio")
-plot(neMod2, xlab = "odds ratio", transf = exp)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> par(mfrow = c(1, 2))
+R> plot(neMod2, xlab = "log odds ratio")
+R> plot(neMod2, xlab = "odds ratio", transf = exp)
+\end{Sinput}
+\end{Schunk}
 \par The default exposure reference and covariate levels for these plots are the same as for the \code{neEffdecomp} function, but can again be altered via the corresponding arguments \code{xRef} and \code{covLev}.
 
 \section{Population-average natural effects}\label{popavg}
 In all previous sections, we defined natural effects as conditional or stratum-specific effects (i.e., conditional on baseline covariates). However, the \pkg{medflex} package additionally allows to estimate population-average natural effects. As demonstrated in Appendix~\ref{app:wweightest} and~\ref{app:wimpest}, rewriting the mediation formula reveals that estimation of these population-average effects requires weighting by the reciprocal of the conditional exposure density in order to adjust for confounding \citep[also see][]{Albert2012a, Vansteelandt2012f}.
 \par As a consequence, a model for the exposure density needs to be fitted and specified as an additional working model, e.g.,
-<<>>=
-expFit <- glm(att ~ gender + educ + age, data = UPBdata)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> expFit <- glm(att ~ gender + educ + age, data = UPBdata)
+\end{Sinput}
+\end{Schunk}
 Since specifying population-average natural effect models using the \code{neModel} is equivalent for the weighting- and imputation-based approaches, in the remainder of this section, we demonstrate how to proceed when adhering to the imputation-based approach. Moreover, when estimating population-average natural effects, incoherence between imputation and natural effect models is less of a concern as the latter does not require modeling the relation between outcome and covariates. The (first) working model can again be fitted using the same commands as before:
-<<>>=
-impData <- neImpute(UPB ~ att + negaff + gender + educ + age,
-  family = binomial("logit"), data = UPBdata)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> impData <- neImpute(UPB ~ att + negaff + gender + educ + age,
++    family = binomial("logit"), data = UPBdata)
+\end{Sinput}
+\end{Schunk}
 Each observation in the expanded dataset to which the marginal natural effect model
 \begin{align}\label{eq:nemodelweighted}
 \mbox{logit} \Pr\left\{Y(x,M(x^*))=1\right\} = \theta_0 + \theta_1 x + \theta_2 x^*
 \end{align}
 is fitted, needs to be weighted by the reciprocal of the exposure probability density, $\Pr(X|C)$, evaluated at the observed exposure. The fitted model object that is used to calculate regression weights needs to be specified in the \code{xFit} argument of the \code{neModel} function:
-<<>>=
-neMod5 <- neModel(UPB ~ att0 + att1, family = binomial("logit"),
-  expData = impData, xFit = expFit, se = "robust")
-summary(neMod5)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> neMod5 <- neModel(UPB ~ att0 + att1, family = binomial("logit"),
++    expData = impData, xFit = expFit, se = "robust")
+R> summary(neMod5)
+\end{Sinput}
+\begin{Soutput}
+Natural effect model
+with robust standard errors based on the sandwich estimator
+---
+Exposure: att 
+Mediator(s): negaff 
+---
+Parameter estimates:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -0.5793     0.1112   -5.21  1.9e-07 ***
+att0          0.2967     0.1082    2.74   0.0061 ** 
+att1          0.2294     0.0578    3.97  7.2e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{Soutput}
+\end{Schunk}
 
-<<echo = F>>=
-de <- neLht(neMod5, c("att0 = 0"))
-ie <- neLht(neMod5, c("att1 = 0"))
-@
 \par Both the marginal natural direct and indirect effect odds ratios again seem to be significantly different from 1: increasing the anxious attachment level from average to one standard error above average, while keeping negative affectivity fixed at levels corresponding to anxious attachment level $x^*$, increases the odds of displaying unwanted pursuit behaviors with a factor
 \begin{align*}
-\widehat{\mbox{OR}}^{\text{NDE}}_{1,0} &= \frac{\mbox{odds}\left\{Y(1,M(x^*))=1\right\}}{\mbox{odds}\left\{Y(0,M(x^*))=1\right\}} = \exp(\hat{\theta}_1) = \Sexpr{round(exp(as.numeric(coef(de))),2)}.
+\widehat{\mbox{OR}}^{\text{NDE}}_{1,0} &= \frac{\mbox{odds}\left\{Y(1,M(x^*))=1\right\}}{\mbox{odds}\left\{Y(0,M(x^*))=1\right\}} = \exp(\hat{\theta}_1) = 1.35.
 \end{align*}
 A similar interpretation can again be made for the natural indirect effect.
 
@@ -737,16 +1046,39 @@ through $L$ and $M$ jointly.
 \mbox{logit} \Pr(Y=1|X,L,M,C) = \gamma^{\star\star}_0 + \gamma^{\star\star}_1 X + \gamma^{\star\star}_2 L + \gamma^{\star\star}_3 M + \gamma^{\star\star}_4 LM + \gamma^{\star\star}_5 C
 \end{align*}
 is fitted that allows the mediators to interact in their effect on the outcome.
-<<>>=
-impData <- neImpute(UPB ~ att + initiator * negaff + gender + educ + age,
-  family = binomial("logit"), nMed = 2, data = UPBdata)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> impData <- neImpute(UPB ~ att + initiator * negaff + gender + educ + age,
++    family = binomial("logit"), nMed = 2, data = UPBdata)
+\end{Sinput}
+\end{Schunk}
 The number of mediators to be considered jointly should be set via the \code{nMed} argument in the \code{neImpute} function. If \code{nMed = 2}, not only the second predictor variable, but the two predictor variables declared after the exposure variable are internally coded as mediators. Subsequently, natural effect model~\eqref{eq:nemodelmultiv} can be fitted to the imputed dataset using the \code{neModel} function.
-<<>>=
-neMod6 <- neModel(UPB ~ att0 + att1 + gender + educ + age,
-  family = binomial("logit"), expData = impData, se = "robust")
-summary(neMod6)
-@
+\begin{Schunk}
+\begin{Sinput}
+R> neMod6 <- neModel(UPB ~ att0 + att1 + gender + educ + age,
++    family = binomial("logit"), expData = impData, se = "robust")
+R> summary(neMod6)
+\end{Sinput}
+\begin{Soutput}
+Natural effect model
+with robust standard errors based on the sandwich estimator
+---
+Exposure: att 
+Mediator(s): initiator, negaff 
+---
+Parameter estimates:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -0.4919     0.6854   -0.72    0.473    
+att0          0.2444     0.1114    2.19    0.028 *  
+att1          0.2476     0.0538    4.60  4.2e-06 ***
+genderM       0.2629     0.2274    1.16    0.248    
+educM         0.2780     0.4912    0.57    0.571    
+educH         0.4223     0.4979    0.85    0.396    
+age          -0.0121     0.0122   -0.99    0.320    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{Soutput}
+\end{Schunk}
 Correct specification of the (number of) mediators can easily be checked in the \code{summary} output of the natural effect model object, which lists the names of the exposure and all mediators. 
 \par Although we have hypothesized that initiator status affects the level of experienced negative affectivity, this joint mediator approach does not necessarily require knowing the ordering of the mediators. \cite{VanderWeele2013b} and \cite{VanderWeele2014} described how additional insight into the causal mechanisms can be gained when the ordering is (assumed to be) known. These authors advocated a sequential approach which enables further effect decomposition of the total causal effect into multiple path-specific effects (\citealt{Avin2005}; also see \citealt{Huber2013} for an inverse-probability weighting approach and \citealt{Albert2011} and \citealt{Daniel2015} for a parametric g-computation approach for estimating some of these path-specific effects). Such sequential approach can easily be embedded in the natural effect model framework and is planned to be implemented in an upcoming version of the \pkg{medflex} package.
 

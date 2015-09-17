@@ -261,9 +261,6 @@ neEffdecomp.neModel <- function (model, xRef, covLev, ...)
       if (xFact) x <- factor(x, levels = xRefCheck)
       dat1 <- if (nrow(covDat)) data.frame(1, x[1], x[2], covDat) else data.frame(1, x[1], x[2])
       names(dat1) <- all.vars(formula)
-      # replace factor() terms in formula by their original names 
-      # (because already treated as factor in neEffdecomp, 
-      # and otherwise non-used levels will be discarded when applying factor() to variable already coded as factor)
       oldVars <- grep("factor\\(", dimnames(attr(terms(formula), "factors"))[[1]], value = TRUE)
       if (length(oldVars)) {
         newVars <- names(which(sapply(all.vars(formula), grep, oldVars)==TRUE))
@@ -336,7 +333,6 @@ neEffdecomp.neModel <- function (model, xRef, covLev, ...)
     }
     K2 <- t(data.frame(lapply(list, calcContr, form, covDat)))
     K2 <- unique(K2)
-    # again use factor() term names
     colnames(K2) <- names(coef(model)) #
     rownames <- if (nrow(K2) == 3) {
       c("natural direct effect", "natural indirect effect", "total effect")
