@@ -510,9 +510,9 @@ print.summary.neLht <- function (x, digits = max(3, getOption("digits") - 3), ..
           cat("Linear hypotheses for natural effect models\n", catSE, sep = "")
         }
         if (!identical(x$rhs, rep(0, length(x$rhs)))) 
-            dimnames(x$coef.table)[[1]] <- paste(dimnames(x$coef.table)[[1]], 
+            dimnames(x$coefficients)[[1]] <- paste(dimnames(x$coefficients)[[1]], 
                 "=", x$rhs)
-        printCoefmat(x$coef.table, digits = digits, has.Pvalue = TRUE, 
+        printCoefmat(x$coefficients, digits = digits, has.Pvalue = TRUE, 
             P.values = TRUE)
         switch(x$test$type, univariate = cat("(Univariate p-values reported)"), 
             `single-step` = cat("(Adjusted p-values reported -- single-step method)"), 
@@ -544,9 +544,9 @@ summary.neLht <- function (object, test = univariate(), ...)
             pq$pvalues)
         dimnames(coef.table) <- list(names(coef(object)), c("Estimate", 
             "Std. Error", "z value", "Pr(>|z|)"))
-        summary$coef.table <- coef.table
+        summary$coefficients <- coef.table
     }
     class(summary) <- c(if (inherits(object, "neEffdecomp")) "summary.neEffdecomp",
-                        if (inherits(object, "neLhtBoot")) "summary.neLhtBoot", "summary.neLht", class(summary))
+                        if (inherits(object, "neLhtBoot")) "summary.neLhtBoot", "summary.neLht")
     return(summary)
 }

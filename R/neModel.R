@@ -606,7 +606,7 @@ print.summary.neModel <- function (x, digits = max(3, getOption("digits") - 3), 
     cat("Exposure:", x$terms$X, "\nMediator(s):", paste(x$terms$M, 
         collapse = ", "), "\n---\n")
     cat("Parameter estimates:\n")
-    printCoefmat(x$coef.table, digits = digits, has.Pvalue = TRUE, 
+    printCoefmat(x$coefficients, digits = digits, has.Pvalue = TRUE, 
         P.values = TRUE)
 }
 
@@ -663,7 +663,7 @@ summary.neModel <- function (object, ...)
     coef.table <- cbind(coef(object), se, zvalue, pvalue)
     dimnames(coef.table) <- list(names(coef(object)), c("Estimate", 
         "Std. Error", "z value", "Pr(>|z|)"))
-    summary$coef.table <- coef.table
+    summary$coefficients <- coef.table
     summary$terms <- attr(object$terms, "vartype")
     class(summary) <- "summary.neModel"
     attr(summary, "class_object") <- class(object) 
