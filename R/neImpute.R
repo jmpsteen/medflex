@@ -105,7 +105,8 @@ neImpute <- function (object, ...)
 #' impData2 <- neImpute(fit.vglm, nRep = 2)
 #' head(impData2)
 #' 
-#' \donttest{## example using SuperLearner
+# \donttest{
+#' ## example using SuperLearner
 #' library(Matrix)
 #' library(SuperLearner)
 #' SL.library <- c("SL.glm", "SL.glm.interaction", "SL.rpart",
@@ -117,13 +118,15 @@ neImpute <- function (object, ...)
 #' impSL <- neImpute(fit.SL, 
 #'                   formula = UPB ~ att + negaff + gender + educ + age, 
 #'                   data = UPBdata)
-#' head(impSL)}
+#' head(impSL)
+# }
 #' \dontshow{
-#' #library(VGAM) 
-#' #expData <- neImpute(UPB ~ factor(attbin) + negaff + gender + educ + age, family = binomialff, data = UPBdata, FUN = vglm)
-#' #neMod <- neModel(UPB ~ attbin0 + attbin1 + gender + educ + age, family = binomial, expData = expData, nBoot = 2)
+#' rm(list=ls())
+#' library(VGAM) 
+#' expData <- neImpute(UPB ~ factor(attbin) + negaff + gender + educ + age, family = binomialff, data = UPBdata, FUN = vglm)
+#' neMod <- neModel(UPB ~ attbin0 + attbin1 + gender + educ + age, family = binomial, expData = expData, nBoot = 2)
 #' 
-# UPBdata$att2 <- ifelse(UPBdata$attbin == "H", 1, 0)
+#' UPBdata$att2 <- ifelse(UPBdata$attbin == "H", 1, 0)
 #' UPBdata$att2 <- UPBdata$attbin
 #' impData <- neImpute(UPB ~ factor(att2) * negaff + gender + educ + age, family = binomial, data = UPBdata)
 #' impFit1 <- neModel(UPB ~ att20 * att21 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)
@@ -159,12 +162,18 @@ neImpute <- function (object, ...)
 #' impFit4 <- gam(UPB ~ att + negaff + gender + educ + age, family = binomial, data = UPBdata)
 #' impData4 <- neImpute(impFit4)
 #' head(impData2); head(impData4)
-#' # check!}
+#' # check!
+#' }
 #' @export
 neImpute.default <- function (object, formula, data, nMed = 1, nRep = 5, xSampling = c("quantiles", 
     "random"), xFit, percLim = c(0.05, 0.95), ...) 
 {
     args <- as.list(match.call())[-1L]
+    if (is.character(object)) {
+      args$object <- as.formula(eval(args$object))
+      expData <- do.call("neImpute.formula", args)
+      return(expData)
+    }
     fit <- object
     if (!isTRUE(args$skipExpand)) {
         args$data <- if (missing(data)) {
@@ -173,6 +182,7 @@ neImpute.default <- function (object, formula, data, nMed = 1, nRep = 5, xSampli
         else substitute(data)
         if (missing(formula)) 
             formula <- extrCall(fit)$formula
+        formula <- as.formula(eval(formula))
         class(formula) <- c("Yformula", "formula")
         vartype <- args$vartype <- attr(neTerms(formula, nMed, 
             joint), "vartype")
@@ -234,8 +244,9 @@ neImpute.default <- function (object, formula, data, nMed = 1, nRep = 5, xSampli
     }
     try(pred <- predict(fit, newdata = newdata, type = type)[ind], silent = TRUE)
     checkExist <- exists("pred")
-    if (!checkExist) newdata[, attr(vartype, "xasis")] <- newdata[, vartype$Xexp[1]]  
-    expData[, vartype$Y] <- predict(fit, newdata = newdata, type = type)[ind]
+    if (!checkExist) newdata[, attr(vartype, "xasis")] <- newdata[, vartype$Xexp[1]] 
+    predictFUN <- ifelse(sum(class(fit) %in% "vglm"), VGAM::predictvglm, predict)
+    expData[, vartype$Y] <- predictFUN(fit, newdata = newdata, type = type)[ind]
     expData <- expData[, -ncol(expData)]
     if (!isTRUE(args$skipExpand)) {
         attributes(expData) <- c(attributes(expData), list(model = fit, 

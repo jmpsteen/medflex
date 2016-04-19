@@ -34,7 +34,7 @@ expandData <- function (x, data, nMed, ...)
         quote(as.factor(data[[x]]))
     }
     else {
-        quote(data[, x])
+        quote(data[[x]])
     }
     Xexp <- do.call("expandX", args)
     x <- attr(Xexp, "x")
@@ -49,13 +49,13 @@ expandData <- function (x, data, nMed, ...)
         tmp <- rep(seq.int(nMed), each = nRep)
         tmp <- rep(tmp, times = length(x))
         Xexp <- cbind(tmp, Xexp[ids, ])
-        Xexp <- cbind(Xexp, mapply(function(x) ifelse(Xexp[, 
-            "tmp"] <= x - 1, Xexp[, "aux0"], Xexp[, "aux1"]), 
+        Xexp <- cbind(Xexp, mapply(function(x) ifelse(Xexp[[
+            "tmp"]] <= x - 1, Xexp[["aux0"]], Xexp[["aux1"]]), 
             2:nMed))
         if (is.factor(x)) 
-            Xexp[, ncol(Xexp) - seq(0, nExp - 2)] <- apply(Xexp[, 
+            Xexp[, ncol(Xexp) - seq(0, nExp - 2)] <- apply(Xexp[,
                 ncol(Xexp) - seq(0, nExp - 2)], 2, function(y) factor(y, 
-                labels = levels(Xexp[, "aux0"])))
+                labels = levels(Xexp[["aux0"]])))
         colnames(Xexp) <- c(colnames(Xexp)[1:3], paste0("aux", 
             2:nMed))
         Xexp <- Xexp[, -1]

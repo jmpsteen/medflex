@@ -149,12 +149,18 @@ neWeight <- function (object, ...)
 #' expData3b <- neWeight(fit3b)
 #' head(attr(expData3, "weights")); head(attr(expData3b, "weights"))
 #' expData3bf <- neWeight(negaff3 ~ s(att) + gender + educ + age, FUN = vgam, family = poissonff, data = UPBdata)
-#' head(attr(expData3b, "weights")); head(attr(expData3bf, "weights"))}
+#' head(attr(expData3b, "weights")); head(attr(expData3bf, "weights"))
+#' }
 #' @export
 neWeight.default <- function (object, formula, data, nRep = 5, xSampling = c("quantiles", 
     "random"), xFit, percLim = c(0.05, 0.95), ...) 
 {
     args <- as.list(match.call())[-1L]
+    if (is.character(object)) {
+        args$object <- as.formula(eval(args$object))
+        expData <- do.call("neWeight.formula", args)
+        return(expData)
+    }
     if (!is.null(args$nMed) && args$nMed != 1) warning("The joint mediation approach is only available for the imputation-based approach! nMed = 1 was specified instead.")
     nMed <- args$nMed <- 1
     fit <- object
@@ -165,6 +171,7 @@ neWeight.default <- function (object, formula, data, nRep = 5, xSampling = c("qu
     if (!isTRUE(args$skipExpand)) {
         if (missing(formula)) 
             formula <- extrCall(fit)$formula
+        formula <- as.formula(eval(formula))
         class(formula) <- c("Mformula", "formula")
         vartype <- args$vartype <- attr(neTerms(formula, Y = NA, 
             nMed = nMed, joint = joint), "vartype")

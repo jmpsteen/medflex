@@ -315,7 +315,8 @@ model.matrix.neModel <- function (object, ...)
 #'
 #' # inverse propensity score weighting
 #' expFit <- glm(att ~ gender + educ + age, data = UPBdata)
-#' impFit <- neModel(UPB ~ att0 + att1, family = binomial, expData = impData, xFit = expFit, nBoot = 2)}
+#' impFit <- neModel(UPB ~ att0 + att1, family = binomial, expData = impData, xFit = expFit, nBoot = 2)
+#' }
 #' @references
 #' Lange, T., Vansteelandt, S., & Bekaert, M. (2012). A Simple Unified Approach for Estimating Natural Direct and Indirect Effects. \emph{American Journal of Epidemiology}, \bold{176}(3), 190-195.
 #' 

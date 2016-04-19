@@ -1,3 +1,9 @@
+Changes in Version 0.6-1
+
+  o Added flexibility with formula argument (in order to mimick glm function's behavior) (cf github issue #2)
+  o Compatibility with tbl_df function from dplyr package (cf github pull request #3)
+  o Bug fixed when using vglm function from VGAM package in neImpute: returned imputed outcomes on logit instead of probability scale (use of predictvglm instead of predict in order for type = "response" to be properly specified)
+
 Changes in Version 0.6-0
 
   o Compatibility with mice and mitools packages for multiple imputation (see vignette for documentation and example)
