@@ -1,0 +1,91 @@
+library(medflex)
+library(VGAM)
+
+## neImpute ----
+
+undebug(medflex:::neImpute.default)
+
+# works
+expData1 <- neImpute(UPB ~ att + negaff + gender + educ + age,
+                    family = binomial, data = UPBdata)
+head(expData1)
+
+# works (without errors)
+# because predict dispatches VGAM::predict.vgam
+expData2 <- neImpute(UPB ~ att + negaff + gender + educ + age,
+                     family = binomialff, data = UPBdata, FUN = vgam)
+head(expData2)
+## what if s(att) is included => does VGAM::predictvglm still work???
+## still works, but different predictions!
+
+#### obtain solution that also provides correct predictions if vgam is used!!!
+
+# returns wrong imputations
+# because predict dispatches VGAM::predict.vlm
+expData3 <- neImpute(UPB ~ att + negaff + gender + educ + age,
+                     family = binomialff, data = UPBdata, FUN = vglm)
+head(expData3)
+
+## CONCLUSION:
+# predict.vlm doesn't appropriately handle newdata argument!
+# range(VGAM::predict.vlm(fit, newdata = newdata, type = type))
+# predict.vgam returns error when fit is of class vglm instead of vgam
+# range(VGAM::predict.vgam(fit, newdata = newdata, type = type))
+# Error in VGAM::predict.vgam(fit, newdata = newdata, type = type) : 
+#   no slot of name "s.xargument" for this object of class "vglm"
+
+
+## neWeight ----
+
+# logit
+UPBdata$negaffbin <- cut(UPBdata$negaff, 2)
+
+# works
+expData1 <- neWeight(negaffbin ~ att + gender + educ + age, 
+                    family = binomial, data = UPBdata)
+head(weights(expData1))
+
+# returns warnings + NaN weights
+expData2 <- neWeight(negaffbin ~ att + gender + educ + age, 
+                    family = binomialff, data = UPBdata, FUN = vglm)
+head(weights(expData2))
+
+
+# multinomial logit (only possible via vglm) (cf mail Theis 2016-05-17)
+UPBdata$negaffcat <- cut(UPBdata$negaff, 3)
+
+# returns error
+expData <- neWeight(negaffcat ~ att + gender + educ + age,
+                    family = multinomial, data = UPBdata, FUN = vglm)
+head(weights(expData))
+
+# log (Poisson regression)
+UPBdata$negaffcount <- as.numeric(UPBdata$negaffcat)
+
+# works
+expData1 <- neWeight(negaffcount ~ att + gender + educ + age,
+                    family = poisson, data = UPBdata)
+head(weights(expData1))
+
+# returns warnings + incorrect weights
+expData2 <- neWeight(negaffcount ~ att + gender + educ + age,
+                    family = poissonff, data = UPBdata, FUN = vglm)
+head(weights(expData2))
+
+
+
+## neModelEst ----
+expData <- neImpute(UPB ~ attbin * negaff + gender + educ + age,
+                    family = binomial, data = UPBdata)
+
+expFit1 <- glm(attbin ~ gender + educ + age, family = binomial, data = UPBdata)
+expFit2 <- vglm(attbin ~ gender + educ + age, family = binomialff, data = UPBdata)
+
+neMod1 <- neModel(UPB ~ attbin0 * attbin1, family = binomial,
+                  expData = expData, xFit = expFit1, nBoot = 10)
+neMod2 <- neModel(UPB ~ attbin0 * attbin1, family = binomial,
+                  expData = expData, xFit = expFit2, nBoot = 10)
+
+coef(neMod1)
+coef(neMod2)
+

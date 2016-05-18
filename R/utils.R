@@ -81,12 +81,17 @@ neModelEst <- function (formula, family, expData, xFit, ...)
         dispersion <- if (inherits(xFit, "vglm")) 
             xFit@misc$dispersion
         else summary(xFit)$dispersion 
+        predictFUN <- if (inherits(xFit, "vglm")) 
+          VGAM::predictvglm
+        else if (inherits(xFit, "vgam")) 
+          VGAM::predict.vgam
+        else predict
         dfun <- switch(family, 
-                       gaussian = function(x) dnorm(x, mean = predict(xFit, newdata = expData, type = "response"), sd = sqrt(dispersion)), 
+                       gaussian = function(x) dnorm(x, mean = predictFUN(xFit, newdata = expData, type = "response"), sd = sqrt(dispersion)), 
                        binomial = function(x) {if (is.factor(x)) x <- as.numeric(x) - 1
-                                               return(dbinom(x, size = 1, prob = predict(xFit, newdata = expData, type = "response")))}, 
-                       poisson = function(x) dpois(x, lambda = predict(xFit, newdata = expData, type = "response")),
-                       multinomial = function(x) {pred <- predict(xFit, newdata = expData, type = "response")
+                                               return(dbinom(x, size = 1, prob = predictFUN(xFit, newdata = expData, type = "response")))}, 
+                       poisson = function(x) dpois(x, lambda = predictFUN(xFit, newdata = expData, type = "response")),
+                       multinomial = function(x) {pred <- predictFUN(xFit, newdata = expData, type = "response")
                                                   return(sapply(1:nrow(expData), function(i) pred[i, as.character(x[i])]))})
         denominator <- if (inherits(expData, "weightData")) 
           dfun(expData[, vartype$Xexp[1]])

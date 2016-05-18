@@ -225,12 +225,17 @@ neWeight.default <- function (object, formula, data, nRep = 5, xSampling = c("qu
     dispersion <- if (inherits(fit, "vglm")) 
         fit@misc$dispersion
     else summary(fit)$dispersion
+    predictFUN <- if (inherits(fit, "vglm")) 
+      VGAM::predictvglm
+    else if (inherits(fit, "vgam")) 
+      VGAM::predict.vgam
+    else predict
     dfun <- switch(family, 
-         gaussian = function(x) dnorm(x, mean = predict(fit, newdata = expData, type = "response"), sd = sqrt(dispersion)), 
+         gaussian = function(x) dnorm(x, mean = predictFUN(fit, newdata = expData, type = "response"), sd = sqrt(dispersion)), 
          binomial = function(x) {if (is.factor(x)) x <- as.numeric(x) - 1
-                     return(dbinom(x, size = 1, prob = predict(fit, newdata = expData, type = "response")))}, 
-         poisson = function(x) dpois(x, lambda = predict(fit, newdata = expData, type = "response")),
-         multinomial = function(x) {pred <- predict(fit, newdata = expData, type = "response")
+                     return(dbinom(x, size = 1, prob = predictFUN(fit, newdata = expData, type = "response")))}, 
+         poisson = function(x) dpois(x, lambda = predictFUN(fit, newdata = expData, type = "response")),
+         multinomial = function(x) {pred <- predictFUN(fit, newdata = expData, type = "response")
                         return(sapply(1:nrow(expData), function(i) pred[i, as.character(x[i])]))})
     expData[, vartype$X] <- expData[, vartype$Xexp[2]]
     try(weightsNum <- dfun(expData[, vartype$M]), silent = TRUE)

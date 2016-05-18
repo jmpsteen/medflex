@@ -1,5 +1,6 @@
 library(medflex)
 library(VGAM)
+library(car)
 
 ### multicategorical exposure
 head(UPBdata)
@@ -16,7 +17,7 @@ expData$attcat1 <- relevel(expData$attcat1, ref = "L")
 contrasts(expData$attcat0)
 contrasts(expData$attcat1)
 
-neMod <- neModel(UPB ~ attcat0 * attcat1 + gender + educ + age, family = binomial, expData = expData, nBoot = 50)
+neMod <- neModel(UPB ~ attcat0 * attcat1 + gender + educ + age, family = binomial, expData = expData, se = "robust")
 summary(neMod)
 Anova(neMod, type = "III")
 
@@ -26,7 +27,6 @@ fitX <- vglm(attcat ~ gender + educ + age, family = multinomial(), data = UPBdat
 # debug(medflex:::neModelEst)
 neMod <- neModel(UPB ~ attcat0 * attcat1, family = binomial, expData = expData, xFit = fitX, nBoot = 50)
 summary(neMod)
-library(car)
 Anova(neMod, type = "III")
 
 ## weighting
@@ -36,7 +36,7 @@ expData <- neWeight(negaff ~ attcat + gender + educ + age, data = UPBdata)
 expData$attcat0 <- relevel(expData$attcat0, ref = "L")
 expData$attcat1 <- relevel(expData$attcat1, ref = "L")
 
-neMod <- neModel(UPB ~ attcat0 * attcat1 + gender + educ + age, family = binomial, expData = expData, nBoot = 50)
+neMod <- neModel(UPB ~ attcat0 * attcat1 + gender + educ + age, family = binomial, expData = expData, se = "robust")
 summary(neMod)
 Anova(neMod, type = "III")
 
@@ -51,21 +51,25 @@ Anova(neMod, type = "III")
 
 
 ### binary mediator
+UPBdata$negaffbin <- cut(UPBdata$negaff, 2, labels = c("low", "high"))
 
 ## weighting
 expData <- neWeight(negaffbin ~ att + gender + educ + age, family = binomial, data = UPBdata)
 attr(expData, "weights")
 expData2 <- neWeight(factor(negaffbin) ~ att + gender + educ + age, family = binomial, data = UPBdata)
 attr(expData2, "weights")
-neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = expData, nBoot = 50)
+expData3 <- neWeight(negaffbin ~ att + gender + educ + age, family = binomialff, data = UPBdata, FUN = vglm)
+attr(expData3, "weights")
+neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = expData, se = "robust")
 summary(neMod)
 
 
 ### multicategorical mediator
+UPBdata$negaffcat <- cut(UPBdata$negaff, 3, labels = c("low", "moderate", "high"))
 
 ## imputation (no real difference whether mediator continuous or categorical)
 expData <- neImpute(UPB ~ att * negaffcat + gender + educ + age, family = binomial, data = UPBdata)
-neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = expData, nBoot = 50)
+neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = expData, se = "robust")
 summary(neMod)
 
 # population-average
@@ -78,7 +82,7 @@ summary(neMod)
 ## weighting
 # no more issues! (?)
 # debug(medflex:::neWeight.default)
-expData <- neWeight(negaffcat ~ att + gender + educ + age, family = multinomial(), data = UPBdata, FUN = vglm)
+expData <- neWeight(negaffcat ~ att + gender + educ + age, family = multinomial, data = UPBdata, FUN = vglm)
 attr(expData, "weights")
 neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, expData = expData, nBoot = 50)
 summary(neMod)

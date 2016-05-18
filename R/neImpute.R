@@ -242,10 +242,14 @@ neImpute.default <- function (object, formula, data, nMed = 1, nRep = 5, xSampli
         type <- "response"
         ind <- seq.int(nrow(newdata))
     }
-    try(pred <- predict(fit, newdata = newdata, type = type)[ind], silent = TRUE)
+    predictFUN <- if (inherits(fit, "vglm")) 
+      VGAM::predictvglm
+    else if (inherits(fit, "vgam")) 
+      VGAM::predict.vgam
+    else predict
+    try(pred <- predictFUN(fit, newdata = newdata, type = type)[ind], silent = TRUE)
     checkExist <- exists("pred")
     if (!checkExist) newdata[, attr(vartype, "xasis")] <- newdata[, vartype$Xexp[1]] 
-    predictFUN <- ifelse(sum(class(fit) %in% "vglm"), VGAM::predictvglm, predict)
     expData[, vartype$Y] <- predictFUN(fit, newdata = newdata, type = type)[ind]
     expData <- expData[, -ncol(expData)]
     if (!isTRUE(args$skipExpand)) {

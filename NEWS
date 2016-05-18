@@ -2,7 +2,7 @@ Changes in Version 0.6-1
 
   o Added flexibility with formula argument (in order to mimick glm function's behavior) (cf github issue #2)
   o Compatibility with tbl_df function from dplyr package (cf github pull request #3)
-  o Bug fixed when using vglm function from VGAM package in neImpute: returned imputed outcomes on logit instead of probability scale (use of predictvglm instead of predict in order for type = "response" to be properly specified)
+  o Bug fixed when using vglm function from VGAM package in (i) neImpute: returned imputed outcomes on scale of link function instead of mean outcome scale (use of predictvglm instead of predict.vglm in order for type = "response" to be properly specified), (ii) neWeight and (iii) neModelEst (when specifying xFit): either returned incorrect weights or error (same reason as for neImpute) (cf github issue #4)
 
 Changes in Version 0.6-0
 
