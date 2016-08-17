@@ -6,7 +6,14 @@ This R package runs flexible mediation analyses using natural effect models as d
 To install:
 `devtools::install_github("jmpsteen/medflex")` (requires `devtools` installation)
 
-References:
+
+If you're using this package, please cite our forthcoming paper in Journal of Statistical Software
+
+* Steen, J., Loeys, T., Moerkerke B., & Vansteelandt S. (forthcoming) Medflex: An R Package For Flexible Mediation Analysis Using Natural Effect Models. *Journal of Statistical Software*.
+
+
+
+Methodological references:
 
 * Lange, T., Vansteelandt, S., & Bekaert, M. (2012). A Simple Unified Approach for
 Estimating Natural Direct and Indirect Effects. *American Journal of Epidemiology*,
