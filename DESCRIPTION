@@ -2,15 +2,14 @@ Package: medflex
 Title: Flexible Mediation Analysis Using Natural Effect Models
 Version: 0.6-1
 Date: 2017-02-21
-Authors@R: c( person("Johan", "Steen", email = "johan.steen@gmail.com", role =
-    c("aut", "cre")), person("Tom", "Loeys", email = "tom.loeys@ugent.be", role
-    = "aut"), person("Beatrijs", "Moerkerke", email =
-    "beatrijs.moerkerke@ugent.be", role = "aut"), person("Stijn",
-    "Vansteelandt", email = "stijn.vansteelandt@ugent.be", role = "aut"),
-    person("Joris", "Meys", email = "joris.meys@ugent.be", comment = "technical
-    support", role = "ctb"), person("Theis", "Lange", email =
-    "thlan@sund.ku.dk", comment = "valuable suggestions", role = "ctb"), 
-    person("Joscha", "Legewie", role = "ctb"))
+Authors@R: c( 
+    person("Johan", "Steen", email = "johan.steen@gmail.com", role = c("aut", "cre")), 
+    person("Tom", "Loeys", email = "tom.loeys@ugent.be", role = "aut"), 
+    person("Beatrijs", "Moerkerke", email = "beatrijs.moerkerke@ugent.be", role = "aut"), 
+    person("Stijn", "Vansteelandt", email = "stijn.vansteelandt@ugent.be", role = "aut"),
+    person("Joris", "Meys", email = "joris.meys@ugent.be", comment = "technical support", role = "ctb"), 
+    person("Theis", "Lange", email = "thlan@sund.ku.dk", comment = "valuable suggestions", role = "ctb"), 
+    person("Joscha", "Legewie", email = "", role = "ctb") )
 Description: Run flexible mediation analyses using natural
     effect models as described in Lange, Vansteelandt and Bekaert (2012),
     Vansteelandt, Bekaert and Lange (2012) and Loeys, Moerkerke, De Smet,
@@ -38,4 +37,4 @@ Suggests:
     rpart (>= 4.1-8),
     SuperLearner (>= 2.0-15),
     VGAM (>= 1.0-0)
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

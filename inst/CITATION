@@ -1,22 +1,33 @@
 citHeader("Please cite the medflex package by the following reference:")
 
-year <- sub("-.*", "", meta$Date)
-note <- sprintf("R package version %s", meta$Version)
+bibentry(bibtype = "Article",
+  title        = "{medflex}: An {R} Package for Flexible Mediation Analysis using Natural Effect Models",
+  author       = c(person(given = "Johan",
+                          family = "Steen",
+                          email = "johan.steen@ugent.be"),
+                   person(given = "Tom",
+                          family = "Loeys",
+                          email = "tom.loeys@ugent.be"),
+                   person(given = "Beatrijs",
+                          family = "Moerkerke",
+                          email = "beatrijs.moerkerke@ugent.be"),
+                   person(given = "Stijn",
+                          family = "Vansteelandt",
+                          email = "stijn.vansteelandt@ugent.be")),
+  journal      = "Journal of Statistical Software",
+  year         = "2017",
+  volume       = "76",
+  number       = "11",
+  pages        = "1--46",
+  doi          = "10.18637/jss.v076.i11",
 
-citEntry(entry = "manual",
-    title = "{medflex}: Flexible Mediation Analysis Using Natural Effect Models",
-    author = personList(as.person("Johan Steen"),
-                        as.person("Tom Loeys"),
-  		                  as.person("Beatrijs Moerkerke"),
-                        as.person("Stijn Vansteelandt")),
-    year = year,
-    note = note,
-
+  header       = "To cite medflex in publications use:",
   textVersion  =
-  paste0("Johan Steen, Tom Loeys, Beatrijs Moerkerke and Stijn Vansteelandt (", year,
-        "). medflex: Flexible Mediation Analysis Using Natural Effect Models. ", note, ".")
+  paste("Johan Steen, Tom Loeys, Beatrijs Moerkerke, Stijn Vansteelandt (2017).",
+        "medflex: An R Package for Flexible Mediation Analysis using Natural Effect Models.",
+        "Journal of Statistical Software, 76(11), 1-46.",
+        "doi:10.18637/jss.v076.i11")
 )
-
 citEntry(entry = "Article",
   title        = "A Simple Unified Approach for Estimating Natural Direct and Indirect Effects",
   author       = personList(as.person("Theis Lange"),
