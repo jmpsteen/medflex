@@ -1,6 +1,10 @@
 medflex
 =======
 
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/medflex)](https://CRAN.R-project.org/package=medflex)
+[![](http://cranlogs.r-pkg.org/badges/medflex)](https://CRAN.R-project.org/package=medflex) [![](http://cranlogs.r-pkg.org/badges/grand-total/medflex)](https://CRAN.R-project.org/package=medflex)
+
+
 This R package runs flexible mediation analyses using natural effect models as described in the papers listed below.
 
 To install:
