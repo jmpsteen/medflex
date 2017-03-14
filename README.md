@@ -5,18 +5,28 @@ medflex
 [![](http://cranlogs.r-pkg.org/badges/medflex)](https://CRAN.R-project.org/package=medflex) [![](http://cranlogs.r-pkg.org/badges/grand-total/medflex)](https://CRAN.R-project.org/package=medflex)
 
 
-This R package runs flexible mediation analyses using natural effect models as described in the papers listed below.
+This R package runs flexible mediation analyses using natural effect models.
 
-To install:
-`devtools::install_github("jmpsteen/medflex")` (requires `devtools` installation)
+### Installation
 
+To install the CRAN release version: 
+```R
+install.packages('medflex')
+```
+
+To install the latest development release (requires `devtools` installation):
+```R
+devtools::install_github('jmpsteen/medflex')
+```
+
+### Citation
 
 If you're using this package, please cite our companion paper in Journal of Statistical Software (which is also available as a [vignette](https://cran.r-project.org/web/packages/medflex/vignettes/medflex.pdf) to the package)
 
-> Steen, J., Loeys, T., Moerkerke B., & Vansteelandt S. (2017) Medflex: An R Package for Flexible Mediation Analysis Using Natural Effect Models. *Journal of Statistical Software*. [doi:10.18637/jss.v076.i11](https://www.jstatsoft.org/article/view/v076i11)
+> Steen, J., Loeys, T., Moerkerke B., & Vansteelandt S. (2017) Medflex: An R Package for Flexible Mediation Analysis Using Natural Effect Models. *Journal of Statistical Software*, **76**(11). [doi:10.18637/jss.v076.i11](https://www.jstatsoft.org/article/view/v076i11)
 
 
-Methodological references:
+Methodological references on natural effect models:
 
 > Lange, T., Vansteelandt, S., & Bekaert, M. (2012). A Simple Unified Approach for
 Estimating Natural Direct and Indirect Effects. *American Journal of Epidemiology*,
