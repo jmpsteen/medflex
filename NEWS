@@ -1,3 +1,7 @@
+Changes in Version 0.6-2
+
+  o Error when running neEffdecomp on a neModel-object that represents a population-average natural effect model: fixed (cf github issue #7)
+
 Changes in Version 0.6-1
 
   o Added flexibility with formula argument (in order to mimick glm function's behavior) (cf github issue #2)

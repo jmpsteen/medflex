@@ -36,5 +36,5 @@ devtools::install_github('jmpsteen/medflex')
 
 If you're using this package, please cite our companion paper in Journal of Statistical Software (which is also available as a [vignette](https://cran.r-project.org/web/packages/medflex/vignettes/medflex.pdf) to the package)
 
-> Steen, J., Loeys, T., Moerkerke B., & Vansteelandt, S. (2017). medflex: An R Package for Flexible Mediation Analysis Using Natural Effect Models. *Journal of Statistical Software*, **76**(11). [doi:10.18637/jss.v076.i11](https://www.jstatsoft.org/article/view/v076i11)
+> Steen, J., Loeys, T., Moerkerke, B., & Vansteelandt, S. (2017). medflex: An R Package for Flexible Mediation Analysis Using Natural Effect Models. *Journal of Statistical Software*, **76**(11). [doi:10.18637/jss.v076.i11](https://www.jstatsoft.org/article/view/v076i11)
 
