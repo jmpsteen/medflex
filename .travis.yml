@@ -1,4 +1,4 @@
 language: r
 
 before_install:
-  - tlmgr install nccmath
+  - tlmgr install amsmath
