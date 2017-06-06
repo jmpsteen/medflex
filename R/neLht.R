@@ -286,11 +286,11 @@ neEffdecomp.neModel <- function (model, xRef, covLev, ...)
   varterms <- dimnames(attr(terms(form), "factors"))[[1]]
   covTerms <- if(!is.null(cov)) varterms[sapply(cov, grep, varterms)] else NULL
   if (identical(cov, covTerms)) {
-    dat <- substitute(model$neModelFit$data)
+    dat <- quote(model$neModelFit$data)
   } 
   else {
     modframe <- model.frame(model$neModelFit, data = model$neModelFit$data)
-    dat <- substitute(modframe)
+    dat <- quote(modframe)
   }
   if (!missing(covLev) & !length(cov)) warning("As the natural effect model does not encode covariate effects, specified covariate levels are not taken into account.")
   tmp <- attr(terms(form), "factors")[covTerms, which(attr(terms(form), "order") > 1), drop = FALSE]
@@ -372,6 +372,7 @@ plot.neEffdecomp <- function (x, level = 0.95, transf = identity,
     ylabels, yticks.at, ...) 
 {
     args <- as.list(match.call())
+    args[["x"]] <- quote(x)
     if (nrow(x$linfct) == 5)
         if (missing(yticks.at)) 
             args$yticks.at <- c(0, 0.15, 0.5, 0.65, 1)

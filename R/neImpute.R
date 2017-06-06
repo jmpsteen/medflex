@@ -212,7 +212,7 @@ neImpute.default <- function (object, formula, data, nMed = 1, nRep = 5, xSampli
             args$nRep <- substitute(nRep)
         if (missing(percLim)) 
             args$percLim <- percLim
-        args$data <- eval.parent(args$data, n = 2)
+        args$data <- if (isS4(object)) eval(args$data, environment(extrCall(object)$formula)) else eval(args$data, environment(object$formula))
         expData <- do.call("expandData", c(x = substitute(vartype$X), 
             args))
         nExp <- ifelse(joint, 1, nMed)

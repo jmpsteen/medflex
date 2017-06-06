@@ -331,8 +331,8 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
     args <- as.list(match.call()) 
     if (missing(expData)) {
       expData <- parent.frame(2)$envir
-      args$expData <- quote(expData)
     }
+    args$expData <- quote(expData)
     args[[1]] <- substitute(neModelEst)
     args <- c(args[[1]], args[names(args) %in% names(formals(neModelEst))])
     neModelFit <- eval(as.call(args))
@@ -539,8 +539,8 @@ plot.neModel <- function (x, xRef, covLev, level = 0.95,
     transf = identity, ylabels, yticks.at, ...) 
 {
     args <- as.list(match.call())
-    args[[1]] <- substitute(plot)
-    args$x <- substitute(neEffdecomp(x, xRef = xRef, covLev = covLev))
+    args[[1]] <- quote(plot)
+    args$x <- quote(neEffdecomp(x, xRef = xRef, covLev = covLev))
     effdecomp <- eval(args$x)
     args[c("xRef", "covLev")] <- NULL
     eval(as.call(args))
@@ -559,8 +559,8 @@ plot.neModelBoot <- function (x, xRef, covLev, level = 0.95,
     ci.type = "norm", transf = identity, ylabels, yticks.at, ...) 
 {
     args <- as.list(match.call())
-    args[[1]] <- substitute(plot)
-    args$x <- substitute(neEffdecomp(x, xRef = xRef, covLev = covLev))
+    args[[1]] <- quote(plot)
+    args$x <- quote(neEffdecomp(x, xRef = xRef, covLev = covLev))
     effdecomp <- eval(args$x)
     args[c("xRef", "covLev")] <- NULL
     eval(as.call(args))
@@ -644,7 +644,7 @@ residualPlot.neModel <- function(object, ...)
 residualPlots.neModel <- function(object, ...) 
 {
     object$neModelFit$call[[1]] <- quote(glm)
-    object$neModelFit$call[["data"]] <- object$neModelFit$call[["expData"]]
+    object$neModelFit$call[["data"]] <- quote(neMod$neModelFit$data)
     object$neModelFit$call[["expData"]] <- NULL
     object$neModelFit$call[["weights"]] <- quote(weights(object$neModelFit, type = "prior"))
     if (!is.null(object$neModelFit$call[["xFit"]])) object$neModelFit$call[["xFit"]] <- NULL

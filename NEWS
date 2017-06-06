@@ -1,3 +1,8 @@
+Changes in Version 0.6-3
+
+  o Issue with scoping solved (cf github issue #6)
+  o Added compatibility with magrittr's forward-pipe operator `%>%` 
+
 Changes in Version 0.6-2
 
   o Error when running neEffdecomp on a neModel-object that represents a population-average natural effect model: fixed (cf github issue #7)

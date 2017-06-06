@@ -61,9 +61,9 @@ neModelEst <- function (formula, family, expData, xFit, ...)
 {
     args <- as.list(match.call())[-1L]
     args$weights <- if (inherits(expData, "weightData")) 
-        substitute(attr(expData, "weights"))
+      quote(attr(expData, "weights"))
     else if (inherits(expData, "impData")) 
-        rep(1, nrow(expData))
+      quote(rep(1, nrow(expData)))
     if (!is.null(args$xFit)) {
         xFit <- eval(args$xFit)
         xFormula <- extrCall(xFit)$formula
@@ -99,13 +99,12 @@ neModelEst <- function (formula, family, expData, xFit, ...)
           dfun(expData[, vartype$Xexp[2]])
         args$weights <- eval(args$weights) / denominator
     }
-    args$data <- args$expData
+    args$data <- quote(expData)
     args$expData <- args$xFit <- NULL
     fit <- suppressWarnings(do.call("glm", args))
     mc <- match.call()
     fit$call <- attr(fit, "call") <- mc
     attr(fit, "terms") <- fit$terms
-    attr(attr(fit, "terms"), "vartype") <- attr(attr(expData, 
-        "terms"), "vartype")
+    attr(attr(fit, "terms"), "vartype") <- attr(attr(expData, "terms"), "vartype")
     return(fit)
 }
