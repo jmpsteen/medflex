@@ -372,8 +372,8 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
         replacement <- c(X0, paste0(X0, ":"), paste0(":", X0, ":"), paste0(":", X0), rep(c(X1, paste0(X1, ":"), paste0(":", X1, ":"), paste0(":", X1)), each = nMed))
         termsImpData <- unique(mgsub(pattern, replacement, termsImpData))
         termsNeModel <- mgsub(dimnames(attr(terms(neModelFit), 
-            "factors"))[[1]], all.vars(neModelFit$formula), labels(terms(neModelFit)), 
-            fixed = TRUE)
+                                            "factors"))[[1]], all.vars(stats::formula(neModelFit)), labels(terms(neModelFit)), 
+                              fixed = TRUE)
         if (sum(!termsNeModel %in% termsImpData)) 
             warning("The imputation model should at least reflect the structure of the natural effect model! This may cause some of the effect estimates to be attenuated. Please consult the terms of the models 'x' using 'labels(terms(x))'.")
     }
@@ -424,7 +424,7 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
              if (inherits(expData, "weightData") && !is.null(na.action(fit1))) {
                fit1$data$wts <- vector(length = nrow(fit1$data))
                fit1$data$wts[-na.action(fit1)] <- weights(fit1, "prior")
-               fit1$data[na.action(fit1), all.vars(fit1$formula)[1]] <- 0
+               fit1$data[na.action(fit1), all.vars(stats::formula(fit1))[1]] <- 0
                fit1$call[[1]] <- quote(glm)
                fit1$call[["expData"]] <- NULL
                fit1$call[["data"]] <- quote(fit1$data)
@@ -436,7 +436,7 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
              if (inherits(expData, "impData") && !is.null(na.action(fit2))) {
                fit2$data$wts <- vector(length = nrow(fit2$data))
                fit2$data$wts[-na.action(fit2)] <- weights(fit2, "prior")
-               fit2$data[na.action(fit2), all.vars(fit2$formula)[1]] <- 0
+               fit2$data[na.action(fit2), all.vars(stats::formula(fit2))[1]] <- 0
                fit2$call[["data"]] <- quote(fit2$data)
                fit2$call[["weights"]] <- quote(wts)
                fit2 <- update(fit2)

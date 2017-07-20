@@ -142,7 +142,7 @@ neWeight <- function (object, ...)
 #' head(w3); head(w3f)
 #'
 #' # test vglm
-#' fit3b <- vgam(negaff3 ~ att + gender + educ + age, family = poissonff, data = UPBdata)
+#' fit3b <- vgam(negaff3 ~ att + gender + educ + s(age), family = poissonff, data = UPBdata)
 #' expData3b <- neWeight(fit3b)
 #' head(attr(expData3, "weights")); head(attr(expData3b, "weights"))
 #' fit3b <- vgam(negaff3 ~ s(att) + gender + educ + age, family = poissonff, data = UPBdata)
@@ -170,14 +170,14 @@ neWeight.default <- function (object, formula, data, nRep = 5, xSampling = c("qu
     else substitute(data)
     if (!isTRUE(args$skipExpand)) {
         if (missing(formula)) 
-            formula <- extrCall(fit)$formula
+            formula <- stats::formula(fit)
         formula <- as.formula(eval(formula))
         class(formula) <- c("Mformula", "formula")
         vartype <- args$vartype <- attr(neTerms(formula, Y = NA, 
             nMed = nMed, joint = joint), "vartype")
-        xFact <- if ("SuperLearner" %in% class(fit)) {
+        xFact <- if (inherits(fit, "SuperLearner")) {
             is.factor(model.frame(formula, eval(args$data))[, attr(vartype, "xasis")])
-        } else if (any(c("vglm", "vgam") %in% class(fit))) {
+        } else if (inherits(fit, c("vglm", "vgam"))) {
             is.factor(VGAM::model.frame(fit)[, attr(vartype, "xasis")])
         } else {
             is.factor(model.frame(fit)[, attr(vartype, "xasis")])
@@ -201,7 +201,7 @@ neWeight.default <- function (object, formula, data, nRep = 5, xSampling = c("qu
             args$nRep <- substitute(nRep)
         if (missing(percLim)) 
             args$percLim <- percLim
-        args$data <- if (isS4(object)) eval(args$data, environment(extrCall(object)$formula)) else eval(args$data, environment(object$formula))
+        args$data <- eval(args$data, environment(stats::formula(fit)))
         expData <- do.call("expandData", c(x = substitute(vartype$X), 
             args))
         nExp <- ifelse(joint, 1, nMed)
@@ -219,9 +219,15 @@ neWeight.default <- function (object, formula, data, nRep = 5, xSampling = c("qu
         attr <- attributes(expData)
         vartype <- attr(attr$terms, "vartype")
     }
-    family <- if(inherits(fit, "vglm")) fit@family@vfamily[1] else fit$family$family
-    family <- c("gaussian", "binomial", "poisson", "multinomial")[mapply(function(x, 
-        y) grepl(y, x), as.character(family), c("gaussian", "binomial", 
+    wrapFUN <- if (inherits(fit, "vglm"))
+      function(x) model.frame(stats::formula(fit)[-2], x)
+    else 
+      function(x) return(x)
+    family <- if (inherits(fit, "vglm")) 
+        fit@family@vfamily[1] 
+    else fit$family$family
+    family <- c("gaussian", "binomial", "poisson", "multinomial")[mapply(function(x,
+        y) grepl(y, x), as.character(family), c("gaussian", "binomial",
         "poisson", "multinomial"))]
     dispersion <- if (inherits(fit, "vglm")) 
         fit@misc$dispersion
@@ -232,19 +238,15 @@ neWeight.default <- function (object, formula, data, nRep = 5, xSampling = c("qu
       VGAM::predict.vgam
     else predict
     dfun <- switch(family, 
-         gaussian = function(x) dnorm(x, mean = predictFUN(fit, newdata = expData, type = "response"), sd = sqrt(dispersion)), 
+         gaussian = function(x) dnorm(x, mean = predictFUN(fit, newdata = wrapFUN(expData), type = "response"), sd = sqrt(dispersion)), 
          binomial = function(x) {if (is.factor(x)) x <- as.numeric(x) - 1
-                     return(dbinom(x, size = 1, prob = predictFUN(fit, newdata = expData, type = "response")))}, 
-         poisson = function(x) dpois(x, lambda = predictFUN(fit, newdata = expData, type = "response")),
-         multinomial = function(x) {pred <- predictFUN(fit, newdata = expData, type = "response")
+                     return(dbinom(x, size = 1, prob = predictFUN(fit, newdata = wrapFUN(expData), type = "response")))}, 
+         poisson = function(x) dpois(x, lambda = predictFUN(fit, newdata = wrapFUN(expData), type = "response")),
+         multinomial = function(x) {pred <- predictFUN(fit, newdata = wrapFUN(expData), type = "response")
                         return(sapply(1:nrow(expData), function(i) pred[i, as.character(x[i])]))})
     expData[, vartype$X] <- expData[, vartype$Xexp[2]]
-    try(weightsNum <- dfun(expData[, vartype$M]), silent = TRUE)
-    checkExist <- exists("weightsNum")
-    if (!checkExist) expData[, attr(vartype, "xasis")] <- expData[, vartype$Xexp[2]] 
     weightsNum <- dfun(expData[, vartype$M])
     expData[, vartype$X] <- expData[, vartype$Xexp[1]]
-    if (!checkExist) expData[, attr(vartype, "xasis")] <- expData[, vartype$Xexp[1]] 
     weightsDenom <- dfun(expData[, vartype$M])
     expData <- expData[, -ncol(expData)]
     if (!isTRUE(args$skipExpand)) {

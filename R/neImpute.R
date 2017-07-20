@@ -87,7 +87,7 @@ neImpute <- function (object, ...)
 #' data(UPBdata)
 #' 
 #' ## example using glm imputation model with binary exposure
-#' fit.glm <- glm(UPB ~ attbin + negaff + gender + educ + age, 
+#' fit.glm <- glm(UPB ~ factor(attbin) + negaff + gender + educ + age, 
 #'                family = binomial, data = UPBdata)
 #' impData <- neImpute(fit.glm)
 #' head(impData)
@@ -181,14 +181,14 @@ neImpute.default <- function (object, formula, data, nMed = 1, nRep = 5, xSampli
         }
         else substitute(data)
         if (missing(formula)) 
-            formula <- extrCall(fit)$formula
+            formula <- stats::formula(fit)
         formula <- as.formula(eval(formula))
         class(formula) <- c("Yformula", "formula")
         vartype <- args$vartype <- attr(neTerms(formula, nMed, 
             joint), "vartype")
-        xFact <- if ("SuperLearner" %in% class(fit)) {
+        xFact <- if (inherits(fit, "SuperLearner")) {
             is.factor(model.frame(formula, eval(args$data))[, attr(vartype, "xasis")])
-        } else if (any(c("vglm", "vgam") %in% class(fit))) {
+        } else if (inherits(fit, c("vglm", "vgam"))) {
             is.factor(VGAM::model.frame(fit)[, attr(vartype, "xasis")])
         } else {
             is.factor(model.frame(fit)[, attr(vartype, "xasis")])
@@ -212,7 +212,10 @@ neImpute.default <- function (object, formula, data, nMed = 1, nRep = 5, xSampli
             args$nRep <- substitute(nRep)
         if (missing(percLim)) 
             args$percLim <- percLim
-        args$data <- if (isS4(object)) eval(args$data, environment(extrCall(object)$formula)) else eval(args$data, environment(object$formula))
+        args$data <- if (inherits(fit, "SuperLearner")) 
+            eval(args$data, environment(fit))
+        else
+            eval(args$data, environment(stats::formula(fit)))
         expData <- do.call("expandData", c(x = substitute(vartype$X), 
             args))
         nExp <- ifelse(joint, 1, nMed)
@@ -232,25 +235,24 @@ neImpute.default <- function (object, formula, data, nMed = 1, nRep = 5, xSampli
         vartype <- attr(attr$terms, "vartype")
     }
     expData[, vartype$X] <- expData[, vartype$Xexp[1]]    
-    if ("SuperLearner" %in% class(fit)) {
-        newdata <- expData[, names(eval(fit$call$X))]
-        type <- NULL
-        ind <- "pred"
-    }
-    else {
-        newdata <- expData
-        type <- "response"
-        ind <- seq.int(nrow(newdata))
-    }
+    wrapFUN <- if (inherits(fit, "SuperLearner")) 
+      function(x) x[, names(eval(fit$call$X))]
+    else if (inherits(fit, "vglm"))
+      function(x) model.frame(stats::formula(fit)[-2], x)
+    else 
+      function(x) return(x)
+    type <- if (inherits(fit, "SuperLearner")) 
+      NULL
+    else "response"
+    ind <- if (inherits(fit, "SuperLearner"))
+      "pred"
+    else seq.int(nrow(expData))
     predictFUN <- if (inherits(fit, "vglm")) 
       VGAM::predictvglm
     else if (inherits(fit, "vgam")) 
       VGAM::predict.vgam
     else predict
-    try(pred <- predictFUN(fit, newdata = newdata, type = type)[ind], silent = TRUE)
-    checkExist <- exists("pred")
-    if (!checkExist) newdata[, attr(vartype, "xasis")] <- newdata[, vartype$Xexp[1]] 
-    expData[, vartype$Y] <- predictFUN(fit, newdata = newdata, type = type)[ind]
+    expData[, vartype$Y] <- predictFUN(fit, newdata = wrapFUN(expData), type = type)[ind]
     expData <- expData[, -ncol(expData)]
     if (!isTRUE(args$skipExpand)) {
         attributes(expData) <- c(attributes(expData), list(model = fit, 
@@ -329,7 +331,7 @@ neImpute.default <- function (object, formula, data, nMed = 1, nRep = 5, xSampli
 #' data(UPBdata)
 #' 
 #' ## example using glm imputation model with binary exposure
-#' impData <- neImpute(UPB ~ attbin + negaff + gender + educ + age, 
+#' impData <- neImpute(UPB ~ factor(attbin) + negaff + gender + educ + age, 
 #'                     family = binomial, data = UPBdata)
 #' head(impData)
 #' 

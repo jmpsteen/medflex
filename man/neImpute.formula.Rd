@@ -88,7 +88,7 @@ These default 'outer' quantiles can be changed by specifying the \code{percLim} 
 data(UPBdata)
 
 ## example using glm imputation model with binary exposure
-impData <- neImpute(UPB ~ attbin + negaff + gender + educ + age, 
+impData <- neImpute(UPB ~ factor(attbin) + negaff + gender + educ + age, 
                     family = binomial, data = UPBdata)
 head(impData)
 

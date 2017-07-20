@@ -278,7 +278,7 @@ neEffdecomp.neModel <- function (model, xRef, covLev, ...)
                xRef[c(1, 2, 1, 1)],
                xRef[c(2, 2, 2, 1)],
                xRef[c(2, 2, 1, 1)])
-  form <- model$neModelFit$formula
+  form <- stats::formula(model$neModelFit)
   vartype <- attr(terms(model), "vartype")
   if (is.na(vartype$Y)) vartype$Y <- as.character(form[[2]])
   cov <- all.vars(form)[!all.vars(form) %in% unlist(vartype[c("Y", "Xexp")])]

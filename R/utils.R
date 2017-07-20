@@ -17,7 +17,8 @@ extrData <- function (x)
         dimnames(data)[[2]][ncol(data)] <- as.character(x$call$Y[[3]])
     }
     else {
-        data <- eval(extrCall(x)$data)
+        data <- extrCall(x)$data
+        data <- eval(data, envir = globalenv())
     }
     if (!is.data.frame(data)) data <- as.data.frame(as.list(data))
     return(data)
@@ -46,13 +47,13 @@ adaptx <- function(expData, neModelFit, obs = NULL, xFit = NULL)
     else if (inherits(expData, "impData")) X <- ifelse(obs, vartype$Xexp[[2]], vartype$Xexp[[1]])
     
     ind <- c(unlist(vartype[c("Y", "M", "C")]), X)
-    if (is.na(ind["Y"])) vartype$Y <- ind["Y"] <- all.vars(fit1$formula)[1]
+    if (is.na(ind["Y"])) vartype$Y <- ind["Y"] <- all.vars(stats::formula(fit1))[1]
     
     newdat <- expData[, ind]
     colnames(newdat) <- gsub(X, vartype$X, colnames(newdat))
     newdat <- newdat[, unlist(vartype[c("Y", "X", "M", "C")])]
     
-    modmat <- model.matrix(fit2$formula, newdat)
+    modmat <- model.matrix(stats::formula(fit2), newdat)
     
     return(list(newdat = newdat, modmat = modmat))
 }
@@ -66,17 +67,21 @@ neModelEst <- function (formula, family, expData, xFit, ...)
       quote(rep(1, nrow(expData)))
     if (!is.null(args$xFit)) {
         xFit <- eval(args$xFit)
-        xFormula <- extrCall(xFit)$formula
+        xFormula <- stats::formula(xFit)
         class(xFormula) <- "Xformula"
         vartypeCheck <- attr(neTerms(xFormula), "vartype")
         vartype <- attr(attr(expData, "terms"), "vartype")
         if (!identical(vartype[names(vartypeCheck)], vartypeCheck)) 
             stop("Exposure or covariates of propensity score model and mediator model don't match!")
-        family <- if (is.null(extrCall(xFit)$family)) 
-            formals(eval(extrCall(xFit)[[1]]))$family
-        else extrCall(xFit)$family
-        family <- c("gaussian", "binomial", "poisson", "multinomial")[mapply(function(x, 
-            y) grepl(y, x), as.character(family), c("gaussian", "binomial", 
+        wrapFUN <- if (inherits(xFit, "vglm"))
+          function(x) model.frame(stats::formula(xFit)[-2], x)
+        else 
+          function(x) return(x)
+        family <- if (inherits(xFit, "vglm")) 
+            xFit@family@vfamily[1]
+        else xFit$family$family
+        family <- c("gaussian", "binomial", "poisson", "multinomial")[mapply(function(x,
+            y) grepl(y, x), as.character(family), c("gaussian", "binomial",
             "poisson", "multinomial"))]
         dispersion <- if (inherits(xFit, "vglm")) 
             xFit@misc$dispersion
@@ -87,11 +92,11 @@ neModelEst <- function (formula, family, expData, xFit, ...)
           VGAM::predict.vgam
         else predict
         dfun <- switch(family, 
-                       gaussian = function(x) dnorm(x, mean = predictFUN(xFit, newdata = expData, type = "response"), sd = sqrt(dispersion)), 
+                       gaussian = function(x) dnorm(x, mean = predictFUN(xFit, newdata = wrapFUN(expData), type = "response"), sd = sqrt(dispersion)), 
                        binomial = function(x) {if (is.factor(x)) x <- as.numeric(x) - 1
-                                               return(dbinom(x, size = 1, prob = predictFUN(xFit, newdata = expData, type = "response")))}, 
-                       poisson = function(x) dpois(x, lambda = predictFUN(xFit, newdata = expData, type = "response")),
-                       multinomial = function(x) {pred <- predictFUN(xFit, newdata = expData, type = "response")
+                                               return(dbinom(x, size = 1, prob = predictFUN(xFit, newdata = wrapFUN(expData), type = "response")))}, 
+                       poisson = function(x) dpois(x, lambda = predictFUN(xFit, newdata = wrapFUN(expData), type = "response")),
+                       multinomial = function(x) {pred <- predictFUN(xFit, newdata = wrapFUN(expData), type = "response")
                                                   return(sapply(1:nrow(expData), function(i) pred[i, as.character(x[i])]))})
         denominator <- if (inherits(expData, "weightData")) 
           dfun(expData[, vartype$Xexp[1]])

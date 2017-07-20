@@ -1,7 +1,7 @@
 Package: medflex
 Title: Flexible Mediation Analysis Using Natural Effect Models
-Version: 0.6-3
-Date: 2017-06-06
+Version: 0.6-4
+Date: 2017-07-20
 Authors@R: c( 
     person("Johan", "Steen", email = "johan.steen@gmail.com", role = c("aut", "cre")), 
     person("Tom", "Loeys", email = "tom.loeys@ugent.be", role = "aut"), 
@@ -26,6 +26,7 @@ Suggests: arm (>= 1.7-05), gam (>= 1.09.1), glmnet (>= 1.9-8), mice (>=
         2.22), mitools (>= 2.3), rpart (>= 4.1-8), SuperLearner (>=
         2.0-15), VGAM (>= 1.0-0)
 RoxygenNote: 6.0.1
+ByteCompile: yes
 NeedsCompilation: no
 Author: Johan Steen [aut, cre],
   Tom Loeys [aut],

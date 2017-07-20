@@ -141,7 +141,7 @@ head(expData3); head(expData3f)
 head(w3); head(w3f)
 
 # test vglm
-fit3b <- vgam(negaff3 ~ att + gender + educ + age, family = poissonff, data = UPBdata)
+fit3b <- vgam(negaff3 ~ att + gender + educ + s(age), family = poissonff, data = UPBdata)
 expData3b <- neWeight(fit3b)
 head(attr(expData3, "weights")); head(attr(expData3b, "weights"))
 fit3b <- vgam(negaff3 ~ s(att) + gender + educ + age, family = poissonff, data = UPBdata)
