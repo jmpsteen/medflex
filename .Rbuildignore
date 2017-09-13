@@ -2,3 +2,4 @@
 ^\.Rproj\.user$
 .md
 .txt
+.travis.yml

@@ -1,7 +1,7 @@
 Package: medflex
 Title: Flexible Mediation Analysis Using Natural Effect Models
 Version: 0.6-4
-Date: 2017-07-20
+Date: 2017-09-13
 Authors@R: c( 
     person("Johan", "Steen", email = "johan.steen@gmail.com", role = c("aut", "cre")), 
     person("Tom", "Loeys", email = "tom.loeys@ugent.be", role = "aut"), 
@@ -11,20 +11,29 @@ Authors@R: c(
     person("Theis", "Lange", email = "thlan@sund.ku.dk", comment = "valuable suggestions", role = "ctb"), 
     person("Joscha", "Legewie", email = "", role = "ctb") )
 Description: Run flexible mediation analyses using natural effect models as described in 
-    Lange, Vansteelandt and Bekaert (2012) <DOI:10.1093/aje/kwr525>,
-    Vansteelandt, Bekaert and Lange (2012) <DOI:10.1515/2161-962X.1014> and
-    Loeys, Moerkerke, De Smet, Buysse, Steen and Vansteelandt (2013) 
-    <DOI:10.1080/00273171.2013.832132>.
-Depends: R (>= 3.1.2), multcomp (>= 1.3-6)
+  Lange, Vansteelandt and Bekaert (2012) <DOI:10.1093/aje/kwr525>, 
+  Vansteelandt, Bekaert and Lange (2012) <DOI:10.1515/2161-962X.1014> 
+  and Loeys, Moerkerke, De Smet, Buysse, Steen and Vansteelandt (2013) <DOI:10.1080/00273171.2013.832132>.
+Depends: R (>= 3.1.2), 
+  multcomp (>= 1.3-6)
 License: GPL-2
 URL: https://github.com/jmpsteen/medflex
 LazyData: true
-Imports: boot (>= 1.3-8), car (>= 2.0-21), Matrix (>= 1.1-4), graphics
-        (>= 3.1.2), sandwich (>= 2.3-2), stats (>= 3.1.2), utils (>=
-        3.1.2)
-Suggests: arm (>= 1.7-05), gam (>= 1.09.1), glmnet (>= 1.9-8), mice (>=
-        2.22), mitools (>= 2.3), rpart (>= 4.1-8), SuperLearner (>=
-        2.0-15), VGAM (>= 1.0-0)
+Imports: boot (>= 1.3-8), 
+  car (>= 2.0-21), 
+  Matrix (>= 1.1-4), 
+  graphics (>= 3.1.2), 
+  sandwich (>= 2.3-2), 
+  stats (>= 3.1.2), 
+  utils (>= 3.1.2)
+Suggests: arm (>= 1.7-05), 
+  gam (>= 1.09.1), 
+  glmnet (>= 1.9-8), 
+  mice (>= 2.22), 
+  mitools (>= 2.3), 
+  rpart (>= 4.1-8), 
+  SuperLearner (>= 2.0-15), 
+  VGAM (>= 1.0-0)
 RoxygenNote: 6.0.1
 ByteCompile: yes
 NeedsCompilation: no
