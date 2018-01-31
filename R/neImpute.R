@@ -105,7 +105,7 @@ neImpute <- function (object, ...)
 #' impData2 <- neImpute(fit.vglm, nRep = 2)
 #' head(impData2)
 #' 
-# \donttest{
+#' \dontrun{
 #' ## example using SuperLearner
 #' library(Matrix)
 #' library(SuperLearner)
@@ -119,7 +119,8 @@ neImpute <- function (object, ...)
 #'                   formula = UPB ~ att + negaff + gender + educ + age, 
 #'                   data = UPBdata)
 #' head(impSL)
-# }
+#' }
+#' 
 #' \dontshow{
 #' rm(list=ls())
 #' library(VGAM) 

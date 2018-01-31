@@ -100,6 +100,7 @@ fit.vglm <- vglm(UPB ~ att + negaff + gender + educ + age,
 impData2 <- neImpute(fit.vglm, nRep = 2)
 head(impData2)
 
+\dontrun{
 ## example using SuperLearner
 library(Matrix)
 library(SuperLearner)
@@ -113,6 +114,8 @@ impSL <- neImpute(fit.SL,
                   formula = UPB ~ att + negaff + gender + educ + age, 
                   data = UPBdata)
 head(impSL)
+}
+
 \dontshow{
 rm(list=ls())
 library(VGAM) 
