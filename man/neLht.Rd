@@ -4,7 +4,6 @@
 \alias{neLht}
 \alias{neEffdecomp}
 \alias{neEffdecomp.neModel}
-\alias{neLht}
 \alias{neLht.neModel}
 \title{Linear hypotheses for natural effect models}
 \usage{

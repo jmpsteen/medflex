@@ -5,7 +5,8 @@
 \title{Expand the dataset and impute nested counterfactual outcomes}
 \usage{
 \method{neImpute}{default}(object, formula, data, nMed = 1, nRep = 5,
-  xSampling = c("quantiles", "random"), xFit, percLim = c(0.05, 0.95), ...)
+  xSampling = c("quantiles", "random"), xFit, percLim = c(0.05, 0.95),
+  ...)
 }
 \arguments{
 \item{object}{fitted model object representing the imputation model.}

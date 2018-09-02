@@ -14,8 +14,8 @@
 \usage{
 \method{coef}{neModel}(object, ...)
 
-\method{confint}{neModelBoot}(object, parm, level = 0.95, type = "norm",
-  ...)
+\method{confint}{neModelBoot}(object, parm, level = 0.95,
+  type = "norm", ...)
 
 \method{confint}{neModel}(object, parm, level = 0.95, ...)
 

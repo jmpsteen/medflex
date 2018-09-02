@@ -333,6 +333,7 @@ neModel <- function (formula, family = gaussian, expData, xFit, se = c("bootstra
       expData <- parent.frame(2)$envir
     }
     args$expData <- quote(expData)
+    if (!is.null(args$xFit)) args$xFit <- quote(xFit)
     args[[1]] <- substitute(neModelEst)
     args <- c(args[[1]], args[names(args) %in% names(formals(neModelEst))])
     neModelFit <- eval(as.call(args))

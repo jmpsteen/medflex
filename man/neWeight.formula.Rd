@@ -5,7 +5,8 @@
 \title{Expand the dataset and calculate ratio-of-mediator probability weights}
 \usage{
 \method{neWeight}{formula}(object, family, data, FUN = glm, nRep = 5,
-  xSampling = c("quantiles", "random"), xFit, percLim = c(0.05, 0.95), ...)
+  xSampling = c("quantiles", "random"), xFit, percLim = c(0.05, 0.95),
+  ...)
 }
 \arguments{
 \item{object}{a \code{\link[stats]{formula}} object providing a symbolic description of the mediator model (see details).}
@@ -81,11 +82,6 @@ data(UPBdata)
 ## example using glm
 weightData <- neWeight(negaff ~ att + gender + educ + age, 
                        data = UPBdata, nRep = 2)
-
-## example using vglm (yielding identical results as with glm)
-library(VGAM)
-weightData2 <- neWeight(negaff ~ att + gender + educ + age, 
-                        family = gaussianff, data = UPBdata, nRep = 2, FUN = vglm)
 }
 \seealso{
 \code{\link{neWeight.default}}, \code{\link{expData}}

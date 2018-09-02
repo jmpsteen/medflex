@@ -1,3 +1,7 @@
+Changes in Version 0.6-6
+
+  o Scoping issue solved (cf github issue #14)
+
 Changes in Version 0.6-5
 
   o neWeight function is now compatible with SuperLearner with family = binomial

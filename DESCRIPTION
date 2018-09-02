@@ -1,7 +1,7 @@
 Package: medflex
 Title: Flexible Mediation Analysis Using Natural Effect Models
-Version: 0.6-5
-Date: 2018-01-31
+Version: 0.6-6
+Date: 2018-09-03
 Authors@R: c( 
     person("Johan", "Steen", email = "johan.steen@gmail.com", role = c("aut", "cre")), 
     person("Tom", "Loeys", email = "tom.loeys@ugent.be", role = "aut"), 
@@ -9,7 +9,8 @@ Authors@R: c(
     person("Stijn", "Vansteelandt", email = "stijn.vansteelandt@ugent.be", role = "aut"),
     person("Joris", "Meys", email = "joris.meys@ugent.be", comment = "technical support", role = "ctb"), 
     person("Theis", "Lange", email = "thlan@sund.ku.dk", comment = "valuable suggestions", role = "ctb"), 
-    person("Joscha", "Legewie", email = "", role = "ctb") )
+    person("Joscha", "Legewie", email = "", role = "ctb"),
+    person("Paul", "Fink", email = "", role = "ctb"))
 Description: Run flexible mediation analyses using natural effect models as described in 
   Lange, Vansteelandt and Bekaert (2012) <DOI:10.1093/aje/kwr525>, 
   Vansteelandt, Bekaert and Lange (2012) <DOI:10.1515/2161-962X.1014> 
@@ -34,7 +35,7 @@ Suggests: arm (>= 1.7-05),
   rpart (>= 4.1-8), 
   SuperLearner (>= 2.0-15), 
   VGAM (>= 1.0-0)
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 ByteCompile: yes
 NeedsCompilation: no
 Author: Johan Steen [aut, cre],
@@ -43,5 +44,6 @@ Author: Johan Steen [aut, cre],
   Stijn Vansteelandt [aut],
   Joris Meys [ctb] (technical support),
   Theis Lange [ctb] (valuable suggestions),
-  Joscha Legewie [ctb]
+  Joscha Legewie [ctb],
+  Paul Fink [ctb]
 Maintainer: Johan Steen <johan.steen@gmail.com>

@@ -80,18 +80,18 @@ neWeight <- function (object, ...)
 #' ## example using glm
 #' fit.glm <- glm(negaff ~ att + gender + educ + age, data = UPBdata)
 #' weightData <- neWeight(fit.glm, nRep = 2)
-#' 
-#' ## example using vglm (yielding identical results as with glm)
-#' library(VGAM)
-#' fit.vglm <- vglm(negaff ~ att + gender + educ + age, 
-#'                  family = gaussianff, data = UPBdata)
-#' weightData2 <- neWeight(fit.vglm, nRep = 2)
-#'
+# 
+# ## example using vglm (yielding identical results as with glm)
+# library(VGAM)
+# fit.vglm <- vglm(negaff ~ att + gender + educ + age, 
+#                  family = gaussianff, data = UPBdata)
+# weightData2 <- neWeight(fit.vglm, nRep = 2)
+#
 #' \dontshow{
 #' library(VGAM) 
-#' expData <- neWeight(negaff ~ factor(attbin) + gender + educ + age, family = gaussianff, data = UPBdata, FUN = vglm)
-#' neMod <- neModel(UPB ~ attbin0 + attbin1 + gender + educ + age, family = binomial, expData = expData, nBoot = 2)
-#'  
+# expData <- neWeight(negaff ~ factor(attbin) + gender + educ + age, family = gaussianff, data = UPBdata, FUN = vglm)
+# neMod <- neModel(UPB ~ attbin0 + attbin1 + gender + educ + age, family = binomial, expData = expData, nBoot = 2)
+#  
 #' fit1 <- glm(negaff ~ att + gender + educ + age, data = UPBdata)
 #' expData1 <- neWeight(fit1)
 #' w1 <- attr(expData1, "weights")
@@ -100,15 +100,15 @@ neWeight <- function (object, ...)
 #' head(expData1); head(expData1f)
 #' head(w1); head(w1f)
 #'
-#' # test vglm (vglm is also vgam class, but not other way around!)
-#' fit1b <- vgam(negaff ~ att + gender + educ + age, family = gaussianff, data = UPBdata)
-#' expData1b <- neWeight(fit1b)
-#' head(attr(expData1, "weights")); head(attr(expData1b, "weights"))
-#' fit1b <- vgam(negaff ~ s(att) + gender + educ + age, family = gaussianff, data = UPBdata)
-#' expData1b <- neWeight(fit1b)
-#' head(attr(expData1, "weights")); head(attr(expData1b, "weights"))
-#' expData1bf <- neWeight(negaff ~ s(att) + gender + educ + age, FUN = vgam, family = gaussianff, data = UPBdata)
-#' head(attr(expData1b, "weights")); head(attr(expData1bf, "weights"))
+# # test vglm (vglm is also vgam class, but not other way around!)
+# fit1b <- vgam(negaff ~ att + gender + educ + age, family = gaussianff, data = UPBdata)
+# expData1b <- neWeight(fit1b)
+# head(attr(expData1, "weights")); head(attr(expData1b, "weights"))
+# fit1b <- vgam(negaff ~ s(att) + gender + educ + age, family = gaussianff, data = UPBdata)
+# expData1b <- neWeight(fit1b)
+# head(attr(expData1, "weights")); head(attr(expData1b, "weights"))
+# expData1bf <- neWeight(negaff ~ s(att) + gender + educ + age, FUN = vgam, family = gaussianff, data = UPBdata)
+# head(attr(expData1b, "weights")); head(attr(expData1bf, "weights"))
 #' ##
 #'
 #' UPBdata$negaff2 <- cut(UPBdata$negaff, breaks = 2, labels = c("low", "high"))
@@ -332,11 +332,11 @@ neWeight.default <- function (object, formula, data, nRep = 5, xSampling = c("qu
 #' ## example using glm
 #' weightData <- neWeight(negaff ~ att + gender + educ + age, 
 #'                        data = UPBdata, nRep = 2)
-#' 
-#' ## example using vglm (yielding identical results as with glm)
-#' library(VGAM)
-#' weightData2 <- neWeight(negaff ~ att + gender + educ + age, 
-#'                         family = gaussianff, data = UPBdata, nRep = 2, FUN = vglm)
+# 
+# ## example using vglm (yielding identical results as with glm)
+# library(VGAM)
+# weightData2 <- neWeight(negaff ~ att + gender + educ + age, 
+#                         family = gaussianff, data = UPBdata, nRep = 2, FUN = vglm)
 #' @export
 neWeight.formula <- function (object, family, data, FUN = glm, nRep = 5, xSampling = c("quantiles", 
     "random"), xFit, percLim = c(0.05, 0.95), ...) 
