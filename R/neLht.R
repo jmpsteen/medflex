@@ -283,7 +283,7 @@ neEffdecomp.neModel <- function (model, xRef, covLev, ...)
   if (is.na(vartype$Y)) vartype$Y <- as.character(form[[2]])
   cov <- all.vars(form)[!all.vars(form) %in% unlist(vartype[c("Y", "Xexp")])]
   cov <- if(!length(cov)) NULL else cov
-  varterms <- dimnames(attr(terms(form), "factors"))[[1]]
+  varterms <- dimnames(attr(terms(form), "factors"))[[1]][-1]
   covTerms <- if(!is.null(cov)) varterms[sapply(cov, grep, varterms)] else NULL
   if (identical(cov, covTerms)) {
     dat <- quote(model$neModelFit$data)

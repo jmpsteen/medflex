@@ -1,7 +1,7 @@
 Package: medflex
 Title: Flexible Mediation Analysis Using Natural Effect Models
-Version: 0.6-6
-Date: 2018-09-03
+Version: 0.6-7
+Date: 2019-02-13
 Authors@R: c( 
     person("Johan", "Steen", email = "johan.steen@gmail.com", role = c("aut", "cre")), 
     person("Tom", "Loeys", email = "tom.loeys@ugent.be", role = "aut"), 
