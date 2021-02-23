@@ -1,3 +1,8 @@
+Changes in Version 0.6-8
+
+  o Issue with neWeight function using VGAM::vglm with family = multinomial solved (cf github issue #15)
+  o neWeight function and xFit argument in neModel function now compatible with family = uninormal specification (VGAM::vglm function) ("gaussianff" was deprecated)
+
 Changes in Version 0.6-7
 
   o neEffdecomp no longer fails when covariate name is substring of outcome name (cf github issue #13)

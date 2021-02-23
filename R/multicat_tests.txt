@@ -73,7 +73,8 @@ neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, exp
 summary(neMod)
 
 # population-average
-fitX <- vglm(att ~ gender + educ + age, family = gaussianff, data = UPBdata)
+#fitX <- vglm(att ~ gender + educ + age, family = gaussianff, data = UPBdata)
+fitX <- vglm(att ~ gender + educ + age, family = uninormal, data = UPBdata)
 
 # debug(medflex:::neModelEst)
 neMod <- neModel(UPB ~ att0 * att1, family = binomial, expData = expData, xFit = fitX, nBoot = 50)
@@ -88,7 +89,8 @@ neMod <- neModel(UPB ~ att0 * att1 + gender + educ + age, family = binomial, exp
 summary(neMod)
 
 # population-average
-fitX <- vglm(att ~ gender + educ + age, family = gaussianff, data = UPBdata)
+#fitX <- vglm(att ~ gender + educ + age, family = gaussianff, data = UPBdata)
+fitX <- vglm(att ~ gender + educ + age, family = uninormal, data = UPBdata)
 
 # debug(medflex:::neModelEst)
 neMod <- neModel(UPB ~ att0 * att1, family = binomial, expData = expData, xFit = fitX, nBoot = 50)

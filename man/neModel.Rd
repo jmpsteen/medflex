@@ -4,9 +4,18 @@
 \alias{neModel}
 \title{Fit a natural effect model}
 \usage{
-neModel(formula, family = gaussian, expData, xFit, se = c("bootstrap",
-  "robust"), nBoot = 1000, parallel = c("no", "multicore", "snow"),
-  ncpus = getOption("boot.ncpus", 1L), progress = TRUE, ...)
+neModel(
+  formula,
+  family = gaussian,
+  expData,
+  xFit,
+  se = c("bootstrap", "robust"),
+  nBoot = 1000,
+  parallel = c("no", "multicore", "snow"),
+  ncpus = getOption("boot.ncpus", 1L),
+  progress = TRUE,
+  ...
+)
 }
 \arguments{
 \item{formula}{a \code{\link[stats]{formula}} object providing a symbolic description of the natural effect model.}
@@ -15,7 +24,7 @@ neModel(formula, family = gaussian, expData, xFit, se = c("bootstrap",
     function to be used in the model.  For \code{glm} this can be a
     character string naming a family function, a family function or the
     result of a call to a family function.  For \code{glm.fit} only the
-    third option is supported.  (See \code{\link{family}} for details of
+    third option is supported.  (See \code{\link[stats]{family}} for details of
     family functions.)}
 
 \item{expData}{the expanded dataset (of class \code{"\link{expData}"}).}
@@ -153,8 +162,8 @@ summary(impFit2r)
 
 \dontshow{# check with vgam (VGAM package)
 # library(VGAM)
-# weightData <- neWeight(negaff ~ att + gender + educ + age, family = "gaussianff", data = UPBdata, FUN = vgam)
-# impData <- neImpute(UPB ~ att + negaff + gender + educ + age, family = "binomialff", data = UPBdata, FUN = vgam)
+# weightData <- neWeight(negaff ~ att + gender + educ + age, family = uninormal, data = UPBdata, FUN = vgam)
+# impData <- neImpute(UPB ~ att + negaff + gender + educ + age, family = binomialff, data = UPBdata, FUN = vgam)
 # debug(neModel)
 # weightFit <- neModel(UPB ~ att0 + att1 + gender + educ + age, family = binomial, expData = weightData, nBoot = 2)
 # impFit <- neModel(UPB ~ att0 + att1 + gender + educ + age, family = binomial, expData = impData, nBoot = 2)

@@ -59,7 +59,7 @@ citEntry(entry = "Article",
   volume       = "1",
   number       = "1",
   pages        = "Article 7",
-  url          = "http://www.degruyter.com/view/j/em.2012.1.issue-1/2161-962X.1014/2161-962X.1014.xml",
+  url          = "https://www.degruyter.com/view/journals/em/1/1/article-p131.xml",
 
   textVersion  =
   paste("Vansteelandt, S., Bekaert, M., & Lange, T. (2012).",
@@ -80,7 +80,7 @@ citEntry(entry = "Article",
   volume       = "48",
   number       = "6",
   pages        = "871--894",
-  url          = "http://www.tandfonline.com/doi/abs/10.1080/00273171.2013.832132",
+  url          = "https://www.tandfonline.com/doi/abs/10.1080/00273171.2013.832132",
 
   textVersion  =
   paste("Loeys, T., Moerkerke, B., De Smet, O., Buysse, A., Steen, J., & Vansteelandt, S. (2013).",

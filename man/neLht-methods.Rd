@@ -7,11 +7,9 @@
 \alias{summary.neLht}
 \title{Methods for linear hypotheses in natural effect models}
 \usage{
-\method{confint}{neLhtBoot}(object, parm, level = 0.95, type = "norm",
-  ...)
+\method{confint}{neLhtBoot}(object, parm, level = 0.95, type = "norm", ...)
 
-\method{confint}{neLht}(object, parm, level = 0.95,
-  calpha = univariate_calpha(), ...)
+\method{confint}{neLht}(object, parm, level = 0.95, calpha = univariate_calpha(), ...)
 
 \method{summary}{neLht}(object, test = univariate(), ...)
 }

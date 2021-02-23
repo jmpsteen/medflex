@@ -6,14 +6,19 @@
 \alias{plot.neLhtBoot}
 \title{Confidence interval plots for linear hypotheses in natural effect models}
 \usage{
-\method{plot}{neEffdecomp}(x, level = 0.95, transf = identity, ylabels,
-  yticks.at, ...)
+\method{plot}{neEffdecomp}(x, level = 0.95, transf = identity, ylabels, yticks.at, ...)
 
-\method{plot}{neLht}(x, level = 0.95, transf = identity, ylabels,
-  yticks.at, ...)
+\method{plot}{neLht}(x, level = 0.95, transf = identity, ylabels, yticks.at, ...)
 
-\method{plot}{neLhtBoot}(x, level = 0.95, ci.type = "norm",
-  transf = identity, ylabels, yticks.at, ...)
+\method{plot}{neLhtBoot}(
+  x,
+  level = 0.95,
+  ci.type = "norm",
+  transf = identity,
+  ylabels,
+  yticks.at,
+  ...
+)
 }
 \arguments{
 \item{x}{an object of class \code{neLht}.}

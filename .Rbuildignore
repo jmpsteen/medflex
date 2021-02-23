@@ -3,3 +3,8 @@
 .md
 .txt
 .travis.yml
+.DS_Store
+.gitignore
+.Rhistory
+.git
+R/*.txt

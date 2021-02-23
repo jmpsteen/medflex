@@ -5,11 +5,19 @@
 \alias{plot.neModelBoot}
 \title{Confidence interval plots for natural effect components}
 \usage{
-\method{plot}{neModel}(x, xRef, covLev, level = 0.95,
-  transf = identity, ylabels, yticks.at, ...)
+\method{plot}{neModel}(x, xRef, covLev, level = 0.95, transf = identity, ylabels, yticks.at, ...)
 
-\method{plot}{neModelBoot}(x, xRef, covLev, level = 0.95,
-  ci.type = "norm", transf = identity, ylabels, yticks.at, ...)
+\method{plot}{neModelBoot}(
+  x,
+  xRef,
+  covLev,
+  level = 0.95,
+  ci.type = "norm",
+  transf = identity,
+  ylabels,
+  yticks.at,
+  ...
+)
 }
 \arguments{
 \item{x}{a fitted natural effect model object.}

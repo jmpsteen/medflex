@@ -80,11 +80,11 @@ neModelEst <- function (formula, family, expData, xFit, ...)
         family <- if (inherits(xFit, "vglm")) 
             xFit@family@vfamily[1]
         else xFit$family$family
-        family <- c("gaussian", "binomial", "poisson", "multinomial")[mapply(function(x,
-            y) grepl(y, x), as.character(family), c("gaussian", "binomial",
+        family <- c("gaussian", "gaussian", "binomial", "poisson", "multinomial")[mapply(function(x,
+            y) grepl(y, x), as.character(family), c("gaussian", "uninormal", "binomial",
             "poisson", "multinomial"))]
         dispersion <- if (inherits(xFit, "vglm")) 
-            xFit@misc$dispersion
+            xFit@dispersion
         else summary(xFit)$dispersion 
         predictFUN <- if (inherits(xFit, "vglm")) 
           VGAM::predictvglm

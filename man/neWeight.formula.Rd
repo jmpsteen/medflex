@@ -4,9 +4,17 @@
 \alias{neWeight.formula}
 \title{Expand the dataset and calculate ratio-of-mediator probability weights}
 \usage{
-\method{neWeight}{formula}(object, family, data, FUN = glm, nRep = 5,
-  xSampling = c("quantiles", "random"), xFit, percLim = c(0.05, 0.95),
-  ...)
+\method{neWeight}{formula}(
+  object,
+  family,
+  data,
+  FUN = glm,
+  nRep = 5,
+  xSampling = c("quantiles", "random"),
+  xFit,
+  percLim = c(0.05, 0.95),
+  ...
+)
 }
 \arguments{
 \item{object}{a \code{\link[stats]{formula}} object providing a symbolic description of the mediator model (see details).}

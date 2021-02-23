@@ -3,7 +3,8 @@
 \name{UPBdata}
 \alias{UPBdata}
 \title{UPB data}
-\format{A data frame with 385 rows and 9 variables:
+\format{
+A data frame with 385 rows and 9 variables:
 \describe{
   \item{att}{self-reported anxious attachment level (standardized)}
   \item{attbin}{binary version of self-reported anxious attachment level: 1 = higher than sample mean, 0 = lower than sample mean}
@@ -14,7 +15,8 @@
   \item{educ}{education level: either \code{H} = high (at least a bachelor's degree), \code{M} = intermediate (having finished secondary school) or \code{L} = low (otherwise)}
   \item{age}{age (in years)}
   \item{UPB}{binary variable indicating whether the individual reported having displayed unwanted pursuit behavior(s) towards the ex-partner}
-}}
+}
+}
 \source{
 Ghent University and Catholic University of Louvain (2010). \emph{Interdisciplinary Project for the Optimisation of Separation trajectories - divorce and separation in Flanders}. 
 \cr\url{http://www.scheidingsonderzoek.ugent.be/index-eng.html}

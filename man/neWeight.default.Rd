@@ -4,9 +4,16 @@
 \alias{neWeight.default}
 \title{Expand the dataset and calculate ratio-of-mediator probability weights}
 \usage{
-\method{neWeight}{default}(object, formula, data, nRep = 5,
-  xSampling = c("quantiles", "random"), xFit, percLim = c(0.05, 0.95),
-  ...)
+\method{neWeight}{default}(
+  object,
+  formula,
+  data,
+  nRep = 5,
+  xSampling = c("quantiles", "random"),
+  xFit,
+  percLim = c(0.05, 0.95),
+  ...
+)
 }
 \arguments{
 \item{object}{fitted model object representing the mediator model.}
