@@ -1,3 +1,7 @@
+Changes in Version 0.6-10
+
+  o Issue related to changes to residualPlot.neModel and residualPlots.neModel (in version 0.6-9) fixed (special thanks to Yves Rosseel for diagnosing and fixing)
+
 Changes in Version 0.6-9
 
   o Errors and warnings in residualPlot.expData, residualPlots.expData, residualPlot.neModel and residualPlots.neModel (due to changes in the car package) fixed

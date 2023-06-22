@@ -641,7 +641,7 @@ residualPlots.expData <- function(model, ...)
 residualPlot.neModel <- function(model, ...)
 {
     model$neModelFit$call[[1]] <- quote(glm)
-    model$neModelFit$call[["data"]] <- neMod$neModelFit$data
+    model$neModelFit$call[["data"]] <- model$neModelFit$data
     model$neModelFit$call[["expData"]] <- NULL
     model$neModelFit$call[["weights"]] <- weights(model$neModelFit, type = "prior")
     if (!is.null(model$neModelFit$call[["xFit"]])) model$neModelFit$call[["xFit"]] <- NULL
@@ -653,7 +653,7 @@ residualPlot.neModel <- function(model, ...)
 residualPlots.neModel <- function(model, ...)
 {
     model$neModelFit$call[[1]] <- quote(glm)
-    model$neModelFit$call[["data"]] <- neMod$neModelFit$data
+    model$neModelFit$call[["data"]] <- model$neModelFit$data
     model$neModelFit$call[["expData"]] <- NULL
     model$neModelFit$call[["weights"]] <- weights(model$neModelFit, type = "prior")
     if (!is.null(model$neModelFit$call[["xFit"]])) model$neModelFit$call[["xFit"]] <- NULL

@@ -8,7 +8,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage[utf8]{inputenc}
-\usepackage{amsmath, booktabs, colortbl, nccmath, pifont, tkz-berge}
+\usepackage{amsmath, booktabs, colortbl, nccmath, pifont} 
 
 \defcitealias{iposurl}{IPOS}
 \newcommand{\cip}{\mbox{$\perp\!\!\!\perp$}}
@@ -188,18 +188,19 @@ enables to quantify the natural direct and indirect effect for count outcomes on
 \begin{figure}[b]
   \small
   \centering
-  \begin{tikzpicture}[>=latex,semithick]
-\node[] (x) at (0, 0)   {anxious attachment ($X$)};
-\node[] (m) at (3, 1.7)   {negative affectivity ($M$)};
-\node[] (y) at (6, 0)   {unwanted pursuit ($Y$)};
-\node[] (c) at (3, -1.7) {gender, education, age ($C$)};
-\path[->] (c) edge node [above left] {} (x);
-\path[->] (c) edge node [above left] {} (m);
-\path[->] (c) edge node [above left] {} (y);
-\path[->] (x) edge node [above left] {} (m);
-\path[->] (m) edge node [above right] {} (y);
-\path[->] (x) edge node [above right] {} (y);
-  \end{tikzpicture}
+  \includegraphics[width=0.7\textwidth]{dag1.pdf}
+%   \begin{tikzpicture}[>=latex,semithick]
+% \node[] (x) at (0, 0)   {anxious attachment ($X$)};
+% \node[] (m) at (3, 1.7)   {negative affectivity ($M$)};
+% \node[] (y) at (6, 0)   {unwanted pursuit ($Y$)};
+% \node[] (c) at (3, -1.7) {gender, education, age ($C$)};
+% \path[->] (c) edge node [above left] {} (x);
+% \path[->] (c) edge node [above left] {} (m);
+% \path[->] (c) edge node [above left] {} (y);
+% \path[->] (x) edge node [above left] {} (m);
+% \path[->] (m) edge node [above right] {} (y);
+% \path[->] (x) edge node [above right] {} (y);
+%   \end{tikzpicture}
   \caption{Causal diagram reflecting the mediation hypothesis. \label{dag1}}
 \end{figure} 
 Before describing the two main approaches for fitting natural effect methods, we first return to our motivating example. The corresponding dataset will then be used to both illustrate these approaches and to demonstrate how they can be implemented in \proglang{R}.
@@ -697,23 +698,24 @@ which involves blocking the causal path through $L$ only ($X \rightarrow L \righ
 \begin{figure}[t]
   \small
   \centering
-  \begin{tikzpicture}[>=latex,semithick]
-\node[] (x) at (0, 0)   {anxious attachment ($X$)};
-\node[] (l) at (1.8, 3) {initiator status ($L$)};
-\node[] (m) at (4.2, 1.7)   {negative affectivity ($M$)};
-\node[] (y) at (6, 0)   {unwanted pursuit ($Y$)};
-\node[] (c) at (3, -1.7) {gender, education, age ($C$)};
-\path[->] (c) edge node [above left] {} (x);
-\path[->] (c) edge node [above left] {} (l);
-\path[->] (c) edge node [above left] {} (m);
-\path[->] (c) edge node [above left] {} (y);
-\path[->] (x) edge node [above left] {} (m);
-\path[->] (x) edge node [above left] {} (l);
-\path[->] (l) edge node [above right] {} (m);
-\path[->] (l) edge [bend left=90] node [above right] {} (y);
-\path[->] (m) edge node [above right] {} (y);
-\path[->] (x) edge node [above right] {} (y);
-  \end{tikzpicture}
+  \includegraphics[width=0.7\textwidth]{dag2.pdf}
+%   \begin{tikzpicture}[>=latex,semithick]
+% \node[] (x) at (0, 0)   {anxious attachment ($X$)};
+% \node[] (l) at (1.8, 3) {initiator status ($L$)};
+% \node[] (m) at (4.2, 1.7)   {negative affectivity ($M$)};
+% \node[] (y) at (6, 0)   {unwanted pursuit ($Y$)};
+% \node[] (c) at (3, -1.7) {gender, education, age ($C$)};
+% \path[->] (c) edge node [above left] {} (x);
+% \path[->] (c) edge node [above left] {} (l);
+% \path[->] (c) edge node [above left] {} (m);
+% \path[->] (c) edge node [above left] {} (y);
+% \path[->] (x) edge node [above left] {} (m);
+% \path[->] (x) edge node [above left] {} (l);
+% \path[->] (l) edge node [above right] {} (m);
+% \path[->] (l) edge [bend left=90] node [above right] {} (y);
+% \path[->] (m) edge node [above right] {} (y);
+% \path[->] (x) edge node [above right] {} (y);
+%   \end{tikzpicture}
   \caption{Causal diagram reflecting exposure-induced confounding. \label{dag2}}
 \end{figure} 
 \par Alternatively, the total causal effect can be decomposed into the effect transmitted through $L$ and $M$ simultaneously and the effect not mediated by any of the given mediators \citep{VanderWeele2013b, VanderWeele2014}. Although such a joint mediation approach might not target the initial mediation hypothesis, it may still shed some light on the underlying causal mechanisms if there are reasons (either theoretical or empirical) to question the validity of condition \ref{A4} (with respect to a single mediator)\footnote{In particular, it can be interesting to assess if the two mediators in combination lead to a null direct effect as this may signal that all important components in the causal chain from exposure to outcome have been identified.}, since this decomposition relies on a weaker set of ignorability assumptions. Specifically, if, as under the NPSEM-IE depicted in Figure~\ref{dag2}, we assume that a set of baseline covariates $C$ satisfies `no omitted variables' assumptions \ref{A1}-\ref{A3} with respect to $L$ and $M$ jointly (rather than separately) and that no measured or unmeasured confounders of the $(L,M)-Y$ relation are affected by the exposure\footnote{I.e., assuming that $Y(x,l,m) \cip X \vert C$ (for all levels of $x$, $l$ and $m$), $\{M(x), L(x)\} \cip X \vert C$ (for all levels of $x$), $Y(x,l,m) \cip \{L,M\} \vert X=x,C$ (for all levels of $x$, $l$ and $m$) and $Y(x,l,m) \cip \{L(x^*),M(x^*)\} \vert C$ (for all levels of $x$, $x^*$, $l$ and $m$).}, the joint mediated effect and corresponding direct effect are identified. The appeal of this joint mediation approach is that by defining a natural indirect effect with respect to a set or vector of mediators (rather than a single mediator) assumption \ref{A4} can be made more plausible by simply including mediator-outcome confounders that are deemed likely to be affected by the exposure in the joint set of mediators \citep{VanderWeele2013b}.

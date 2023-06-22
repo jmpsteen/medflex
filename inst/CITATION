@@ -29,7 +29,7 @@ bibentry(bibtype = "Article",
         "doi:10.18637/jss.v076.i11")
 )
 
-citEntry(entry = "Article",
+bibentry(bibtype = "Article",
   title        = "A Simple Unified Approach for Estimating Natural Direct and Indirect Effects",
   author       = c(person("Theis", "Lange"),
                    person("Stijn", "Vansteelandt"),
@@ -49,7 +49,7 @@ citEntry(entry = "Article",
   header       = "For the underlying methods please cite the following papers:"
 )
 
-citEntry(entry = "Article",
+bibentry(bibtype = "Article",
   title        = "Imputation Strategies for the Estimation of Natural Direct and Indirect Effects",
   author       = c(person("Stijn", "Vansteelandt"),
                    person("Maarten", "Bekaert"),
@@ -67,7 +67,7 @@ citEntry(entry = "Article",
         "Epidemiologic Methods, 1(1), Article 7.")
 )
 
-citEntry(entry = "Article",
+bibentry(bibtype = "Article",
   title        = "Flexible Mediation Analysis in the Presence of Nonlinear Relations: Beyond the Mediation Formula",
   author       = c(person("Tom", "Loeys"),
                    person("Beatrijs", "Moerkerke"),
