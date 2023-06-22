@@ -18,9 +18,9 @@
 
 \method{confint}{neModel}(object, parm, level = 0.95, ...)
 
-\method{residualPlot}{neModel}(object, ...)
+\method{residualPlot}{neModel}(model, ...)
 
-\method{residualPlots}{neModel}(object, ...)
+\method{residualPlots}{neModel}(model, ...)
 
 \method{summary}{neModel}(object, ...)
 
@@ -40,6 +40,8 @@
 \item{level}{the confidence level required.}
 
 \item{type}{the type of bootstrap intervals required. The default \code{"norm"} returns normal approximation bootstrap confidence intervals. Currently, \code{"norm"}, \code{"basic"}, \code{"perc"} and \code{"bca"} are supported (see \code{\link[boot]{boot.ci}}).}
+
+\item{model}{a fitted natural effect model object (for use with \code{residualPlot} and \code{residualPlots}).}
 }
 \description{
 Extractor functions, confidence intervals, residual plots and statistical tests for natural effect models.

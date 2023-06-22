@@ -18,8 +18,7 @@ A data frame with 385 rows and 9 variables:
 }
 }
 \source{
-Ghent University and Catholic University of Louvain (2010). \emph{Interdisciplinary Project for the Optimisation of Separation trajectories - divorce and separation in Flanders}. 
-\cr\url{http://www.scheidingsonderzoek.ugent.be/index-eng.html}
+Ghent University and Catholic University of Louvain (2010). \emph{Interdisciplinary Project for the Optimisation of Separation trajectories - divorce and separation in Flanders}.
 }
 \description{
 Data from a survey study that was part of the Interdisciplinary Project for the Optimization of Separation trajectories (IPOS). This large-scale project involved the recruitment of individuals who divorced between March 2008 and March 2009 in four major courts in Flanders. It aimed to improve the quality of life in families during and after the divorce by translating research findings into practical guidelines for separation specialists and by promoting evidence-based policy.

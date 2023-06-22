@@ -1,3 +1,7 @@
+Changes in Version 0.6-9
+
+  o Errors and warnings in residualPlot.expData, residualPlots.expData, residualPlot.neModel and residualPlots.neModel (due to changes in the car package) fixed
+
 Changes in Version 0.6-8
 
   o Issue with neWeight function using VGAM::vglm with family = multinomial solved (cf github issue #15)

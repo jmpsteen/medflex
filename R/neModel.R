@@ -3,6 +3,7 @@
 #' @description Regression weights, residuals and residual plots for expanded datasets.
 #' 
 #' @param object an expanded dataset (of class \code{"\link{expData}"}).
+#' @param model an expanded dataset (of class \code{"\link{expData}"}) (for use with \code{residualPlot} and \code{residualPlots}).
 #' @param ... additional arguments.
 #' @details 
 #' \code{weights} extracts regression weights (to be used in the natural effect model) for each observation of an expanded dataset.
@@ -39,6 +40,7 @@ NULL
 #'
 #' @description Extractor functions, confidence intervals, residual plots and statistical tests for natural effect models.
 #' @param object a fitted natural effect model object.
+#' @param model a fitted natural effect model object (for use with \code{residualPlot} and \code{residualPlots}).
 #' @param ... additional arguments.
 # (see \code{\link[boot]{boot.ci}} for \code{confint} or \code{\link[stats]{summary.glm}} for \code{summary}).
 #' @inheritParams stats::confint.default
@@ -621,36 +623,41 @@ residuals.expData <- function(object, ...)
 
 #' @rdname expData-methods
 #' @export
-residualPlot.expData <- function(object, ...) 
+residualPlot.expData <- function(model, ...)
 {
-    car::residualPlot(attr(object, "model"), ...)
+    car::residualPlot(attr(model, "model"), ...)
 }
+
 
 #' @rdname expData-methods
 #' @export
-residualPlots.expData <- function(object, ...) 
+residualPlots.expData <- function(model, ...)
 {
-    car::residualPlots(attr(object, "model"), ...)
+    car::residualPlots(attr(model, "model"), ...)
 }
 
 #' @rdname neModel-methods
 #' @export
-residualPlot.neModel <- function(object, ...) 
+residualPlot.neModel <- function(model, ...)
 {
-    car::residualPlot(object$neModelFit, ...)
+    model$neModelFit$call[[1]] <- quote(glm)
+    model$neModelFit$call[["data"]] <- neMod$neModelFit$data
+    model$neModelFit$call[["expData"]] <- NULL
+    model$neModelFit$call[["weights"]] <- weights(model$neModelFit, type = "prior")
+    if (!is.null(model$neModelFit$call[["xFit"]])) model$neModelFit$call[["xFit"]] <- NULL
+    car::residualPlot(model$neModelFit, ...)
 }
 
 #' @rdname neModel-methods
 #' @export
-residualPlots.neModel <- function(object, ...) 
+residualPlots.neModel <- function(model, ...)
 {
-    object$neModelFit$call[[1]] <- quote(glm)
-    object$neModelFit$call[["data"]] <- quote(neMod$neModelFit$data)
-    object$neModelFit$call[["expData"]] <- NULL
-    object$neModelFit$call[["weights"]] <- quote(weights(object$neModelFit, type = "prior"))
-    if (!is.null(object$neModelFit$call[["xFit"]])) object$neModelFit$call[["xFit"]] <- NULL
-    object$neModelFit <- update(object$neModelFit)
-    car::residualPlots(object$neModelFit, ...)
+    model$neModelFit$call[[1]] <- quote(glm)
+    model$neModelFit$call[["data"]] <- neMod$neModelFit$data
+    model$neModelFit$call[["expData"]] <- NULL
+    model$neModelFit$call[["weights"]] <- weights(model$neModelFit, type = "prior")
+    if (!is.null(model$neModelFit$call[["xFit"]])) model$neModelFit$call[["xFit"]] <- NULL
+    car::residualPlots(model$neModelFit, ...)
 }
 
 #' @rdname neModel-methods

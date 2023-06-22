@@ -10,9 +10,9 @@
 \usage{
 \method{residuals}{expData}(object, ...)
 
-\method{residualPlot}{expData}(object, ...)
+\method{residualPlot}{expData}(model, ...)
 
-\method{residualPlots}{expData}(object, ...)
+\method{residualPlots}{expData}(model, ...)
 
 \method{weights}{expData}(object, ...)
 }
@@ -20,6 +20,8 @@
 \item{object}{an expanded dataset (of class \code{"\link{expData}"}).}
 
 \item{...}{additional arguments.}
+
+\item{model}{an expanded dataset (of class \code{"\link{expData}"}) (for use with \code{residualPlot} and \code{residualPlots}).}
 }
 \description{
 Regression weights, residuals and residual plots for expanded datasets.

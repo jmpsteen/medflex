@@ -18,7 +18,6 @@
 #' }
 #' @source
 #' Ghent University and Catholic University of Louvain (2010). \emph{Interdisciplinary Project for the Optimisation of Separation trajectories - divorce and separation in Flanders}. 
-#' \cr\url{http://www.scheidingsonderzoek.ugent.be/index-eng.html}
 #' @references
 #' De Smet, O., Loeys, T., & Buysse, A. (2012). Post-Breakup Unwanted Pursuit: A Refined Analysis of the Role of Romantic Relationship Characteristics. \emph{Journal of Family Violence}, \bold{27}(5), 437-452.
 #' 

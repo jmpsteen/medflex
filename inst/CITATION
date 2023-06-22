@@ -39,7 +39,7 @@ citEntry(entry = "Article",
   volume       = "176",
   number       = "3",
   pages        = "190--195",
-  url          = "http://aje.oxfordjournals.org/content/176/3/190.long",
+  url          = "https://academic.oup.com/aje/article/176/3/190/99496",
 
   textVersion  =
   paste("Lange, T., Vansteelandt, S., & Bekaert, M. (2012).",
